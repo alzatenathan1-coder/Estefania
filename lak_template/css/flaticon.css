@@ -1,0 +1,785 @@
+@font-face {
+    font-family: "flaticon";
+    src: url("../fonts/flaticon.woff2%3Fcb74d780abbc585934c29c8396ffed0f") format("woff2"),
+url("../fonts/flaticon.woff%3Fcb74d780abbc585934c29c8396ffed0f") format("woff"),
+url("../fonts/flaticon.eot%3Fcb74d780abbc585934c29c8396ffed0f") format("embedded-opentype"),
+url("../fonts/flaticon.ttf%3Fcb74d780abbc585934c29c8396ffed0f") format("truetype"),
+url("../fonts/flaticon.svg%3Fcb74d780abbc585934c29c8396ffed0f") format("svg")
+}
+
+span[class^="flaticon-"]:before, 
+span[class*=" flaticon-"]:before {
+  font-family: flaticon !important;
+  font-style: normal;
+  font-weight: normal !important;
+  font-variant: normal;
+  text-transform: none;
+  font-size: 20px;
+  line-height: 1!important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.flaticon-facebook:before {
+    content: "\f101";
+}
+.flaticon-facebook-1:before {
+    content: "\f102";
+}
+.flaticon-facebook-2:before {
+    content: "\f103";
+}
+.flaticon-twitter:before {
+    content: "\f104";
+}
+.flaticon-twitter-1:before {
+    content: "\f105";
+}
+.flaticon-twitter-2:before {
+    content: "\f106";
+}
+.flaticon-instagram:before {
+    content: "\f107";
+}
+.flaticon-instagram-1:before {
+    content: "\f108";
+}
+.flaticon-pinterest-logo:before {
+    content: "\f109";
+}
+.flaticon-pinterest:before {
+    content: "\f10a";
+}
+.flaticon-dribbble:before {
+    content: "\f10b";
+}
+.flaticon-youtube:before {
+    content: "\f10c";
+}
+.flaticon-vimeo:before {
+    content: "\f10d";
+}
+.flaticon-behance:before {
+    content: "\f10e";
+}
+.flaticon-tik-tok:before {
+    content: "\f10f";
+}
+.flaticon-messenger:before {
+    content: "\f110";
+}
+.flaticon-kakao-talk:before {
+    content: "\f111";
+}
+.flaticon-line:before {
+    content: "\f112";
+}
+.flaticon-telegram:before {
+    content: "\f113";
+}
+.flaticon-whatsapp:before {
+    content: "\f114";
+}
+.flaticon-whatsapp-1:before {
+    content: "\f115";
+}
+.flaticon-skype:before {
+    content: "\f116";
+}
+.flaticon-swarm:before {
+    content: "\f117";
+}
+.flaticon-google-hangouts:before {
+    content: "\f118";
+}
+.flaticon-sina-weibo:before {
+    content: "\f119";
+}
+.flaticon-wattpad:before {
+    content: "\f11a";
+}
+.flaticon-twitch:before {
+    content: "\f11b";
+}
+.flaticon-snapchat:before {
+    content: "\f11c";
+}
+.flaticon-linkedin-sign:before {
+    content: "\f11d";
+}
+.flaticon-periscope:before {
+    content: "\f11e";
+}
+.flaticon-foursquare:before {
+    content: "\f11f";
+}
+.flaticon-yelp:before {
+    content: "\f120";
+}
+.flaticon-airbnb:before {
+    content: "\f121";
+}
+.flaticon-star:before {
+    content: "\f122";
+}
+.flaticon-star-1:before {
+    content: "\f123";
+}
+.flaticon-star-half-empty:before {
+    content: "\f124";
+}
+.flaticon-half-star-shape:before {
+    content: "\f125";
+}
+.flaticon-magnifying-glass:before {
+    content: "\f126";
+}
+.flaticon-reply-arrow:before {
+    content: "\f127";
+}
+.flaticon-visibility:before {
+    content: "\f128";
+}
+.flaticon-invisible:before {
+    content: "\f129";
+}
+.flaticon-circle:before {
+    content: "\f12a";
+}
+.flaticon-ring:before {
+    content: "\f12b";
+}
+.flaticon-play:before {
+    content: "\f12c";
+}
+.flaticon-play-button:before {
+    content: "\f12d";
+}
+.flaticon-heart:before {
+    content: "\f12e";
+}
+.flaticon-padlock:before {
+    content: "\f12f";
+}
+.flaticon-send:before {
+    content: "\f130";
+}
+.flaticon-bookmark:before {
+    content: "\f131";
+}
+.flaticon-placeholder:before {
+    content: "\f132";
+}
+.flaticon-location-pin:before {
+    content: "\f133";
+}
+.flaticon-phone-call:before {
+    content: "\f134";
+}
+.flaticon-email:before {
+    content: "\f135";
+}
+.flaticon-conversation:before {
+    content: "\f136";
+}
+.flaticon-conversation-1:before {
+    content: "\f137";
+}
+.flaticon-user:before {
+    content: "\f138";
+}
+.flaticon-plus:before {
+    content: "\f139";
+}
+.flaticon-cancel:before {
+    content: "\f13a";
+}
+.flaticon-tick:before {
+    content: "\f13b";
+}
+.flaticon-check:before {
+    content: "\f13c";
+}
+.flaticon-change:before {
+    content: "\f13d";
+}
+.flaticon-checked:before {
+    content: "\f13e";
+}
+.flaticon-history:before {
+    content: "\f13f";
+}
+.flaticon-exclamation-mark:before {
+    content: "\f140";
+}
+.flaticon-question-mark:before {
+    content: "\f141";
+}
+.flaticon-delete-button:before {
+    content: "\f142";
+}
+.flaticon-at-sign:before {
+    content: "\f143";
+}
+.flaticon-heart-1:before {
+    content: "\f144";
+}
+.flaticon-comment:before {
+    content: "\f145";
+}
+.flaticon-bookmark-1:before {
+    content: "\f146";
+}
+.flaticon-share-post:before {
+    content: "\f147";
+}
+.flaticon-comment-1:before {
+    content: "\f148";
+}
+.flaticon-calendar:before {
+    content: "\f149";
+}
+.flaticon-phone:before {
+    content: "\f14a";
+}
+.flaticon-home:before {
+    content: "\f14b";
+}
+.flaticon-pushpin:before {
+    content: "\f14c";
+}
+.flaticon-contact:before {
+    content: "\f14d";
+}
+.flaticon-email-1:before {
+    content: "\f14e";
+}
+.flaticon-printer:before {
+    content: "\f14f";
+}
+.flaticon-select:before {
+    content: "\f150";
+}
+.flaticon-check-1:before {
+    content: "\f151";
+}
+.flaticon-heart-2:before {
+    content: "\f152";
+}
+.flaticon-filter:before {
+    content: "\f153";
+}
+.flaticon-grid:before {
+    content: "\f154";
+}
+.flaticon-drag:before {
+    content: "\f155";
+}
+.flaticon-ellipsis:before {
+    content: "\f156";
+}
+.flaticon-double-quotes:before {
+    content: "\f157";
+}
+.flaticon-quote:before {
+    content: "\f158";
+}
+.flaticon-quotes:before {
+    content: "\f159";
+}
+.flaticon-quote-1:before {
+    content: "\f15a";
+}
+.flaticon-plus-1:before {
+    content: "\f15b";
+}
+.flaticon-minus:before {
+    content: "\f15c";
+}
+.flaticon-plus-2:before {
+    content: "\f15d";
+}
+.flaticon-minus-1:before {
+    content: "\f15e";
+}
+.flaticon-cancel-1:before {
+    content: "\f15f";
+}
+.flaticon-check-2:before {
+    content: "\f160";
+}
+.flaticon-sort-arrows-couple-pointing-up-and-down:before {
+    content: "\f161";
+}
+.flaticon-sort-down:before {
+    content: "\f162";
+}
+.flaticon-caret-arrow-up:before {
+    content: "\f163";
+}
+.flaticon-back:before {
+    content: "\f164";
+}
+.flaticon-next:before {
+    content: "\f165";
+}
+.flaticon-up-arrow:before {
+    content: "\f166";
+}
+.flaticon-down-arrow:before {
+    content: "\f167";
+}
+.flaticon-right-arrow:before {
+    content: "\f168";
+}
+.flaticon-back-1:before {
+    content: "\f169";
+}
+.flaticon-right-arrow-1:before {
+    content: "\f16a";
+}
+.flaticon-left-arrow:before {
+    content: "\f16b";
+}
+.flaticon-up-right:before {
+    content: "\f16c";
+}
+.flaticon-arrow-right:before {
+    content: "\f16d";
+}
+.flaticon-left-arrow-1:before {
+    content: "\f16e";
+}
+.flaticon-right-up:before {
+    content: "\f16f";
+}
+.flaticon-right-arrow-2:before {
+    content: "\f170";
+}
+.flaticon-up-right-1:before {
+    content: "\f171";
+}
+.flaticon-bottom-right:before {
+    content: "\f172";
+}
+.flaticon-vertical-line:before {
+    content: "\f173";
+}
+.flaticon-double-tick:before {
+    content: "\f174";
+}
+.flaticon-link:before {
+    content: "\f175";
+}
+.flaticon-sync:before {
+    content: "\f176";
+}
+.flaticon-refresh:before {
+    content: "\f177";
+}
+.flaticon-rating:before {
+    content: "\f178";
+}
+.flaticon-rating-1:before {
+    content: "\f179";
+}
+.flaticon-rating-2:before {
+    content: "\f17a";
+}
+.flaticon-rating-3:before {
+    content: "\f17b";
+}
+.flaticon-rating-4:before {
+    content: "\f17c";
+}
+.flaticon-flash:before {
+    content: "\f17d";
+}
+.flaticon-star-2:before {
+    content: "\f17e";
+}
+.flaticon-sparkle:before {
+    content: "\f17f";
+}
+.flaticon-sun:before {
+    content: "\f180";
+}
+.flaticon-moon:before {
+    content: "\f181";
+}
+.flaticon-manicure:before {
+    content: "\f182";
+}
+.flaticon-nail-polish:before {
+    content: "\f183";
+}
+.flaticon-nail-file:before {
+    content: "\f184";
+}
+.flaticon-nail-art:before {
+    content: "\f185";
+}
+.flaticon-manicure-1:before {
+    content: "\f186";
+}
+.flaticon-lipstick:before {
+    content: "\f187";
+}
+.flaticon-toe-separator:before {
+    content: "\f188";
+}
+.flaticon-massage:before {
+    content: "\f189";
+}
+.flaticon-manicure-2:before {
+    content: "\f18a";
+}
+.flaticon-skin-care:before {
+    content: "\f18b";
+}
+.flaticon-nail-polish-1:before {
+    content: "\f18c";
+}
+.flaticon-pedicure:before {
+    content: "\f18d";
+}
+.flaticon-pedicure-1:before {
+    content: "\f18e";
+}
+.flaticon-manicure-3:before {
+    content: "\f18f";
+}
+.flaticon-pedicure-2:before {
+    content: "\f190";
+}
+.flaticon-nail-polish-2:before {
+    content: "\f191";
+}
+.flaticon-nail:before {
+    content: "\f192";
+}
+.flaticon-nail-polish-3:before {
+    content: "\f193";
+}
+.flaticon-hand-cream:before {
+    content: "\f194";
+}
+.flaticon-pedicure-3:before {
+    content: "\f195";
+}
+.flaticon-nail-polish-4:before {
+    content: "\f196";
+}
+.flaticon-skin-care-1:before {
+    content: "\f197";
+}
+.flaticon-woman:before {
+    content: "\f198";
+}
+.flaticon-woman-1:before {
+    content: "\f199";
+}
+.flaticon-award:before {
+    content: "\f19a";
+}
+.flaticon-waxing:before {
+    content: "\f19b";
+}
+.flaticon-nail-polish-5:before {
+    content: "\f19c";
+}
+.flaticon-polish:before {
+    content: "\f19d";
+}
+.flaticon-cream:before {
+    content: "\f19e";
+}
+.flaticon-cosmetics:before {
+    content: "\f19f";
+}
+.flaticon-nail-dryer:before {
+    content: "\f1a0";
+}
+.flaticon-nail-1:before {
+    content: "\f1a1";
+}
+.flaticon-manicure-4:before {
+    content: "\f1a2";
+}
+.flaticon-manicure-5:before {
+    content: "\f1a3";
+}
+.flaticon-manicure-6:before {
+    content: "\f1a4";
+}
+.flaticon-wax:before {
+    content: "\f1a5";
+}
+.flaticon-lotus:before {
+    content: "\f1a6";
+}
+.flaticon-foot-spa:before {
+    content: "\f1a7";
+}
+.flaticon-nail-clippers:before {
+    content: "\f1a8";
+}
+.flaticon-facial-massage:before {
+    content: "\f1a9";
+}
+.flaticon-hand-dryer:before {
+    content: "\f1aa";
+}
+.flaticon-lipstick-1:before {
+    content: "\f1ab";
+}
+.flaticon-nail-art-1:before {
+    content: "\f1ac";
+}
+.flaticon-manicure-7:before {
+    content: "\f1ad";
+}
+.flaticon-nail-art-2:before {
+    content: "\f1ae";
+}
+.flaticon-pedicure-4:before {
+    content: "\f1af";
+}
+.flaticon-waxing-1:before {
+    content: "\f1b0";
+}
+.flaticon-nail-2:before {
+    content: "\f1b1";
+}
+.flaticon-nail-clippers-1:before {
+    content: "\f1b2";
+}
+.flaticon-nail-polish-6:before {
+    content: "\f1b3";
+}
+.flaticon-nail-polish-7:before {
+    content: "\f1b4";
+}
+.flaticon-pedicure-5:before {
+    content: "\f1b5";
+}
+.flaticon-manicure-8:before {
+    content: "\f1b6";
+}
+.flaticon-makeup:before {
+    content: "\f1b7";
+}
+.flaticon-spray:before {
+    content: "\f1b8";
+}
+.flaticon-waxing-2:before {
+    content: "\f1b9";
+}
+.flaticon-shampoo:before {
+    content: "\f1ba";
+}
+.flaticon-mascara:before {
+    content: "\f1bb";
+}
+.flaticon-haircut:before {
+    content: "\f1bc";
+}
+.flaticon-eyelashes-curler:before {
+    content: "\f1bd";
+}
+.flaticon-comb:before {
+    content: "\f1be";
+}
+.flaticon-grooming:before {
+    content: "\f1bf";
+}
+.flaticon-hair:before {
+    content: "\f1c0";
+}
+.flaticon-hair-dye:before {
+    content: "\f1c1";
+}
+.flaticon-curling-iron:before {
+    content: "\f1c2";
+}
+.flaticon-hair-cut:before {
+    content: "\f1c3";
+}
+.flaticon-straightener:before {
+    content: "\f1c4";
+}
+.flaticon-legs:before {
+    content: "\f1c5";
+}
+.flaticon-face-massager:before {
+    content: "\f1c6";
+}
+.flaticon-waxing-3:before {
+    content: "\f1c7";
+}
+.flaticon-telephone:before {
+    content: "\f1c8";
+}
+.flaticon-telephone-1:before {
+    content: "\f1c9";
+}
+.flaticon-placeholder-1:before {
+    content: "\f1ca";
+}
+.flaticon-stick-man:before {
+    content: "\f1cb";
+}
+.flaticon-open:before {
+    content: "\f1cc";
+}
+.flaticon-location:before {
+    content: "\f1cd";
+}
+.flaticon-nearby:before {
+    content: "\f1ce";
+}
+.flaticon-mascara-1:before {
+    content: "\f1cf";
+}
+.flaticon-eyelashes:before {
+    content: "\f1d0";
+}
+.flaticon-lotion:before {
+    content: "\f1d1";
+}
+.flaticon-depilation:before {
+    content: "\f1d2";
+}
+.flaticon-eyelashes-curler-1:before {
+    content: "\f1d3";
+}
+.flaticon-hand-bag:before {
+    content: "\f1d4";
+}
+.flaticon-nail-polish-8:before {
+    content: "\f1d5";
+}
+.flaticon-wax-1:before {
+    content: "\f1d6";
+}
+.flaticon-teapot:before {
+    content: "\f1d7";
+}
+.flaticon-relaxation:before {
+    content: "\f1d8";
+}
+.flaticon-towels:before {
+    content: "\f1d9";
+}
+.flaticon-slippers:before {
+    content: "\f1da";
+}
+.flaticon-olive-oil:before {
+    content: "\f1db";
+}
+.flaticon-towel:before {
+    content: "\f1dc";
+}
+.flaticon-cotton-swabs:before {
+    content: "\f1dd";
+}
+.flaticon-brushes:before {
+    content: "\f1de";
+}
+.flaticon-make-up:before {
+    content: "\f1df";
+}
+.flaticon-wax-2:before {
+    content: "\f1e0";
+}
+.flaticon-foot-massage:before {
+    content: "\f1e1";
+}
+.flaticon-fish-spa:before {
+    content: "\f1e2";
+}
+.flaticon-herbal:before {
+    content: "\f1e3";
+}
+.flaticon-eyebrow:before {
+    content: "\f1e4";
+}
+.flaticon-lip-augmentation:before {
+    content: "\f1e5";
+}
+.flaticon-beauty:before {
+    content: "\f1e6";
+}
+.flaticon-cosmetics-1:before {
+    content: "\f1e7";
+}
+.flaticon-eyeshadow:before {
+    content: "\f1e8";
+}
+.flaticon-cosmetics-2:before {
+    content: "\f1e9";
+}
+.flaticon-tweezers:before {
+    content: "\f1ea";
+}
+.flaticon-threading:before {
+    content: "\f1eb";
+}
+.flaticon-liner:before {
+    content: "\f1ec";
+}
+.flaticon-mascara-2:before {
+    content: "\f1ed";
+}
+.flaticon-gear:before {
+    content: "\f1ee";
+}
+.flaticon-skin-care-2:before {
+    content: "\f1ef";
+}
+.flaticon-cream-1:before {
+    content: "\f1f0";
+}
+.flaticon-present:before {
+    content: "\f1f1";
+}
+.flaticon-right-arrow-3:before {
+    content: "\f1f2";
+}
+.flaticon-group:before {
+    content: "\f1f3";
+}
+.flaticon-calendar-1:before {
+    content: "\f1f4";
+}
+.flaticon-make-up-1:before {
+    content: "\f1f5";
+}
+.flaticon-face-cream:before {
+    content: "\f1f6";
+}
+.flaticon-skincare:before {
+    content: "\f1f7";
+}
+.flaticon-shampoo-1:before {
+    content: "\f1f8";
+}
+.flaticon-eyelashes-1:before {
+    content: "\f1f9";
+}
+.flaticon-eyelashes-2:before {
+    content: "\f1fa";
+}
+.flaticon-eyebrow-pencil:before {
+    content: "\f1fb";
+}
+.flaticon-eye-shadow:before {
+    content: "\f1fc";
+}
+.flaticon-eyebrow-1:before {
+    content: "\f1fd";
+}
+.flaticon-makeup-1:before {
+    content: "\f1fe";
+}
+

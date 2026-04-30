@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /
+Disallow: /demo-1.html
+Disallow: /demo-2.html
+Disallow: /demo-3.html
+Disallow: /demo-4.html
+Disallow: /demo-5.html
+Disallow: /demo-6.html
+Disallow: /demo-7.html
+Disallow: /demo-8.html
+Disallow: /demo-9.html
+Disallow: /demo-10.html
+Disallow: /demo-11.html
+Disallow: /demo-12.html
+
+Sitemap: https://estefaniapanzariu.com/sitemap.xml
