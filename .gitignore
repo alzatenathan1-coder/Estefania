@@ -1,0 +1,11 @@
+.DS_Store
+**/.DS_Store
+.claude/
+.thumbnail
+__pycache__/
+*.pyc
+*.state.json
+
+# Material bruto pesado conservado sólo en local si se vuelve a generar.
+archive/
+Logos marca/
