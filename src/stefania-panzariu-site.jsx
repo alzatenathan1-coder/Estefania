@@ -20,7 +20,8 @@ const BRAND_ASSETS = {
 };
 
 const SITE_IMAGES = {
-  hero: "assets/images/stefania-panzariu-studio-belleza-cuenca.jpg",
+  hero: "assets/images/stefania-panzariu-retrato-estudio-belleza-cuenca.jpg",
+  artistTool: "assets/images/stefania-panzariu-micropigmentacion-dermografo-cuenca.jpg",
   pigmentDetail: "assets/images/micropigmentacion-pigmento-detalle.jpg",
   nailDetail: "assets/images/manicura-rusa-detalle-unas.jpg",
   browBefore: "assets/images/micropigmentacion-cejas-antes.jpg",
@@ -29,9 +30,6 @@ const SITE_IMAGES = {
   nailNude: "assets/images/unas-nude-translucido-cuenca.jpg",
   facialCabin: "assets/images/cabina-estetica-facial-cuenca.jpg",
   facialProduct: "assets/images/cosmetica-premium-estetica-facial.jpg",
-  trainingAward: "assets/images/trayectoria-the-beauty-experts-valencia.jpg",
-  congress: "assets/images/trayectoria-world-pmu-congress-2026.jpg",
-  studio: "assets/images/estudio-belleza-autor-cuenca.jpg",
 };
 
 const wa = (msg) => `https://wa.me/${BUSINESS.phone}?text=${encodeURIComponent(msg)}`;
@@ -60,7 +58,7 @@ function useScrollProgress() {
 function useSitePreloader() {
   useEffect(() => {
     const startedAt = performance.now();
-    const minDuration = 950;
+    const minDuration = 500;
     let done = false;
 
     const finish = () => {
@@ -233,7 +231,8 @@ function Drawer({ open, onClose }) {
   { href: "#unas", label: "Uñas de Autor", idx: "02" },
   { href: "#estetica", label: "Estética Facial", idx: "03" },
   { href: "#trayectoria", label: "Trayectoria", idx: "04" },
-  { href: "#contacto", label: "El Refugio", idx: "05" }];
+  { href: "#faq", label: "Preguntas", idx: "05" },
+  { href: "#contacto", label: "El Refugio", idx: "06" }];
 
 
   return (
@@ -435,13 +434,16 @@ function Nav() {
 function Hero() {
   const photoRef = useRef(null);
   useEffect(() => {
-    const onScroll = () => {
+    let raf = 0;
+    const apply = () => {
       const y = window.scrollY;
       if (photoRef.current) photoRef.current.style.transform = `translate3d(0, ${(y * 0.22).toFixed(1)}px, 0) scale(1.08)`;
+      raf = 0;
     };
-    onScroll();
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(apply); };
+    apply();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => { window.removeEventListener("scroll", onScroll); cancelAnimationFrame(raf); };
   }, []);
 
   return (
@@ -476,7 +478,9 @@ function Hero() {
             <img
               className="cover-img"
               src={SITE_IMAGES.hero}
-              alt="Retrato editorial de Stefania Panzariu en su estudio de belleza en Cuenca"
+              alt="Stefania Panzariu, fundadora del estudio de belleza de autor en Cuenca, especialista en micropigmentación y uñas"
+              style={{ objectPosition: "50% 20%" }}
+              width="1062" height="1509"
               fetchPriority="high"
               loading="eager" />
           </div>
@@ -820,21 +824,27 @@ function TrackSection() {
     t: "Perfección bajo presión",
     d: "Compitiendo a nivel nacional con los mejores talentos del maquillaje permanente en el campeonato The Beauty Experts (Valencia) para mantener nuestro estudio a la vanguardia absoluta.",
     tag: "El Reconocimiento",
-    src: SITE_IMAGES.trainingAward
+    src: SITE_IMAGES.artistTool,
+    alt: "Stefania Panzariu con su dermógrafo de micropigmentación en el estudio de Cuenca",
+    pos: "50% 28%"
   },
   {
     n: "02",
     t: "Innovación sin fronteras",
     d: "Formación continua en el World PMU Congress 2026 a bordo del MSC Fantasia. Análisis de tendencias mundiales en técnicas de implantación de pigmentos hiperrealistas.",
     tag: "El Congreso Mundial",
-    src: SITE_IMAGES.congress
+    src: SITE_IMAGES.hero,
+    alt: "Retrato de Stefania Panzariu, artista de micropigmentación y belleza de autor en Cuenca",
+    pos: "50% 18%"
   },
   {
     n: "03",
     t: "Tu confianza es el destino",
     d: "Traer la excelencia internacional directamente a la Plaza de la Hispanidad en Cuenca, ofreciéndote un refugio donde la técnica se convierte en arte.",
     tag: "La Misión",
-    src: SITE_IMAGES.studio
+    src: SITE_IMAGES.facialCabin,
+    alt: "Cabina del estudio Stefania Panzariu en Cuenca, un refugio íntimo de belleza",
+    pos: "50% 50%"
   }];
 
 
@@ -867,7 +877,7 @@ function TrackSection() {
             <React.Fragment>
                   <div className="img-wrap">
                     <Parallax speed={0.1} className="inner">
-                      <img className="cover-img" src={s.src} alt={`${s.tag}: ${s.t}`} loading="lazy" />
+                      <img className="cover-img" src={s.src} alt={s.alt} style={{ objectPosition: s.pos }} loading="lazy" />
                     </Parallax>
                   </div>
                   <div className="dot"></div>
@@ -887,7 +897,7 @@ function TrackSection() {
                   <div className="dot"></div>
                   <div className="img-wrap">
                     <Parallax speed={0.1} className="inner">
-                      <img className="cover-img" src={s.src} alt={`${s.tag}: ${s.t}`} loading="lazy" />
+                      <img className="cover-img" src={s.src} alt={s.alt} style={{ objectPosition: s.pos }} loading="lazy" />
                     </Parallax>
                   </div>
                 </React.Fragment>
@@ -1199,8 +1209,11 @@ function FooterSection() {
             </R>
 
             <R as="div" className="info-row" delay={160}>
-              <div className="label">Correo directo</div>
-              <a className="linkish" href={`mailto:${BUSINESS.email}`}>{BUSINESS.email}</a>
+              <div className="label">Teléfono y correo</div>
+              <a className="linkish" href={`tel:+${BUSINESS.phone}`}>+34 690 699 205</a>
+              <div className="note" style={{ marginTop: 6 }}>
+                <a className="linkish" href={`mailto:${BUSINESS.email}`}>{BUSINESS.email}</a>
+              </div>
             </R>
 
             <R as="div" className="info-row" delay={240}>
@@ -1253,6 +1266,84 @@ function FooterSection() {
 
 }
 
+/* ---------- FAQ ---------- */
+function FaqSection() {
+  const faqs = [
+  {
+    q: "¿Cuánto dura la micropigmentación de cejas, labios u ojos?",
+    a: "El resultado se mantiene de forma natural entre 12 y 24 meses, según tu tipo de piel, el cuidado diario y la exposición solar. Incluimos una sesión de retoque de asentamiento para consolidar un acabado impecable."
+  },
+  {
+    q: "¿Cómo es el proceso de cicatrización?",
+    a: "La primera semana el color se ve más intenso por la oxidación natural; en la segunda se forma una microcostra que se desprende sola; hacia la tercera la piel se renueva y el pigmento vuelve a la superficie; en la cuarta realizamos el retoque final."
+  },
+  {
+    q: "¿Qué medidas de higiene y seguridad seguís?",
+    a: "Trabajamos con asepsia de grado clínico conforme al Decreto 5/2004 de la JCCM, pigmentos registrados en la AEMPS, agujas monodosis de un solo uso y certificación sanitaria oficial."
+  },
+  {
+    q: "¿Qué es la manicura rusa y cuánto dura?",
+    a: "Es una técnica de alta precisión que retira mecánicamente la cutícula con tornos específicos, logrando un esmaltado impecable que nace bajo el pliegue de la piel. Con nivelación de matriz y rubber base, la durabilidad supera las 3 semanas."
+  },
+  {
+    q: "¿Dónde estáis y cómo pido cita?",
+    a: "Estamos en el Centro Comercial 4 Caminos, nº 7, 16004 Cuenca, a pocos pasos de la Plaza de la Hispanidad. Atendemos con cita previa de lunes a viernes de 9:00 a 21:00; la forma más rápida de reservar es por WhatsApp."
+  }];
+
+  return (
+    <section className="sec-faq" id="faq">
+      <div className="container">
+        <R className="chapter">
+          <span className="rule"></span>
+          <span className="small-caps">Preguntas frecuentes</span>
+        </R>
+        <div className="faq-grid">
+          <div className="faq-head">
+            <h2 className="h-section">
+              <LineMask>Todo lo que</LineMask>
+              <LineMask delay={120}>quieres <em style={{ fontFamily: "var(--serif)" }}>saber</em>.</LineMask>
+            </h2>
+            <R className="body" delay={200} style={{ marginTop: 24 }}>
+              Resolvemos las dudas más habituales antes de tu primera cita. Si te queda
+              alguna pregunta, escríbenos por WhatsApp y te respondemos personalmente.
+            </R>
+            <R delay={300} style={{ marginTop: 28 }}>
+              <a className="btn dark" href={wa("Hola Stefania, tengo una duda antes de reservar cita. ¿Me puedes ayudar?")} target="_blank" rel="noopener">
+                Preguntar por WhatsApp <span className="arrow">→</span>
+              </a>
+            </R>
+          </div>
+          <div className="faq-list">
+            {faqs.map((f, i) =>
+            <R as="details" className="faq-item" key={i} v="r-fade" delay={i * 70}>
+                <summary>
+                  <span className="faq-q">{f.q}</span>
+                  <span className="faq-ic" aria-hidden="true"></span>
+                </summary>
+                <p className="faq-a">{f.a}</p>
+              </R>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>);
+
+}
+
+/* ---------- Floating WhatsApp button (mobile) ---------- */
+function WhatsAppFab() {
+  const msg = "Hola Stefania, me gustaría pedir cita en el estudio (Centro Comercial 4 Caminos, número 7, Cuenca). ¿Me indicas tu disponibilidad?";
+  return (
+    <a className="wa-fab" href={wa(msg)} target="_blank" rel="noopener" aria-label="Pedir cita por WhatsApp">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <path d="M3 21l1.6-4.6A9 9 0 1 1 8 20.4L3 21z" />
+        <path d="M8.5 9c.2 1 .9 2.4 2 3.5s2.5 1.8 3.5 2c.4 0 .9-.1 1.2-.5l.6-.8a.8.8 0 0 0-.2-1.1l-1.3-.8a.8.8 0 0 0-1 .2l-.3.4c-.7-.3-1.4-.7-1.9-1.2s-.9-1.2-1.2-1.9l.4-.3a.8.8 0 0 0 .2-1l-.8-1.3a.8.8 0 0 0-1.1-.2L8 6.6c-.4.3-.5.8-.5 1.2 0 .4.4.8 1 1.2z" />
+      </svg>
+      <span className="wa-fab-label">Pedir cita</span>
+    </a>);
+
+}
+
 /* ---------- App ---------- */
 function App() {
   useScrollProgress();
@@ -1282,8 +1373,10 @@ function App() {
         <FacialSection />
         <TestimonialsSection />
         <TrackSection />
+        <FaqSection />
       </main>
       <FooterSection />
+      <WhatsAppFab />
     </React.Fragment>);
 
 }

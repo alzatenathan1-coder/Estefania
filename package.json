@@ -1,0 +1,11 @@
+{
+  "name": "stefania-panzariu-studio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Web estática del estudio de belleza Stefania Panzariu en Cuenca.",
+  "scripts": {
+    "build": "npx --yes esbuild src/stefania-panzariu-site.jsx --loader:.jsx=jsx --jsx=transform --outfile=src/stefania-panzariu-site.js --minify",
+    "watch": "npx --yes esbuild src/stefania-panzariu-site.jsx --loader:.jsx=jsx --jsx=transform --outfile=src/stefania-panzariu-site.js --watch",
+    "serve": "python3 serve.py"
+  }
+}
