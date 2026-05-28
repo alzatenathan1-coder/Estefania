@@ -5,6 +5,8 @@
 __pycache__/
 *.pyc
 *.state.json
+node_modules/
+.vercel/
 
 # Material bruto pesado conservado sólo en local si se vuelve a generar.
 archive/
