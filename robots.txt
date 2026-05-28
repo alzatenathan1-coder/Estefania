@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://stefaniavictoria.es/sitemap.xml
+Sitemap: https://stefaniavictoria.com/sitemap.xml

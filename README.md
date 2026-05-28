@@ -40,7 +40,7 @@ python3 serve.py 8001
 
 ## Datos publicados
 
-- Dominio final: `https://stefaniavictoria.es/`.
+- Dominio final: `https://stefaniavictoria.com/`.
 - WhatsApp: `+34 690 699 205`.
 - Email: `estefaniapanzariu@gmail.com`.
 - Instagram: `https://www.instagram.com/victoria_e_p?igsh=MWppMjdoaXlhYWxpOA==`.
