@@ -29,7 +29,6 @@ const SITE_IMAGES = {
   nailMilky: "assets/images/manicura-rusa-milky-cuenca.jpg",
   nailNude: "assets/images/unas-nude-translucido-cuenca.jpg",
   facialCabin: "assets/images/cabina-estetica-facial-cuenca.jpg",
-  facialProduct: "assets/images/cosmetica-premium-estetica-facial.jpg",
 };
 
 const wa = (msg) => `https://wa.me/${BUSINESS.phone}?text=${encodeURIComponent(msg)}`;
@@ -753,7 +752,7 @@ function FacialSection() {
             </R>
             <R v="r-mask" delay={200} className="p2">
               <Parallax speed={0.14} className="inner">
-                <img className="cover-img" src={SITE_IMAGES.facialProduct} alt="Cosmética premium para tratamientos faciales profesionales" loading="lazy" />
+                <img className="cover-img" src={SITE_IMAGES.pigmentDetail} alt="Detalle macro de la piel en un tratamiento de estética facial avanzada" loading="lazy" />
               </Parallax>
             </R>
           </div>
