@@ -229,9 +229,10 @@ function Drawer({ open, onClose }) {
   { href: "#micropigmentacion", label: "Micropigmentación", idx: "01" },
   { href: "#unas", label: "Uñas de Autor", idx: "02" },
   { href: "#estetica", label: "Estética Facial", idx: "03" },
-  { href: "#trayectoria", label: "Trayectoria", idx: "04" },
-  { href: "#faq", label: "Preguntas", idx: "05" },
-  { href: "#contacto", label: "El Refugio", idx: "06" }];
+  { href: "#corporal", label: "Armonía Corporal", idx: "04" },
+  { href: "#trayectoria", label: "Trayectoria", idx: "05" },
+  { href: "#faq", label: "Preguntas", idx: "06" },
+  { href: "#contacto", label: "El Refugio", idx: "07" }];
 
 
   return (
@@ -367,6 +368,7 @@ function Nav() {
           <a href="#micropigmentacion">Micropigmentación</a>
           <a href="#unas">Uñas de Autor</a>
           <a href="#estetica">Estética</a>
+          <a href="#corporal">Corporal</a>
           <a href="#trayectoria">Trayectoria</a>
         </nav>
         <div className="nav-cta">
@@ -796,6 +798,75 @@ function FacialSection() {
 
 }
 
+/* ---------- Armonía Corporal ---------- */
+function BodySection() {
+  return (
+    <section className="sec-body" id="corporal">
+      <GhostNum>04</GhostNum>
+      <div className="container" style={{ position: "relative", zIndex: 1 }}>
+        <R className="chapter">
+          <span className="rule"></span>
+          <span className="small-caps">Armonía Corporal</span>
+        </R>
+
+        <div className="body-grid">
+          <div className="body-text">
+            <h2 className="h-section" style={{ marginBottom: 28 }}>
+              <LineMask>Reconectar con</LineMask>
+              <LineMask delay={120}>tu <em style={{ fontFamily: "var(--serif)" }}>cuerpo</em>.</LineMask>
+            </h2>
+            <R className="lead" delay={200}>
+              Rituales diseñados para reconectar con tu cuerpo, liberando tensión
+              y realzando tu firmeza natural a través de terapias manuales y técnicas avanzadas.
+            </R>
+
+            <div className="ritual-list">
+              <R as="div" v="r-left" className="it">
+                <div className="mark">✦</div>
+                <div>
+                  <h4>Maderoterapia</h4>
+                  <p>Técnica natural que moldea y tonifica la silueta mediante fricciones profundas con instrumentos de madera noble. Ayuda a reducir volumen, mejorar la circulación y combatir la celulitis.</p>
+                </div>
+              </R>
+              <R as="div" v="r-left" delay={120} className="it">
+                <div className="mark">✦</div>
+                <div>
+                  <h4>Drenaje Linfático</h4>
+                  <p>Terapia manual suave y precisa que favorece la eliminación de toxinas. Ideal para aliviar la sensación de piernas cansadas, reducir la inflamación y tratar la retención de líquidos.</p>
+                </div>
+              </R>
+              <R as="div" v="r-left" delay={240} className="it">
+                <div className="mark">✦</div>
+                <div>
+                  <h4>Exfoliación y Envoltura</h4>
+                  <p>Renovación celular profunda que elimina impurezas y devuelve la elasticidad a la piel. Un tratamiento intensivo que deja el cuerpo profundamente hidratado, firme y luminoso.</p>
+                </div>
+              </R>
+            </div>
+
+            <R delay={320} style={{ marginTop: 36 }}>
+              <a className="btn dark" href={wa("Hola Stefania, me gustaría reservar una sesión de tratamiento corporal (Armonía Corporal).")}>
+                Reservar mi ritual corporal <span className="arrow">→</span>
+              </a>
+            </R>
+          </div>
+
+          <div className="body-visual">
+            <R v="r-fade" delay={300}>
+              <div className="body-visual-deco">
+                <div className="ring"></div>
+                <div className="ring"></div>
+                <div className="ring"></div>
+                <div className="center-mark">✦</div>
+              </div>
+            </R>
+          </div>
+        </div>
+      </div>
+    </section>);
+
+}
+
 /* ---------- Trayectoria ---------- */
 function TrackSection() {
   const wrapRef = useRef(null);
@@ -849,7 +920,7 @@ function TrackSection() {
 
   return (
     <section className="sec-track" id="trayectoria">
-      <GhostNum>04</GhostNum>
+      <GhostNum>05</GhostNum>
       <div className="container" style={{ position: "relative", zIndex: 1 }}>
         <R className="chapter">
           <span className="rule" style={{ background: "rgba(255,255,255,.5)" }}></span>
@@ -971,7 +1042,7 @@ function TestimonialsSection() {
 
   return (
     <section className="sec-testimonials" id="testimonios">
-      <Ornament style={{ top: 60, right: -40 }} speed={0.05}>05</Ornament>
+      <Ornament style={{ top: 60, right: -40 }} speed={0.05}>06</Ornament>
       <Ornament tick style={{ bottom: 60, left: -20 }} speed={-0.08}>“</Ornament>
 
       <div className="container" style={{ position: "relative", zIndex: 1 }}>
@@ -1370,6 +1441,7 @@ function App() {
         label="Estética facial"
         quote={<>Silenciar el ruido. <em style={{ fontFamily: "var(--serif)" }}>Devolver el resplandor</em>.</>} />
         <FacialSection />
+        <BodySection />
         <TestimonialsSection />
         <TrackSection />
         <FaqSection />

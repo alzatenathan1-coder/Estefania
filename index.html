@@ -852,6 +852,49 @@
   .ritual-list .it h4 { font-family: var(--serif); font-style: italic; font-size: 24px; font-weight: 500; margin-bottom: 6px; }
   .ritual-list .it p { font-size: 14.5px; color: var(--ink-2); }
 
+  /* ---------- Section: Armonía Corporal ---------- */
+  .sec-body {
+    background: linear-gradient(180deg, var(--bg-soft) 0%, #f0ece6 40%, var(--bg-soft-2) 100%);
+    padding: 120px 48px;
+  }
+  .body-grid {
+    display: grid; grid-template-columns: 1.05fr 1fr; gap: 80px; align-items: center;
+  }
+  .body-grid .body-text { order: 1; }
+  .body-grid .body-visual { order: 2; position: relative; }
+  .body-visual-deco {
+    position: relative;
+    aspect-ratio: 3/4;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .body-visual-deco .ring {
+    position: absolute; inset: 8%; border: 1px solid var(--hair);
+    border-radius: 50%; opacity: .45;
+    animation: bodyRingSpin 40s linear infinite;
+  }
+  .body-visual-deco .ring:nth-child(2) {
+    inset: 16%; animation-direction: reverse; animation-duration: 55s; opacity: .28;
+  }
+  .body-visual-deco .ring:nth-child(3) {
+    inset: 24%; animation-duration: 70s; opacity: .16;
+  }
+  .body-visual-deco .center-mark {
+    font-family: var(--display); font-weight: 400;
+    font-size: clamp(72px, 12vw, 160px); line-height: 1;
+    color: rgba(10,10,10,0.06); z-index: 1;
+  }
+  @keyframes bodyRingSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+  @media (max-width: 1080px) {
+    .body-grid { grid-template-columns: 1fr; gap: 40px; }
+    .body-grid .body-visual { order: -1; }
+    .body-visual-deco { aspect-ratio: 1/1; max-width: 320px; margin: 0 auto; }
+  }
+  @media (max-width: 560px) {
+    .sec-body { padding: 80px 18px; }
+    .body-visual-deco { max-width: 240px; }
+  }
+
   /* ---------- Trayectoria ---------- */
   .sec-track { background: var(--track-bg); color: var(--track-ink); padding: 130px 48px; position: relative; overflow: hidden; }
   .sec-track .small-caps, .sec-track .kicker { color: color-mix(in srgb, var(--track-ink) 65%, transparent); }
