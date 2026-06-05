@@ -7,11 +7,18 @@ const BUSINESS = {
   email: "estefaniapanzariu@gmail.com",
   instagramHandle: "@victoria_e_p",
   instagramUrl: "https://www.instagram.com/victoria_e_p?igsh=MWppMjdoaXlhYWxpOA==",
-  addressLine: "Centro Comercial 4 Caminos, número 7",
-  postalCity: "16004 Cuenca",
+  // —— Dirección centralizada: para mudanzas, cambia SOLO estos campos ——
+  addressLine: "Centro Comercial 4 Caminos, número 7", // calle + número (texto largo)
+  addressShort: "Centro Comercial 4 Caminos, nº 7",     // versión corta
+  postalCity: "16004 Cuenca",                            // CP + ciudad
   city: "Cuenca",
+  region: "Cuenca",
   country: "España",
+  area: "4 Caminos",                                     // barrio/zona (hero, branding)
+  addressTag: "Número 7",                                // motivo de marca (footer/redes)
+  landmark: "A pocos pasos de la Plaza de la Hispanidad.", // referencia cercana
   mapsShort: "https://maps.app.goo.gl/RmEoSxGfpnqJU6RFA",
+  reviewsUrl: "https://share.google/glBQvfSFh7AWF6Wdg",
 };
 
 const BRAND_ASSETS = {
@@ -32,6 +39,9 @@ const SITE_IMAGES = {
 };
 
 const wa = (msg) => `https://wa.me/${BUSINESS.phone}?text=${encodeURIComponent(msg)}`;
+
+// Mensaje estándar de cita (incluye la dirección centralizada).
+const CITA_MSG = `Hola Stefania, me gustaría pedir cita en el estudio (${BUSINESS.addressLine}, ${BUSINESS.city}). ¿Me indicas tu disponibilidad?`;
 
 /* ---------- Scroll progress bar ---------- */
 function useScrollProgress() {
@@ -230,9 +240,10 @@ function Drawer({ open, onClose }) {
   { href: "#unas", label: "Uñas de Autor", idx: "02" },
   { href: "#estetica", label: "Estética Facial", idx: "03" },
   { href: "#corporal", label: "Armonía Corporal", idx: "04" },
-  { href: "#trayectoria", label: "Trayectoria", idx: "05" },
-  { href: "#faq", label: "Preguntas", idx: "06" },
-  { href: "#contacto", label: "El Refugio", idx: "07" }];
+  { href: "#testimonios", label: "Reseñas", idx: "05" },
+  { href: "#trayectoria", label: "Trayectoria", idx: "06" },
+  { href: "#faq", label: "Preguntas", idx: "07" },
+  { href: "#contacto", label: "El Refugio", idx: "08" }];
 
 
   return (
@@ -273,7 +284,7 @@ function Drawer({ open, onClose }) {
               </a>
             </div>
           </div>
-          <a className="btn dark" href={wa("Hola Stefania, quiero pedir cita en el estudio (Centro Comercial 4 Caminos, número 7, Cuenca). ¿Me indicas tu disponibilidad?")} onClick={onClose}>
+          <a className="btn dark" href={wa(CITA_MSG)} onClick={onClose}>
             Pedir Cita por WhatsApp <span className="arrow">→</span>
           </a>
         </div>
@@ -356,7 +367,7 @@ function Nav() {
     </svg>;
 
   const mapsLink = BUSINESS.mapsShort;
-  const ctaMsg = `Hola Stefania, me gustaría pedir cita en el estudio (Centro Comercial 4 Caminos, número 7, Cuenca). ¿Me indicas tu disponibilidad?`;
+  const ctaMsg = CITA_MSG;
 
   return (
     <React.Fragment>
@@ -395,8 +406,8 @@ function Nav() {
             <a className="item" href={mapsLink} target="_blank" rel="noopener">
               <span className="ic">{Pin}</span>
               <span className="meta">
-                <span className="t">Centro Comercial 4 Caminos, nº 7</span>
-                <span className="h">16004 Cuenca · España</span>
+                <span className="t">{BUSINESS.addressShort}</span>
+                <span className="h">{BUSINESS.postalCity} · {BUSINESS.country}</span>
               </span>
               <span className="arrow">→</span>
             </a>
@@ -490,7 +501,7 @@ function Hero() {
 
       <div className="hero-meta">
         <div><span className="num">— </span>{BUSINESS.city} · {BUSINESS.country}</div>
-        <div>EST · 4 Caminos</div>
+        <div>EST · {BUSINESS.area}</div>
         <div><span className="num">— </span>Belleza de autor</div>
       </div>
 
@@ -910,7 +921,7 @@ function TrackSection() {
   {
     n: "03",
     t: "Tu confianza es el destino",
-    d: "Traer la excelencia internacional directamente a la Plaza de la Hispanidad en Cuenca, ofreciéndote un refugio donde la técnica se convierte en arte.",
+    d: "Traer la excelencia internacional directamente al corazón de Cuenca, ofreciéndote un refugio donde la técnica se convierte en arte.",
     tag: "La Misión",
     src: SITE_IMAGES.facialCabin,
     alt: "Cabina del estudio Stefania Panzariu en Cuenca, un refugio íntimo de belleza",
@@ -982,55 +993,93 @@ function TrackSection() {
 
 /* ---------- Testimonials ---------- */
 function TestimonialsSection() {
-  // 8 testimonios organizados por categoría (60% micropigmentación, 30% uñas, 10% facial)
+  // Reseñas reales verificadas en Google, organizadas por servicio.
   const groups = [
     {
-      cat: "Micropigmentación",
-      tone: "micro",
+      cat: "Uñas de autor y manicura",
+      tone: "nails",
+      cols: 3,
       items: [
         {
-          q: "¡Un gran cambio! Me realicé la micropigmentación de cejas y el resultado es increíblemente natural. El diseño se adapta perfectamente a mis facciones. Un trabajo impecable y con una técnica excelente.",
-          n: "Jennifer P.", svc: "Cejas hiperrealistas", a: "J"
+          q: "Llevo haciéndome las uñas 20 años y Estefanía es la manicurista más profesional que he tenido. Mis uñas están preciosas, duran 6 semanas perfectamente y ella es un ángel de persona. La recomiendo a todas mis amigas: nunca defrauda. Es un 10.",
+          n: "Sabrina Calleja", svc: "Manicura · 20 años de clienta", a: "S", lg: true
         },
         {
-          q: "Mis labios han quedado divinos. El contorno está perfectamente definido y con un tono de lo más saludable y natural. El proceso en cabina fue súper cómodo y cuidado.",
-          n: "Tamara T.", svc: "Acuarela Lip Blush", a: "T"
+          q: "Excelente profesional pero mejor persona. Son 7 años los que llevo haciéndome las uñas con ella y la calidad es inmejorable. Jamás se me ha partido o caído una uña. Siempre innovando en diseños nuevos. Calidad-precio perfecta.",
+          n: "Rebeca Lorente", svc: "Uñas de autor · Durabilidad", a: "R"
         },
         {
-          q: "Buscaba definir mi mirada sin un delineado muy marcado. La técnica es ideal: implanta el pigmento de forma muy suave en el párpado, logrando un acabado degradado, sutil y súper favorecedor. Elegancia en estado puro.",
-          n: "Victoria E.", svc: "Eyeliner degradado", a: "V"
+          q: "Súper contenta con Estefanía, la recomiendo 100×100, la mejor de Cuenca: buen precio, calidad y duración. No te hace esperar como en otros sitios, es muy puntual y organizada con los tiempos. Y además, bellísima persona.",
+          n: "Déborah García", svc: "Manicura · La mejor de Cuenca", a: "D"
+        },
+        {
+          q: "El mejor sitio de uñas en Cuenca. Llevo años haciéndome las uñas con ella y no la cambio por nada.",
+          n: "Jenifer Rodríguez", svc: "Uñas en Cuenca", a: "J"
+        },
+        {
+          q: "Elegir a Estefanía para el cuidado de tus uñas es un acierto. Nunca he tenido mis uñas tan bonitas y sanas. Es una profesional muy perfeccionista, con un trato súper cercano y, algo a destacar, la puntualidad con sus citas.",
+          n: "Beatriz Murcia", svc: "Manicura · Puntualidad", a: "B"
+        },
+        {
+          q: "Trabajo espectacular. Muy profesional y amable. ¡Encantada!",
+          n: "Cristina Plaza", svc: "Uñas de autor", a: "C", lg: true
         },
       ]
     },
     {
-      cat: "Manicura y Pedicura",
-      tone: "nails",
+      cat: "Micropigmentación y maquillaje permanente",
+      tone: "micro",
+      cols: 3,
       items: [
         {
-          q: "Fui por primera vez de forma espontánea y pedí un diseño Baby Boomer. Me lo hicieron exactamente como lo quería, con un acabado perfecto. El trabajo fue súper limpio, preciso y rápido. Sin duda, volveré.",
-          n: "Clienta del estudio", svc: "Uñas de autor · Baby Boomer", a: "★"
+          q: "Me hice un sombreado de cejas y me quedaron espectaculares, ya que tenía un tatuaje por debajo. La verdad que ha sido todo un acierto, recomendado 100%. Y lo mejor: no duele casi nada.",
+          n: "Mª Mercedes Felipe", svc: "Sombreado de cejas", a: "M"
         },
         {
-          q: "Salí encantada tras recibir un masaje relajante y un servicio de pedicura impecable. Elegí un acabado de gel francés y mis pies quedaron hermosos. Todo por un precio excelente y con una atención de diez.",
-          n: "Clienta del estudio", svc: "Pedicura completa · Bienestar", a: "★"
+          q: "Llevo tiempo visitando a Estefanía para las uñas y estoy encantada con su trabajo. Hoy le confié el maquillaje permanente, un tatuaje en los párpados. ¡Increíble! Es una verdadera profesional y una técnica muy talentosa.",
+          n: "Eden Niknafs", svc: "Maquillaje permanente · Párpados", a: "E"
         },
         {
-          q: "Estoy encantada en cada visita. Mis uñas, tanto de las manos como de las de los pies, lucen estupendas y muy cuidadas después de pasar por el estudio. La durabilidad y el mimo que ponen en el detalle marcan la diferencia.",
-          n: "Clienta del estudio", svc: "Manicura y pedicura · Durabilidad", a: "★"
+          q: "Resultados espectaculares. No puedo estar más feliz: el tratamiento facial dejó mi piel luminosa e hidratada, y la micropigmentación de labios quedó preciosa.",
+          n: "María del Carmen", svc: "Micropigmentación de labios", a: "M"
         },
       ]
     },
     {
       cat: "Estética facial",
       tone: "facial",
+      cols: 2,
       items: [
         {
-          q: "Tarde de mimos en cabina para cuidar la piel y el alma. Mi rostro ha quedado súper limpio, fresco y luminoso gracias a la mascarilla de arcilla blanca. Es un momento de relajación absoluto. Gracias por tu gran trabajo y profesionalidad.",
-          n: "Débora G.", svc: "Argi-Mask White · Arcilla blanca", a: "D"
+          q: "He salido encantada con la limpieza facial. Desde que entras por la puerta te sientes como en casa: ambiente acogedor, trato cercano y muy profesional. Se nota el cariño y la dedicación en cada detalle. Mi piel quedó increíble.",
+          n: "María I.", svc: "Limpieza facial", a: "M"
         },
         {
-          q: "Llevo muchos años viniendo a este salón y lo recomiendo con total seguridad. El personal es encantador, el estudio siempre está impecable y limpio, y lo que más valoro es su puntualidad: te atienden exactamente a tu hora sin esperas. Además, el sistema de confirmación de citas por WhatsApp es súper ágil.",
-          n: "Clienta frecuente", svc: "Experiencia · Puntualidad", a: "★"
+          q: "Cada vez que voy salgo más contenta, pero la limpieza facial de hoy ha sido espectacular. Mi piel ha quedado con una luz increíble, súper fresca y mucho más uniforme. Noté el resultado al instante.",
+          n: "Natalia Abanades", svc: "Limpieza facial profunda", a: "N"
+        },
+        {
+          q: "Como siempre, una experiencia maravillosa. Nunca deja de sorprenderme por su profesionalidad, dedicación y el cariño con el que realiza cada tratamiento. Esta vez me hice una limpieza facial con nuevos productos y he quedado encantada.",
+          n: "Cecilia Gil", svc: "Estética facial", a: "C"
+        },
+        {
+          q: "Estoy encantada con este centro de estética. Desde la primera visita me hizo sentir súper cómoda y muy bien atendida. El trato es increíble; se nota el cariño y la profesionalidad con la que trabaja.",
+          n: "Judith Barrios", svc: "Centro de estética", a: "J"
+        },
+      ]
+    },
+    {
+      cat: "Manos, pies y bienestar",
+      tone: "body",
+      cols: 2,
+      items: [
+        {
+          q: "Ayer no sólo hizo su arte en mis manos, que como siempre es espectacular, sino que también sanó unos pies que llevaban mucho encima y salieron hechos una maravilla. Estefanía, más allá de una esteticista, es bálsamo.",
+          n: "Débora Gómez", svc: "Manos y pies · Bienestar", a: "D"
+        },
+        {
+          q: "Ponerte en manos de Estefanía es garantía de éxito. Es una profesional en todos los tratamientos que hace, muy perfeccionista; su asesoramiento, trato y amabilidad diferencian su trabajo. Es encantadora y una gran persona.",
+          n: "Conchi Pérez", svc: "Todos los tratamientos", a: "C"
         },
       ]
     }
@@ -1038,6 +1087,15 @@ function TestimonialsSection() {
 
   const Star = () => (
     <svg viewBox="0 0 24 24"><path d="M12 2l2.95 6.97L22 10l-5.5 4.78L18.18 22 12 18.27 5.82 22l1.68-7.22L2 10l7.05-1.03L12 2z"/></svg>
+  );
+
+  const GoogleG = () => (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="#4285F4" d="M22.5 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.76h3.56c2.08-1.92 3.22-4.74 3.22-8.09z"/>
+      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.56-2.76c-.98.66-2.23 1.06-3.72 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"/>
+      <path fill="#FBBC05" d="M5.84 14.11a6.6 6.6 0 0 1 0-4.22V7.05H2.18a11 11 0 0 0 0 9.9l3.66-2.84z"/>
+      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1A11 11 0 0 0 2.18 7.05l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/>
+    </svg>
   );
 
   return (
@@ -1048,30 +1106,32 @@ function TestimonialsSection() {
       <div className="container" style={{ position: "relative", zIndex: 1 }}>
         <R className="chapter">
           <span className="rule"></span>
-          <span className="small-caps">Testimonios · Voces reales del estudio</span>
+          <span className="small-caps">Reseñas verificadas en Google</span>
         </R>
 
         <div className="testimonials-head">
           <h2 className="h-section">
-            <LineMask>Sin filtros,</LineMask>
-            <LineMask delay={120}>sin <em style={{fontFamily:"var(--serif)"}}>artificios</em>.</LineMask>
+            <LineMask>Lo que dicen</LineMask>
+            <LineMask delay={120}>en <em style={{fontFamily:"var(--serif)"}}>Cuenca</em>.</LineMask>
           </h2>
           <R className="body" delay={200}>
-            Ocho voces honestas, organizadas por servicio, que cuentan cómo es
-            vivir un tratamiento aquí. No buscamos clientes; buscamos relaciones largas.
+            Más de 75 reseñas reales en Google, casi todas de clientas que repiten
+            año tras año —algunas llevan más de 7 años en sus manos—. Estas son
+            algunas voces, organizadas por servicio.
           </R>
         </div>
 
-        {groups.map((g, gi) => (
+        {groups.map((g) => (
           <div className={`tg tg-${g.tone}`} key={g.cat}>
             <R as="div" className="tg-head">
               <span className="tg-rule"></span>
               <span className="small-caps">{g.cat}</span>
-              <span className="tg-count">{g.items.length} · {gi === 0 ? "principal" : gi === 1 ? "esencial" : "experiencia"}</span>
+              <span className="tg-count">{g.items.length} {g.items.length === 1 ? "reseña" : "reseñas"}</span>
             </R>
-            <div className={`testimonials-grid cols-${g.items.length}`}>
+            <div className={`testimonials-grid cols-${g.cols}`}>
               {g.items.map((t, i) => (
                 <R as="div" key={i} className="quote" v="r-fade" delay={i * 120}>
+                  <span className="gbadge" aria-label="Reseña de Google"><GoogleG/></span>
                   <div className="stars" aria-label="5 estrellas">
                     <Star/><Star/><Star/><Star/><Star/>
                   </div>
@@ -1080,7 +1140,7 @@ function TestimonialsSection() {
                     <div className="avatar">{t.a}</div>
                     <div className="who">
                       <span className="name">{t.n}</span>
-                      <span className="svc">{t.svc}</span>
+                      <span className="svc">{t.svc}{t.lg ? <span className="lg">Local Guide</span> : null}</span>
                     </div>
                   </div>
                 </R>
@@ -1091,22 +1151,31 @@ function TestimonialsSection() {
 
         <div className="testimonials-stats">
           <R as="div" className="stat">
-            <span className="n">+850</span>
-            <span className="l">Clientas en el estudio</span>
+            <span className="n">5,0<span style={{ fontSize: ".5em", color: "var(--muted)" }}>★</span></span>
+            <span className="l">Valoración en Google</span>
           </R>
           <R as="div" className="stat" delay={100}>
-            <span className="n">4.9<span style={{ fontSize: ".55em", color: "var(--muted)" }}>/5</span></span>
-            <span className="l">Valoración media</span>
+            <span className="n">+75</span>
+            <span className="l">Reseñas reales verificadas</span>
           </R>
           <R as="div" className="stat" delay={200}>
-            <span className="n">98%</span>
-            <span className="l">Repiten o recomiendan</span>
+            <span className="n">100%</span>
+            <span className="l">Clientas que la recomiendan</span>
           </R>
           <R as="div" className="stat" delay={300}>
-            <span className="n">12-24</span>
-            <span className="l">Meses de duración media</span>
+            <span className="n">+7<span style={{ fontSize: ".5em", color: "var(--muted)" }}> años</span></span>
+            <span className="l">De clientas fieles que repiten</span>
           </R>
         </div>
+
+        <R as="div" className="reviews-cta" delay={120}>
+          <span className="gstars">
+            <span className="s">★★★★★</span> <b>5,0 en Google</b> · +75 reseñas
+          </span>
+          <a className="btn dark" href={BUSINESS.reviewsUrl} target="_blank" rel="noopener noreferrer">
+            Leer todas las reseñas en Google <span className="arrow">→</span>
+          </a>
+        </R>
       </div>
     </section>
   );
@@ -1209,7 +1278,7 @@ function FooterSection() {
   const mapsEmbed = "https://www.openstreetmap.org/export/embed.html?bbox=-2.148%2C40.060%2C-2.122%2C40.074&layer=mapnik&marker=40.0657%2C-2.1357";
   const mapsLink  = BUSINESS.mapsShort;
 
-  const waMsg = "Hola Stefania, quiero pedir cita en el estudio (Centro Comercial 4 Caminos, número 7, Cuenca). ¿Me indicas tu disponibilidad?";
+  const waMsg = CITA_MSG;
 
   const Ig = (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
@@ -1224,8 +1293,8 @@ function FooterSection() {
   );
 
   const socials = [
-    { ic: Wa, label: "WhatsApp",   sub: "Pedir cita ahora · número 7",  href: wa(waMsg) },
-    { ic: Ig, label: "Instagram",  sub: BUSINESS.instagramHandle,        href: BUSINESS.instagramUrl },
+    { ic: Wa, label: "WhatsApp",   sub: `Pedir cita ahora · ${BUSINESS.city}`,  href: wa(waMsg) },
+    { ic: Ig, label: "Instagram",  sub: BUSINESS.instagramHandle,                href: BUSINESS.instagramUrl },
   ];
 
   return (
@@ -1252,7 +1321,7 @@ function FooterSection() {
             <iframe
               className="footer-map"
               src={mapsEmbed}
-              title="Ubicación del estudio · Centro Comercial 4 Caminos, número 7, Cuenca"
+              title={`Ubicación del estudio · ${BUSINESS.addressLine}, ${BUSINESS.city}`}
               referrerPolicy="no-referrer-when-downgrade"
               allowFullScreen></iframe>
             <a className="footer-map-pin" href={mapsLink} target="_blank" rel="noopener" aria-label="Abrir en Google Maps">
@@ -1267,9 +1336,9 @@ function FooterSection() {
           {/* INFO */}
           <div className="footer-info">
             <R as="div" className="info-row">
-              <div className="label">Ubicación · Número 7</div>
-              <div className="val">Centro Comercial 4 Caminos, nº 7<br/>{BUSINESS.postalCity} · {BUSINESS.country}</div>
-              <div className="note">A pocos pasos de la Plaza de la Hispanidad.</div>
+              <div className="label">Ubicación · {BUSINESS.addressTag}</div>
+              <div className="val">{BUSINESS.addressShort}<br/>{BUSINESS.postalCity} · {BUSINESS.country}</div>
+              <div className="note">{BUSINESS.landmark}</div>
             </R>
 
             <R as="div" className="info-row" delay={80}>
@@ -1315,7 +1384,7 @@ function FooterSection() {
         {/* Signature */}
         <div className="footer-signature">
           <img className="footer-logo-img" src={BRAND_ASSETS.logoWhite} alt={BUSINESS.name} />
-          <div className="tag">Belleza de autor · Cuenca · Número 7</div>
+          <div className="tag">Belleza de autor · {BUSINESS.city} · {BUSINESS.addressTag}</div>
         </div>
 
         <div className="bottom">
@@ -1357,7 +1426,7 @@ function FaqSection() {
   },
   {
     q: "¿Dónde estáis y cómo pido cita?",
-    a: "Estamos en el Centro Comercial 4 Caminos, nº 7, 16004 Cuenca, a pocos pasos de la Plaza de la Hispanidad. Atendemos con cita previa de lunes a viernes de 9:00 a 21:00; la forma más rápida de reservar es por WhatsApp."
+    a: `Estamos en ${BUSINESS.addressShort}, ${BUSINESS.postalCity}. ${BUSINESS.landmark} Atendemos con cita previa de lunes a viernes de 9:00 a 21:00; la forma más rápida de reservar es por WhatsApp.`
   }];
 
   return (
@@ -1402,7 +1471,7 @@ function FaqSection() {
 
 /* ---------- Floating WhatsApp button (mobile) ---------- */
 function WhatsAppFab() {
-  const msg = "Hola Stefania, me gustaría pedir cita en el estudio (Centro Comercial 4 Caminos, número 7, Cuenca). ¿Me indicas tu disponibilidad?";
+  const msg = CITA_MSG;
   return (
     <a className="wa-fab" href={wa(msg)} target="_blank" rel="noopener" aria-label="Pedir cita por WhatsApp">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

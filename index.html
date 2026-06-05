@@ -4,8 +4,8 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Stefania Panzariu Studio en Cuenca | Micropigmentación, uñas y estética facial</title>
-<meta name="description" content="Estudio de belleza en Cuenca especializado en micropigmentación hiperrealista, manicura rusa, uñas de autor y estética facial avanzada. Reserva tu valoración en Stefania Panzariu Studio." />
-<meta name="keywords" content="micropigmentación Cuenca, manicura rusa Cuenca, uñas de autor Cuenca, estética facial Cuenca, cejas pelo a pelo Cuenca, lip blush Cuenca, Stefania Panzariu" />
+<meta name="description" content="Estudio de belleza en Cuenca: uñas de autor y manicura, micropigmentación y maquillaje permanente (cejas, labios, ojos) y estética facial avanzada. Más de 75 reseñas 5★ en Google. Reserva tu cita por WhatsApp en Stefania Panzariu Studio." />
+<meta name="keywords" content="uñas Cuenca, manicura Cuenca, uñas de autor Cuenca, manicura rusa Cuenca, micropigmentación Cuenca, maquillaje permanente Cuenca, sombreado de cejas Cuenca, micropigmentación labios Cuenca, eyeliner permanente Cuenca, estética facial Cuenca, limpieza facial Cuenca, centro de estética Cuenca, Stefania Panzariu" />
 <meta name="author" content="Stefania Panzariu Studio" />
 <meta name="robots" content="index, follow, max-image-preview:large" />
 <meta name="theme-color" content="#fbfaf8" />
@@ -127,7 +127,46 @@
         }
       }
     ]
-  }
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "5.0",
+    "reviewCount": "75",
+    "bestRating": "5",
+    "worstRating": "1"
+  },
+  "review": [
+    {
+      "@type": "Review",
+      "author": { "@type": "Person", "name": "Sabrina Calleja" },
+      "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
+      "reviewBody": "Llevo haciéndome las uñas 20 años y Estefanía es la manicurista más profesional que he tenido. Mis uñas están preciosas y duran 6 semanas perfectamente. La recomiendo a todas mis amigas: nunca defrauda. Es un 10."
+    },
+    {
+      "@type": "Review",
+      "author": { "@type": "Person", "name": "Rebeca Lorente" },
+      "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
+      "reviewBody": "Excelente profesional pero mejor persona. Siete años haciéndome las uñas con ella y la calidad es inmejorable. Jamás se me ha partido una uña. Siempre innovando. Calidad-precio perfecta."
+    },
+    {
+      "@type": "Review",
+      "author": { "@type": "Person", "name": "Déborah García" },
+      "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
+      "reviewBody": "La mejor de Cuenca: buen precio, calidad y duración. Muy puntual y organizada con los tiempos, no te hace esperar. Y además, bellísima persona."
+    },
+    {
+      "@type": "Review",
+      "author": { "@type": "Person", "name": "Mª Mercedes Felipe" },
+      "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
+      "reviewBody": "Me hice un sombreado de cejas y me quedaron espectaculares, teniendo un tatuaje previo por debajo. Todo un acierto, recomendado 100%. Y casi no duele."
+    },
+    {
+      "@type": "Review",
+      "author": { "@type": "Person", "name": "Natalia Abanades" },
+      "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
+      "reviewBody": "La limpieza facial ha sido espectacular. Mi piel ha quedado con una luz increíble, súper fresca y mucho más uniforme. Noté el resultado al instante."
+    }
+  ]
 }
 </script>
 
@@ -251,7 +290,7 @@
   .v-index-inner .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--ink); margin-right: 6px; display: inline-block; transform: rotate(90deg); }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; }
+  html { scroll-behavior: smooth; overflow-x: clip; }
   body {
     font-family: var(--sans);
     color: var(--ink);
@@ -533,6 +572,7 @@
   /* Drawer overlay */
   .drawer-overlay {
     position: fixed; inset: 0; z-index: 80; pointer-events: none;
+    overflow: hidden; /* clip the off-canvas drawer to avoid phantom horizontal scroll */
   }
   .drawer-overlay .scrim {
     position: absolute; inset: 0; background: rgba(10,10,10,0.0);
@@ -993,9 +1033,11 @@
   .quote .author .who .svc {
     font-family: var(--sans); font-size: 10.5px; letter-spacing: .26em; text-transform: uppercase; color: var(--muted); font-weight: 500;
   }
-  /* stagger sizes for editorial feel — only on first (main) group */
-  .tg-micro .testimonials-grid .quote:nth-child(2) { margin-top: 32px; }
-  .tg-micro .testimonials-grid .quote:nth-child(3) { margin-top: 12px; }
+  /* subtle editorial stagger on the lead group's 3-col layout (desktop only) */
+  @media (min-width: 1081px) {
+    .tg:first-of-type .testimonials-grid.cols-3 .quote:nth-child(2) { margin-top: 28px; }
+    .tg:first-of-type .testimonials-grid.cols-3 .quote:nth-child(3) { margin-top: 12px; }
+  }
 
   /* Grupos por categoría */
   .tg { margin-bottom: 56px; }
@@ -1013,9 +1055,37 @@
   }
 
   /* La estética cambia ligeramente según la categoría */
-  .tg-micro .quote { border-color: rgba(10,10,10,0.14); }
-  .tg-nails .quote { background: #fbfaf8; }
+  .tg-nails .quote { border-color: rgba(10,10,10,0.14); }
+  .tg-micro .quote { background: #fbfaf8; }
   .tg-facial .quote { background: #f3f2ef; border-color: rgba(10,10,10,0.08); }
+  .tg-body .quote { background: #f6f2ee; border-color: rgba(10,10,10,0.08); }
+
+  /* Reseña: badge "verificada en Google" + Local Guide */
+  .quote .author .who .svc .lg {
+    display: inline-block; margin-left: 8px; padding: 1px 7px;
+    border: 1px solid var(--hair); border-radius: 999px;
+    font-size: 8.5px; letter-spacing: .14em; color: var(--muted);
+  }
+  .quote .gbadge {
+    position: absolute; top: 22px; right: 26px;
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--sans); font-size: 9px; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--muted); font-weight: 600;
+  }
+  .quote .gbadge svg { width: 13px; height: 13px; }
+
+  /* CTA hacia Google al pie de los testimonios */
+  .reviews-cta {
+    display: flex; flex-wrap: wrap; gap: 16px;
+    align-items: center; justify-content: center;
+    margin-top: 56px; text-align: center;
+  }
+  .reviews-cta .gstars {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: var(--serif); font-style: italic; font-size: 20px; color: var(--ink);
+  }
+  .reviews-cta .gstars b { font-style: normal; font-weight: 600; font-family: var(--sans); font-size: 15px; letter-spacing: .02em; }
+  .reviews-cta .gstars .s { color: #e3b341; letter-spacing: 2px; font-style: normal; }
 
   .testimonials-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
   .testimonials-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
