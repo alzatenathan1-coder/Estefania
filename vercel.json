@@ -10,7 +10,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-src https://www.openstreetmap.org; manifest-src 'self'; upgrade-insecure-requests"
+          "value": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; script-src 'self' 'sha256-SAiolq7ntOO/a1B+psdqMFdQ4/9t0jnMvNJ9hRsAz5Q=' 'sha256-Wx0Z+rKQVPQpT6GgqFASadxyvOZJXPiy/LX8aKtL/Dg=' 'sha256-KQnlcu5Qf8mjUrNWRjyWCq+84/mQJ3QilTnvOL+t+pk=' 'sha256-wAsawIZtGHlHHTEKmOEWmG1ZoIutn9BZduSNAVfPa/I=' 'sha256-13w4lN/cdBy2R9bJwv/Pp8m6UvuoLV28Y49JgS3She0=' 'sha256-4BKv5cp3H/KtIw3RdymQfs2zDCx7K0Q1NBdGxPSZ5GU=' 'sha256-Ohovgtwb+8cSsEPpDLrTuPT4O4FhpxgkKSqh5nmWzRA=' 'sha256-A9C4JWa/pu99V81H7mLeYOj116F6YzbsfC/BWpA7xdQ='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-src https://www.openstreetmap.org; manifest-src 'self'; upgrade-insecure-requests"
         },
         { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" },
         { "key": "X-Content-Type-Options", "value": "nosniff" },
@@ -35,7 +35,7 @@
       ]
     },
     {
-      "source": "/(favicon.ico|robots.txt|sitemap.xml)",
+      "source": "/(favicon.ico|robots.txt|sitemap.xml|site.webmanifest)",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=86400" }
       ]

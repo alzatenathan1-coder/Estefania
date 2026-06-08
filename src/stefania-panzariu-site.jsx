@@ -236,6 +236,7 @@ function Drawer({ open, onClose }) {
   }, [open]);
 
   const links = [
+  { href: "/servicios", label: "Servicios", idx: "00" },
   { href: "#micropigmentacion", label: "Micropigmentación", idx: "01" },
   { href: "#unas", label: "Uñas de Autor", idx: "02" },
   { href: "#estetica", label: "Estética Facial", idx: "03" },
@@ -376,6 +377,7 @@ function Nav() {
           <img className="logo-img" src={BRAND_ASSETS.logoWhite} alt={BUSINESS.name} />
         </a>
         <nav className="nav-links">
+          <a href="/servicios">Servicios</a>
           <a href="#micropigmentacion">Micropigmentación</a>
           <a href="#unas">Uñas de Autor</a>
           <a href="#estetica">Estética</a>
@@ -993,97 +995,100 @@ function TrackSection() {
 
 /* ---------- Testimonials ---------- */
 function TestimonialsSection() {
-  // Reseñas reales verificadas en Google, organizadas por servicio.
-  const groups = [
-    {
-      cat: "Uñas de autor y manicura",
-      tone: "nails",
-      cols: 3,
-      items: [
-        {
-          q: "Llevo haciéndome las uñas 20 años y Estefanía es la manicurista más profesional que he tenido. Mis uñas están preciosas, duran 6 semanas perfectamente y ella es un ángel de persona. La recomiendo a todas mis amigas: nunca defrauda. Es un 10.",
-          n: "Sabrina Calleja", svc: "Manicura · 20 años de clienta", a: "S", lg: true
-        },
-        {
-          q: "Excelente profesional pero mejor persona. Son 7 años los que llevo haciéndome las uñas con ella y la calidad es inmejorable. Jamás se me ha partido o caído una uña. Siempre innovando en diseños nuevos. Calidad-precio perfecta.",
-          n: "Rebeca Lorente", svc: "Uñas de autor · Durabilidad", a: "R"
-        },
-        {
-          q: "Súper contenta con Estefanía, la recomiendo 100×100, la mejor de Cuenca: buen precio, calidad y duración. No te hace esperar como en otros sitios, es muy puntual y organizada con los tiempos. Y además, bellísima persona.",
-          n: "Déborah García", svc: "Manicura · La mejor de Cuenca", a: "D"
-        },
-        {
-          q: "El mejor sitio de uñas en Cuenca. Llevo años haciéndome las uñas con ella y no la cambio por nada.",
-          n: "Jenifer Rodríguez", svc: "Uñas en Cuenca", a: "J"
-        },
-        {
-          q: "Elegir a Estefanía para el cuidado de tus uñas es un acierto. Nunca he tenido mis uñas tan bonitas y sanas. Es una profesional muy perfeccionista, con un trato súper cercano y, algo a destacar, la puntualidad con sus citas.",
-          n: "Beatriz Murcia", svc: "Manicura · Puntualidad", a: "B"
-        },
-        {
-          q: "Trabajo espectacular. Muy profesional y amable. ¡Encantada!",
-          n: "Cristina Plaza", svc: "Uñas de autor", a: "C", lg: true
-        },
-      ]
-    },
-    {
-      cat: "Micropigmentación y maquillaje permanente",
-      tone: "micro",
-      cols: 3,
-      items: [
-        {
-          q: "Me hice un sombreado de cejas y me quedaron espectaculares, ya que tenía un tatuaje por debajo. La verdad que ha sido todo un acierto, recomendado 100%. Y lo mejor: no duele casi nada.",
-          n: "Mª Mercedes Felipe", svc: "Sombreado de cejas", a: "M"
-        },
-        {
-          q: "Llevo tiempo visitando a Estefanía para las uñas y estoy encantada con su trabajo. Hoy le confié el maquillaje permanente, un tatuaje en los párpados. ¡Increíble! Es una verdadera profesional y una técnica muy talentosa.",
-          n: "Eden Niknafs", svc: "Maquillaje permanente · Párpados", a: "E"
-        },
-        {
-          q: "Resultados espectaculares. No puedo estar más feliz: el tratamiento facial dejó mi piel luminosa e hidratada, y la micropigmentación de labios quedó preciosa.",
-          n: "María del Carmen", svc: "Micropigmentación de labios", a: "M"
-        },
-      ]
-    },
-    {
-      cat: "Estética facial",
-      tone: "facial",
-      cols: 2,
-      items: [
-        {
-          q: "He salido encantada con la limpieza facial. Desde que entras por la puerta te sientes como en casa: ambiente acogedor, trato cercano y muy profesional. Se nota el cariño y la dedicación en cada detalle. Mi piel quedó increíble.",
-          n: "María I.", svc: "Limpieza facial", a: "M"
-        },
-        {
-          q: "Cada vez que voy salgo más contenta, pero la limpieza facial de hoy ha sido espectacular. Mi piel ha quedado con una luz increíble, súper fresca y mucho más uniforme. Noté el resultado al instante.",
-          n: "Natalia Abanades", svc: "Limpieza facial profunda", a: "N"
-        },
-        {
-          q: "Como siempre, una experiencia maravillosa. Nunca deja de sorprenderme por su profesionalidad, dedicación y el cariño con el que realiza cada tratamiento. Esta vez me hice una limpieza facial con nuevos productos y he quedado encantada.",
-          n: "Cecilia Gil", svc: "Estética facial", a: "C"
-        },
-        {
-          q: "Estoy encantada con este centro de estética. Desde la primera visita me hizo sentir súper cómoda y muy bien atendida. El trato es increíble; se nota el cariño y la profesionalidad con la que trabaja.",
-          n: "Judith Barrios", svc: "Centro de estética", a: "J"
-        },
-      ]
-    },
-    {
-      cat: "Manos, pies y bienestar",
-      tone: "body",
-      cols: 2,
-      items: [
-        {
-          q: "Ayer no sólo hizo su arte en mis manos, que como siempre es espectacular, sino que también sanó unos pies que llevaban mucho encima y salieron hechos una maravilla. Estefanía, más allá de una esteticista, es bálsamo.",
-          n: "Débora Gómez", svc: "Manos y pies · Bienestar", a: "D"
-        },
-        {
-          q: "Ponerte en manos de Estefanía es garantía de éxito. Es una profesional en todos los tratamientos que hace, muy perfeccionista; su asesoramiento, trato y amabilidad diferencian su trabajo. Es encantadora y una gran persona.",
-          n: "Conchi Pérez", svc: "Todos los tratamientos", a: "C"
-        },
-      ]
-    }
+  const [activeFilter, setActiveFilter] = useState("all");
+  const reviews = [
+    { name: "Cecilia Gil Navarro", service: "Estética facial", date: "Hace 3 días", tags: ["facial", "experiencia"], text: "Como siempre, una experiencia maravillosa. Nunca deja de sorprenderme por su profesionalidad, dedicación y el cariño con el que realiza cada tratamiento.", a: "C" },
+    { name: "P. María del Carmen", service: "Facial y labios", date: "Hace 3 días", tags: ["facial", "micro"], text: "Resultados espectaculares. No puedo estar más feliz con el resultado. El tratamiento facial dejó mi piel luminosa e hidratada.", a: "M" },
+    { name: "Maria IM", service: "Limpieza facial", date: "Hace una semana", tags: ["facial", "experiencia"], text: "He salido encantada con la limpieza facial. Desde que entras por la puerta te sientes como en casa: ambiente acogedor, trato cercano y muy profesional.", a: "M" },
+    { name: "Carmen Lopez Sanabria", service: "Atención y paciencia", date: "Hace 2 semanas", tags: ["experiencia"], text: "Estefanía, un amor como siempre. Ama lo que hace y la atención es un 10. Sobre todo tiene mucha paciencia.", a: "C" },
+    { name: "Isabel Aranda Garcia", service: "Trato profesional", date: "Hace 3 semanas", tags: ["experiencia"], text: "Profesional a tope y muy amable. La recomiendo al 100%.", a: "I" },
+    { name: "Maria Mercedes Felipe Auñón", service: "Sombreado de cejas", date: "Hace 3 semanas", tags: ["micro"], text: "Me hice un sombreado de cejas y me quedaron espectaculares. Tenía tatuaje por debajo y ha sido todo un acierto. Recomendado 100%.", a: "M" },
+    { name: "Eden Niknafs", service: "Uñas y maquillaje permanente", date: "Hace 3 semanas", tags: ["unas", "micro"], text: "I have been visiting Estefania for my nails and have been delighted with her work. She is a true professional and talented technician.", a: "E" },
+    { name: "Conchi Pérez Real", service: "Todos los tratamientos", date: "Hace 3 semanas", tags: ["experiencia", "facial"], text: "Ponerte en manos de Estefanía es garantía de éxito. Es una profesional muy perfeccionista; su asesoramiento, trato y amabilidad diferencian su trabajo.", a: "C" },
+    { name: "Judith Barrios Gómez", service: "Centro de estética", date: "Hace 3 semanas", tags: ["facial", "experiencia"], text: "Estoy encantada con este centro de estética. Desde la primera visita me hizo sentir súper cómoda y muy bien atendida.", a: "J" },
+    { name: "Débora Gómez Romero", service: "Manos y pies", date: "Hace 4 semanas", tags: ["unas", "pies"], text: "No solo hizo su arte en mis manos, que como siempre es espectacular; también sanó unos pies que llevaban mucho encima.", a: "D" },
+    { name: "Maribel Rabadan", service: "Trato cercano", date: "Hace un mes", tags: ["experiencia"], text: "Estefania es una buenísima profesional, con mucho interés en su profesión. Siempre está contenta; se ve que es feliz con lo que hace.", a: "M" },
+    { name: "Natalia Abanades", service: "Limpieza facial", date: "Hace un mes", tags: ["facial"], text: "La limpieza facial ha sido espectacular. Mi piel ha quedado con una luz increíble, súper fresca y mucho más uniforme. Noté el resultado al instante.", a: "N" },
+    { name: "Sabrina Calleja", service: "Manicura", date: "Hace un año", tags: ["unas"], text: "Llevo haciéndome las uñas 20 años. Estefania es la manicurista más profesional que he tenido. Mis uñas están preciosas y duran 6 semanas perfectamente.", a: "S" },
+    { name: "Lau GasCar", service: "Experiencia", date: "Hace 2 años", tags: ["experiencia"], text: "Mi experiencia con Estefanía es espectacular siempre, así como de espectacular es ella.", a: "L" },
+    { name: "Paula Lapeña Gonzalez", service: "Uñas y asesoramiento", date: "Hace 2 años", tags: ["unas", "experiencia"], text: "Súper satisfecha con mi experiencia. Es muy profesional, el sitio es acogedor y aconseja lo mejor para el cuidado de tus uñas.", a: "P" },
+    { name: "Judit GG", service: "Diseños de uñas", date: "Hace 2 años", tags: ["unas"], text: "Más de cuatro años llevo a su lado haciéndome las uñas. Siempre crea los diseños perfectos y te deja las uñas perfectísimas.", a: "J" },
+    { name: "Rebeca Lorente Martínez", service: "Durabilidad", date: "Hace 2 años", tags: ["unas"], text: "Son 7 años haciéndome las uñas con ella y la calidad es inmejorable. Jamás se me ha partido o caído una uña. Siempre innovando.", a: "R" },
+    { name: "Déborah García Plaza", service: "Puntualidad y calidad", date: "Hace un año", tags: ["unas", "experiencia"], text: "La mejor de Cuenca: buen precio, calidad y duración. No te hace esperar; es muy puntual y organizada con los tiempos.", a: "D" },
+    { name: "Beatriz Murcia Collado", service: "Uñas sanas", date: "Hace 2 años", tags: ["unas"], text: "Elegir a Estefanía para el cuidado de tus uñas es un acierto. Nunca he tenido mis uñas tan bonitas y sanas.", a: "B" },
+    { name: "Cristina Castellanos", service: "Duración y horarios", date: "Hace 2 años", tags: ["unas", "experiencia"], text: "Gran profesional. Las uñas duran muchísimo y lo más importante: respeta mucho los horarios. Calidad-precio, la mejor.", a: "C" },
+    { name: "Ikigai Bienestar", service: "Uñas sanas", date: "Hace 2 años", tags: ["unas"], text: "Desde hace 3 años mis uñas cuidadas y bonitas gracias a Estefanía, con la seguridad de que están sanas. Adapta el diseño a mis gustos.", a: "I" },
+    { name: "Sheyla Villarreal", service: "Terminación de uña", date: "Hace 2 años", tags: ["unas"], text: "Es una auténtica profesional. Una calidad buenísima y un terminado de uña perfecto.", a: "S" },
+    { name: "Amalia Avram", service: "Diseños exactos", date: "Hace un año", tags: ["unas"], text: "En mi vida he tenido las uñas tan perfectas e impecables. Duran un montón y te hace los diseños tal cual.", a: "A" },
+    { name: "Sonia Del Hoyo", service: "Uñas bonitas", date: "Hace 2 años", tags: ["unas"], text: "Desde que me hizo las uñas por primera vez, tengo las uñas bonitas. Gracias a ella, mis uñas me encantan.", a: "S" },
+    { name: "Silvia Silvia", service: "Detalle y elegancia", date: "Hace 2 años", tags: ["unas"], text: "Si buscas unas uñas que te identifiquen, cuidadas hasta en el más mínimo detalle, este es el sitio idóneo.", a: "S" },
+    { name: "Noemí De la Morena López", service: "Trato y manicura", date: "Hace 2 años", tags: ["unas", "experiencia"], text: "Llevo dos años haciéndome las uñas con Estefania y estoy encantada: uñas muy bien hechas y trato buenísimo.", a: "N" },
+    { name: "María MePo", service: "Uñas perfectas", date: "Hace 2 años", tags: ["unas", "experiencia"], text: "Magnífica persona y profesional. Salgo siempre encantada por el trato y por mis uñas perfectas.", a: "M" },
+    { name: "Leticia Guadalajara Pérez", service: "Uñas y trato", date: "Hace 2 años", tags: ["unas", "experiencia"], text: "Encantada con los resultados cada vez que voy. Estefania es una gran profesional y muy agradable.", a: "L" },
+    { name: "Explora Cuenca", service: "Cuidado de uñas", date: "Hace 2 años", tags: ["unas", "experiencia"], text: "Trato y profesionalidad excelentes. Hace años que Estefanía cuida mis uñas y sigo encantada. Recomendable 100%.", a: "E" },
+    { name: "Laura Aparicio Puerta", service: "Diseño personalizado", date: "Hace 2 años", tags: ["unas"], text: "Siempre consigue mejorar tus ideas y hacer que te encante su trabajo. Sabe plasmar tus gustos y jamás se equivoca.", a: "L" },
+    { name: "Elena Viana", service: "Tendencias y calidad", date: "Hace 2 años", tags: ["unas", "experiencia"], text: "Excepcional. Profesionalidad, calidad y trato. Está a la última en tendencias y productos. Llevo siete años con ella.", a: "E" },
+    { name: "Purificación Blanco", service: "Resultado y cercanía", date: "Hace 9 meses", tags: ["experiencia"], text: "Muy satisfecha con el resultado, mucha profesionalidad y cercanía.", a: "P" },
+    { name: "Feli Cuenca", service: "Duración", date: "Hace 2 años", tags: ["unas"], text: "Llegué a hacerme las uñas después de un mes y siete días con todas enteritas, ni una partida. Contentísima.", a: "F" },
+    { name: "Lorena Del Cubo", service: "Fidelidad", date: "Hace 2 años", tags: ["experiencia"], text: "Trabajo magnífico y maravillosa persona. Llevo muchísimos años con Estefania y así seguiré.", a: "L" },
+    { name: "Alina Baciu", service: "Confianza", date: "Hace 11 meses", tags: ["experiencia"], text: "Súper satisfecha con el trabajo que hace y lo profesional que es. El sitio es acogedor y transmite mucha confianza.", a: "A" },
+    { name: "María Teresa", service: "Arte en uñas", date: "Hace un año", tags: ["unas"], text: "Excelente profesional. Una artista de las uñas con todas las letras. Encantadísima siempre con su trabajo.", a: "M" },
+    { name: "Sandra Molinero", service: "Trabajos impecables", date: "Hace 2 años", tags: ["unas", "experiencia"], text: "Excelente profesional. Trabajos impecables. Llevo más de 5 años con ella y no cambio.", a: "S" },
+    { name: "Teresa Tejeda", service: "Clienta fiel", date: "Hace un año", tags: ["experiencia", "unas"], text: "Son muchos años desde que empecé con ella y no puedo estar más satisfecha con su trabajo. Para mí, la mejor.", a: "T" },
+    { name: "Patricia SJB", service: "Trato humano", date: "Hace 2 años", tags: ["experiencia"], text: "Persona 10 en todos los sentidos. Verdadera profesional y maravillosa persona, siempre sacando una sonrisa.", a: "P" },
+    { name: "Alicia Ruiz", service: "Arte en uñas", date: "Hace 2 años", tags: ["unas", "experiencia"], text: "Una profesional de los pies a la cabeza, hace arte en las uñas y además es una persona maravillosa.", a: "A" },
+    { name: "Alexia Pardo", service: "Experiencia", date: "Hace un año", tags: ["experiencia"], text: "Muy satisfecha con mi experiencia. Estoy con ella desde hace mucho tiempo y es una gran profesional.", a: "A" },
+    { name: "Belén Torralba Plaza", service: "Manicura", date: "Hace 2 años", tags: ["unas"], text: "Llevo varios años haciéndome la manicura con Estefania. Es magnífica y encantadora. Se supera con cada diseño.", a: "B" },
+    { name: "Lucía Abad Ayora", service: "Experiencia", date: "Hace 2 años", tags: ["experiencia"], text: "Me encanta cómo lo hace y cada día que voy me gusta más.", a: "L" },
+    { name: "Teresa Fuentes", service: "Uñas perfectas", date: "Hace 2 años", tags: ["unas", "experiencia"], text: "Excelente trato y profesionalidad en su trabajo. Uñas perfectas. 100% recomendable.", a: "T" },
+    { name: "Ana Cepas Muñoz", service: "Uñas en Cuenca", date: "Hace 2 años", tags: ["unas"], text: "Aparte de hacer las mejores uñas de Cuenca, ella en sí es estupenda. Vuelvo siempre.", a: "A" },
+    { name: "Elena Silvestre", service: "Fidelidad", date: "Hace 2 años", tags: ["experiencia"], text: "Una auténtica profesional. Llevo 8 años en sus manos y como persona es inmejorable.", a: "E" },
+    { name: "Sonia Langreo Escudero", service: "Profesionalidad", date: "Hace un año", tags: ["experiencia"], text: "Llevo muchos años con ella y es muy buena. Profesional y simpática.", a: "S" },
+    { name: "Diana Panadero Alvarez", service: "Uñas y cercanía", date: "Hace 2 años", tags: ["unas", "experiencia"], text: "Dos años con Estefanía y nunca defrauda. Además de hacer unas bonitas uñas, te sientes en casa.", a: "D" },
+    { name: "Virginia Valenciano Saiz", service: "Uñas rápidas", date: "Hace un año", tags: ["unas"], text: "Manicurista maravillosa. Llevo años con ella y hace un trabajo excelente y en una hora.", a: "V" },
+    { name: "Mónica López Ortiz", service: "Puntualidad y producto", date: "Hace 2 años", tags: ["unas", "experiencia"], text: "De 10 como siempre. Puntual, trabajo excelente, calidad en los productos y unas uñas preciosas.", a: "M" },
+    { name: "Alexandra Vilcan", service: "Uñas", date: "Hace 2 años", tags: ["unas"], text: "Llevo años haciéndome las uñas con ella y estoy muy encantada.", a: "A" },
+    { name: "Bea Langreo", service: "Experiencia", date: "Hace un año", tags: ["experiencia"], text: "Es mi segunda vez con Estefanía y la verdad que volveré. Un placer.", a: "B" },
+    { name: "Jenifer Rodriguez", service: "Uñas en Cuenca", date: "Hace un año", tags: ["unas"], text: "El mejor sitio de uñas en Cuenca. Llevo años haciéndome las uñas con ella y no la cambio por nada.", a: "J" },
+    { name: "Rocio De las Heras Sanchez", service: "Uñas acrílicas", date: "Hace un año", tags: ["unas"], text: "Uñas acrílicas muy bien hechas, con muchísima variedad de colores y diseños muy bonitos y detallados.", a: "R" },
+    { name: "Adriana Castellanos", service: "Manicura", date: "Hace un año", tags: ["unas", "experiencia"], text: "La mejor manicurista que hay. Increíble su trabajo y su trato. 100% recomendada.", a: "A" },
+    { name: "Virginia Hernansaiz Arguisuelas", service: "Rapidez y trato", date: "Hace 2 años", tags: ["experiencia"], text: "Una profesional de los pies a la cabeza. Además de su rapidez y trato. Encantada siempre con los resultados.", a: "V" },
+    { name: "Natalia Vindel", service: "Servicio y resultado", date: "Hace 2 años", tags: ["experiencia"], text: "Gran profesional; atención, servicio y resultado inmejorable. No hay otra mejor. Recomendable al 100%.", a: "N" },
+    { name: "Paula Mora", service: "Adaptación a gustos", date: "Hace un año", tags: ["unas", "experiencia"], text: "Una experiencia increíble, siempre con una gran adaptación a tus gustos. Da gusto encontrar a alguien tan profesional.", a: "P" },
+    { name: "Carmen Dominguez", service: "Cuidado de manos", date: "Hace 2 años", tags: ["unas"], text: "Donde mejor y con más cariño te cuida de tus manos. Muy recomendable y muy profesional.", a: "C" },
+    { name: "Coral Valverde Templado", service: "Uñas perfectas", date: "Hace 2 años", tags: ["unas", "experiencia"], text: "Una auténtica profesional en mayúsculas. Nunca he llevado las uñas tan perfectas y el trato es exquisito.", a: "C" },
+    { name: "Cristina Plaza", service: "Resultado", date: "Hace un año", tags: ["experiencia"], text: "Trabajo espectacular. Muy profesional y amable. Encantada.", a: "C" },
+    { name: "Veronica Jimenez", service: "Uñas de ensueño", date: "Hace un año", tags: ["unas"], text: "La mejor para hacerse uñas. Gracias a ella tengo unas uñas de ensueño.", a: "V" },
+    { name: "Nerea Fernández", service: "Uñas", date: "Hace un año", tags: ["unas"], text: "Es la mejor haciendo uñas y un amor.", a: "N" },
+    { name: "Raquel Oliver", service: "Trato agradable", date: "Hace 2 años", tags: ["experiencia"], text: "Profesional, hace genial su trabajo y además es muy agradable.", a: "R" },
+    { name: "Antonio Baciu", service: "Uñas", date: "Hace un año", tags: ["unas"], text: "Muy buen servicio y las uñas chulísimas.", a: "A" },
+    { name: "Verónica Ventura", service: "Cercanía", date: "Hace 2 años", tags: ["experiencia"], text: "Muy profesional, cercana y amable. Recomiendo totalmente. Es un 10.", a: "V" },
+    { name: "Patricia Martinez Portero", service: "Manicura", date: "Hace 2 años", tags: ["unas"], text: "El mejor sitio de Cuenca para tener una manicura perfecta.", a: "P" },
+    { name: "Irene Navarro Palencia", service: "Cercanía", date: "Hace 2 años", tags: ["experiencia"], text: "Es profesional y muy cercana con los clientes. Sin duda, la mejor.", a: "I" },
+    { name: "Brujillaratona Niña", service: "Experiencia", date: "Hace un año", tags: ["experiencia"], text: "Donde la vida te la hace más fácil. Gracias por tanto.", a: "B" },
+    { name: "Lucía Torrijos Laín", service: "Renovación", date: "Hace un año", tags: ["experiencia"], text: "Muy profesional y renovándose continuamente.", a: "L" },
+    { name: "Julia Pontones", service: "Servicio", date: "Hace 2 años", tags: ["experiencia"], text: "Muy buen servicio y Estefanía muy maja.", a: "J" },
+    { name: "Luz María Carrasco Castro", service: "Experiencia", date: "Hace un año", tags: ["experiencia"], text: "Eres la mejor, en todos los sentidos.", a: "L" },
   ];
+
+  const filters = [
+    { id: "all", label: "Todas", note: "Reseñas con texto" },
+    { id: "unas", label: "Uñas", note: "Diseño, duración y manicura" },
+    { id: "micro", label: "Micro", note: "Cejas, labios y ojos" },
+    { id: "facial", label: "Facial", note: "Limpieza y tratamientos" },
+    { id: "pies", label: "Pies", note: "Cuidado y bienestar" },
+    { id: "experiencia", label: "Trato", note: "Puntualidad y confianza" },
+  ];
+  const catLabel = {
+    unas: "Uñas",
+    micro: "Micropigmentación",
+    facial: "Facial",
+    pies: "Pies",
+    experiencia: "Trato",
+  };
+  const activeReviews = activeFilter === "all" ? reviews : reviews.filter((r) => r.tags.includes(activeFilter));
+  const activeMeta = filters.find((f) => f.id === activeFilter) || filters[0];
+  const countFor = (id) => id === "all" ? reviews.length : reviews.filter((r) => r.tags.includes(id)).length;
 
   const Star = () => (
     <svg viewBox="0 0 24 24"><path d="M12 2l2.95 6.97L22 10l-5.5 4.78L18.18 22 12 18.27 5.82 22l1.68-7.22L2 10l7.05-1.03L12 2z"/></svg>
@@ -1115,39 +1120,61 @@ function TestimonialsSection() {
             <LineMask delay={120}>en <em style={{fontFamily:"var(--serif)"}}>Cuenca</em>.</LineMask>
           </h2>
           <R className="body" delay={200}>
-            Más de 75 reseñas reales en Google, casi todas de clientas que repiten
-            año tras año —algunas llevan más de 7 años en sus manos—. Estas son
-            algunas voces, organizadas por servicio.
+            Reseñas reales de Google clasificadas por servicio: uñas, micropigmentación,
+            estética facial, pies y experiencia en el estudio.
           </R>
         </div>
 
-        {groups.map((g) => (
-          <div className={`tg tg-${g.tone}`} key={g.cat}>
-            <R as="div" className="tg-head">
-              <span className="tg-rule"></span>
-              <span className="small-caps">{g.cat}</span>
-              <span className="tg-count">{g.items.length} {g.items.length === 1 ? "reseña" : "reseñas"}</span>
-            </R>
-            <div className={`testimonials-grid cols-${g.cols}`}>
-              {g.items.map((t, i) => (
-                <R as="div" key={i} className="quote" v="r-fade" delay={i * 120}>
-                  <span className="gbadge" aria-label="Reseña de Google"><GoogleG/></span>
-                  <div className="stars" aria-label="5 estrellas">
-                    <Star/><Star/><Star/><Star/><Star/>
+        <div className="reviews-board">
+          <div className="review-filters" role="tablist" aria-label="Filtrar reseñas por servicio">
+            {filters.map((f) => (
+              <button
+                key={f.id}
+                type="button"
+                className={`review-filter ${activeFilter === f.id ? "is-active" : ""}`}
+                onClick={() => setActiveFilter(f.id)}
+                aria-pressed={activeFilter === f.id}>
+                <span className="rf-label">{f.label}</span>
+                <span className="rf-count">{countFor(f.id)}</span>
+              </button>
+            ))}
+          </div>
+
+          <div className="reviews-panel-head">
+            <div>
+              <span className="small-caps">{activeMeta.note}</span>
+              <h3>{activeMeta.label}</h3>
+            </div>
+            <span className="reviews-total">{activeReviews.length} comentarios</span>
+          </div>
+
+          <div className="reviews-table">
+            {activeReviews.map((r, i) => {
+              const primary = r.tags[0];
+              return (
+                <R as="article" key={`${r.name}-${i}`} className={`review-row tone-${primary}`} v="r-fade" delay={(i % 8) * 45}>
+                  <div className="review-rating" aria-label="5 estrellas en Google">
+                    <GoogleG/>
+                    <span className="score">5,0</span>
+                    <span className="stars-text">★★★★★</span>
                   </div>
-                  <blockquote>{t.q}</blockquote>
-                  <div className="author">
-                    <div className="avatar">{t.a}</div>
-                    <div className="who">
-                      <span className="name">{t.n}</span>
-                      <span className="svc">{t.svc}{t.lg ? <span className="lg">Local Guide</span> : null}</span>
+                  <div className="review-main">
+                    <div className="review-meta">
+                      <span className="review-name">{r.name}</span>
+                      <span>{r.service}</span>
+                      <span>{r.date}</span>
                     </div>
+                    <blockquote>{r.text}</blockquote>
+                  </div>
+                  <div className="review-side">
+                    <span className={`review-chip chip-${primary}`}>{catLabel[primary] || "Google"}</span>
+                    <span className="avatar">{r.a}</span>
                   </div>
                 </R>
-              ))}
-            </div>
+              );
+            })}
           </div>
-        ))}
+        </div>
 
         <div className="testimonials-stats">
           <R as="div" className="stat">
@@ -1156,11 +1183,11 @@ function TestimonialsSection() {
           </R>
           <R as="div" className="stat" delay={100}>
             <span className="n">+75</span>
-            <span className="l">Reseñas reales verificadas</span>
+            <span className="l">Reseñas reales en Google</span>
           </R>
           <R as="div" className="stat" delay={200}>
-            <span className="n">100%</span>
-            <span className="l">Clientas que la recomiendan</span>
+            <span className="n">{reviews.length}</span>
+            <span className="l">Comentarios visibles clasificados</span>
           </R>
           <R as="div" className="stat" delay={300}>
             <span className="n">+7<span style={{ fontSize: ".5em", color: "var(--muted)" }}> años</span></span>
