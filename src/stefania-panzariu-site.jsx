@@ -240,7 +240,7 @@ function Drawer({ open, onClose }) {
   { href: "#micropigmentacion", label: "Micropigmentación", idx: "01" },
   { href: "#unas", label: "Uñas de Autor", idx: "02" },
   { href: "#estetica", label: "Estética Facial", idx: "03" },
-  { href: "#corporal", label: "Armonía Corporal", idx: "04" },
+  { href: "#corporal", label: "Estética Corporal", idx: "04" },
   { href: "#testimonios", label: "Reseñas", idx: "05" },
   { href: "#trayectoria", label: "Trayectoria", idx: "06" },
   { href: "#faq", label: "Preguntas", idx: "07" },
@@ -253,7 +253,7 @@ function Drawer({ open, onClose }) {
       <aside className="drawer" role="dialog" aria-label="Menú">
         <div className="drawer-top">
           <span className="brand-mark">
-            <img className="logo-img" src={BRAND_ASSETS.logoBlack} alt={BUSINESS.name} style={{ height: 40 }} />
+            <img className="logo-img on-light" src={BRAND_ASSETS.logoWhite} alt={BUSINESS.name} style={{ height: 40 }} />
           </span>
           <button className="drawer-close" onClick={onClose} aria-label="Cerrar menú"></button>
         </div>
@@ -374,7 +374,7 @@ function Nav() {
     <React.Fragment>
       <header className={`nav ${visible ? "visible" : ""} ${scrolled ? "scrolled" : ""}`}>
         <a href="#top" className="brand-mark" aria-label={BUSINESS.name}>
-          <img className="logo-img" src={BRAND_ASSETS.logoWhite} alt={BUSINESS.name} />
+          <img className="logo-img on-dark" src={BRAND_ASSETS.logoBlack} alt={BUSINESS.name} />
         </a>
         <nav className="nav-links">
           <a href="/servicios">Servicios</a>
@@ -515,33 +515,8 @@ function Hero() {
 
 }
 
-/* ---------- Pinned horizontal healing timeline ---------- */
+/* ---------- Healing cycle — calm vertical grid ---------- */
 function HealingPin() {
-  const wrapRef = useRef(null);
-  const railRef = useRef(null);
-  const progRef = useRef(null);
-  const [active, setActive] = useState(1);
-
-  useEffect(() => {
-    const wrap = wrapRef.current,rail = railRef.current,prog = progRef.current;
-    if (!wrap || !rail) return;
-
-    const update = () => {
-      const r = wrap.getBoundingClientRect();
-      const total = wrap.offsetHeight - window.innerHeight;
-      const scrolled = Math.max(0, Math.min(total, -r.top));
-      const t = total > 0 ? scrolled / total : 0; // 0..1
-      const trackable = rail.scrollWidth - window.innerWidth;
-      rail.style.transform = `translate3d(${(-trackable * t).toFixed(1)}px, 0, 0)`;
-      if (prog) prog.style.setProperty("--p", `${(t * 100).toFixed(1)}%`);
-      setActive(Math.min(4, Math.max(1, Math.ceil(t * 4) || 1)));
-    };
-    update();
-    window.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", update);
-    return () => {window.removeEventListener("scroll", update);window.removeEventListener("resize", update);};
-  }, []);
-
   const weeks = [
   { w: "01", t: "Intensidad y cuidado", h: "El color se observa más oscuro", d: "Debido al proceso de oxidación natural. Te acompañamos indicándote cómo hidratarlo y cuidarlo durante los primeros días." },
   { w: "02", t: "La fase escondida", h: "La piel genera una microcostra", d: "Se desprende de forma natural y hace que el color parezca desaparecer temporalmente. Forma parte del proceso." },
@@ -550,39 +525,38 @@ function HealingPin() {
 
 
   return (
-    <div className="pin-section" ref={wrapRef}>
-      <div className="pin-stage">
-        <div className="pin-head">
-          <R as="div">
-            <div className="kicker" style={{ marginBottom: 12 }}>Módulo educativo</div>
-            <h3 className="h-sub" style={{ maxWidth: "22ch" }}>El ciclo de tu piel, explicado con calma.</h3>
+    <section className="healing-cycle">
+      <div className="container">
+        <R className="chapter">
+          <span className="rule"></span>
+          <span className="small-caps">Módulo educativo</span>
+        </R>
+
+        <div className="grid-2 end">
+          <h2 className="h-section">
+            <LineMask>El ciclo de tu piel,</LineMask>
+            <LineMask delay={120}>explicado con calma.</LineMask>
+          </h2>
+          <R className="body" delay={200}>
+            Cuatro semanas, cuatro fases naturales. Conocer el proceso de
+            cicatrización te ayuda a vivirlo con calma y a entender por qué el
+            resultado final llega sin prisas.
           </R>
-          <R as="div" v="r-right" className="small-caps">Semana {String(active).padStart(2, "0")} / 04</R>
         </div>
 
-        <div className="pin-rail" ref={railRef}>
-          {weeks.map((w) =>
-          <div className="card" key={w.w}>
-              <div>
-                <div className="w">{w.w}</div>
-                <div className="t" style={{ marginTop: 24 }}>Semana {w.w}</div>
-              </div>
-              <div>
-                <div className="h">{w.h}</div>
-                <p className="d">{w.d}</p>
-                <div style={{ marginTop: 16, fontFamily: "var(--sans)", fontSize: 11, letterSpacing: ".26em", textTransform: "uppercase", color: "var(--muted)" }}>{w.t}</div>
-              </div>
-            </div>
+        <div className="cycle-grid">
+          {weeks.map((w, i) =>
+          <R as="div" className="cycle-card" key={w.w} delay={i * 90}>
+              <div className="w">{w.w}</div>
+              <div className="t">Semana {w.w}</div>
+              <div className="h">{w.h}</div>
+              <p className="d">{w.d}</p>
+              <div className="phase">{w.t}</div>
+            </R>
           )}
         </div>
-
-        <div className="pin-progress" ref={progRef}>
-          <span>01</span>
-          <span className="track"></span>
-          <span>04</span>
-        </div>
       </div>
-    </div>);
+    </section>);
 
 }
 
@@ -696,10 +670,15 @@ function NailsSection() {
           <div className="col-photos">
             <R v="r-mask" className="img">
               <Parallax speed={0.08} className="inner">
-                <img className="cover-img" src={SITE_IMAGES.nailMilky} alt="Manicura rusa con acabado milky en Stefania Panzariu Studio" loading="lazy" />
+                <img className="cover-img" src={SITE_IMAGES.nailMilky} alt="Uñas de autor con acabado milky en Stefania Panzariu Studio" loading="lazy" />
               </Parallax>
             </R>
-            <R v="r-mask" delay={140} className="img">
+            <R v="r-fade" delay={120} className="quote-tile">
+              <span className="mark">✦</span>
+              <p>Manos cuidadas, acabados limpios y una elegancia que no necesita gritar.</p>
+              <span className="sign">Quiet Luxury</span>
+            </R>
+            <R v="r-mask" delay={200} className="img">
               <Parallax speed={0.12} className="inner">
                 <img className="cover-img" src={SITE_IMAGES.nailNude} alt="Uñas nude translúcidas con acabado limpio y natural" loading="lazy" />
               </Parallax>
@@ -715,8 +694,8 @@ function NailsSection() {
               <R as="div" className="feat" v="r-left">
                 <div className="label">Técnica</div>
                 <div>
-                  <h4>Manicura rusa de alta precisión</h4>
-                  <p>Retiramos mecánicamente la cutícula con tornos específicos, logrando un esmaltado impecable que nace bajo el pliegue de la piel.</p>
+                  <h4>Manicura de alta precisión</h4>
+                  <p>Trabajamos la cutícula con detalle y herramientas específicas, logrando un esmaltado impecable que nace bajo el pliegue de la piel.</p>
                 </div>
               </R>
               <R as="div" className="feat" v="r-left" delay={120}>
@@ -736,7 +715,7 @@ function NailsSection() {
             </div>
 
             <R delay={300} style={{ marginTop: 36 }}>
-              <a className="btn dark" href={wa("Hola, quiero reservar una cita para manicura rusa con refuerzo de matriz.")}>
+              <a className="btn dark" href={wa("Hola, quiero reservar una cita para uñas de autor con refuerzo de matriz.")}>
                 Reservar mi ritual <span className="arrow">→</span>
               </a>
             </R>
@@ -819,7 +798,7 @@ function BodySection() {
       <div className="container" style={{ position: "relative", zIndex: 1 }}>
         <R className="chapter">
           <span className="rule"></span>
-          <span className="small-caps">Armonía Corporal</span>
+          <span className="small-caps">Estética corporal</span>
         </R>
 
         <div className="body-grid">
@@ -1410,7 +1389,7 @@ function FooterSection() {
 
         {/* Signature */}
         <div className="footer-signature">
-          <img className="footer-logo-img" src={BRAND_ASSETS.logoWhite} alt={BUSINESS.name} />
+          <img className="footer-logo-img on-dark" src={BRAND_ASSETS.logoBlack} alt={BUSINESS.name} />
           <div className="tag">Belleza de autor · {BUSINESS.city} · {BUSINESS.addressTag}</div>
         </div>
 
@@ -1448,8 +1427,8 @@ function FaqSection() {
     a: "Trabajamos con asepsia de grado clínico conforme al Decreto 5/2004 de la JCCM, pigmentos registrados en la AEMPS, agujas monodosis de un solo uso y certificación sanitaria oficial."
   },
   {
-    q: "¿Qué es la manicura rusa y cuánto dura?",
-    a: "Es una técnica de alta precisión que retira mecánicamente la cutícula con tornos específicos, logrando un esmaltado impecable que nace bajo el pliegue de la piel. Con nivelación de matriz y rubber base, la durabilidad supera las 3 semanas."
+    q: "¿En qué consisten las uñas de autor y cuánto duran?",
+    a: "Son una manicura de alta precisión que trabaja la cutícula con detalle para lograr un esmaltado impecable que nace bajo el pliegue de la piel. Con nivelación de matriz y rubber base, la durabilidad supera las 3 semanas."
   },
   {
     q: "¿Dónde estáis y cómo pido cita?",

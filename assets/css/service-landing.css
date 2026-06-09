@@ -38,6 +38,10 @@ main, header, footer, .floating-cta { position: relative; z-index: 2; }
   border-bottom: 1px solid rgba(255,255,255,.08);
 }
 .logo { height: 48px; width: auto; }
+/* El logo es un PNG cuadrado con fondo sólido; el blend elimina el recuadro
+   y deja sólo la firma integrada con el color de la barra. */
+img.on-dark { mix-blend-mode: lighten; }
+img.on-light { mix-blend-mode: multiply; }
 .nav-links { display: flex; justify-content: center; gap: 34px; font-size: 10.5px; letter-spacing: .24em; text-transform: uppercase; color: rgba(255,255,255,.76); }
 .nav-links a:hover { color: #fff; }
 .nav-cta { padding: 13px 20px; border: 1px solid rgba(255,255,255,.35); border-radius: 999px; color: #fff; font-size: 10.5px; letter-spacing: .22em; text-transform: uppercase; }
