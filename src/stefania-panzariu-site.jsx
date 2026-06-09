@@ -68,28 +68,71 @@ function useSitePreloader() {
   useEffect(() => {
     const startedAt = performance.now();
     const minDuration = 500;
+    const maxDuration = 3600;
     let done = false;
+    let cancelled = false;
+    const timers = new Set();
 
-    const finish = () => {
-      if (done) return;
-      done = true;
-      const wait = Math.max(0, minDuration - (performance.now() - startedAt));
-      window.setTimeout(() => {
-        document.body.classList.add("site-ready");
-        document.body.classList.remove("is-loading");
-        window.setTimeout(() => {
-          document.getElementById("site-preloader")?.remove();
-        }, 900);
-      }, wait);
+    document.body.classList.add("app-mounted");
+
+    const delay = (ms) =>
+      new Promise((resolve) => {
+        const id = window.setTimeout(() => {
+          timers.delete(id);
+          resolve();
+        }, ms);
+        timers.add(id);
+      });
+
+    const waitForWindowLoad = () =>
+      document.readyState === "complete"
+        ? Promise.resolve()
+        : new Promise((resolve) => {
+          window.addEventListener("load", resolve, { once: true });
+        });
+
+    const waitForHeroImage = async () => {
+      const img = document.querySelector(".hero-photo img");
+      if (!img) return;
+
+      if (!img.complete || !img.naturalWidth) {
+        await Promise.race([
+          new Promise((resolve) => {
+            img.addEventListener("load", resolve, { once: true });
+            img.addEventListener("error", resolve, { once: true });
+          }),
+          delay(1800)
+        ]);
+      }
+
+      if (img.decode) await img.decode().catch(() => {});
     };
 
-    const fallback = window.setTimeout(finish, 3200);
-    if (document.readyState === "complete") finish();
-    else window.addEventListener("load", finish, { once: true });
+    const finish = () => {
+      if (done || cancelled) return;
+      done = true;
+      const wait = Math.max(0, minDuration - (performance.now() - startedAt));
+      const readyTimer = window.setTimeout(() => {
+        timers.delete(readyTimer);
+        document.body.classList.add("site-ready");
+        document.body.classList.remove("is-loading");
+        const removeTimer = window.setTimeout(() => {
+          timers.delete(removeTimer);
+          document.getElementById("site-preloader")?.remove();
+        }, 900);
+        timers.add(removeTimer);
+      }, wait);
+      timers.add(readyTimer);
+    };
+
+    Promise.race([
+      Promise.all([waitForWindowLoad(), waitForHeroImage(), delay(minDuration)]),
+      delay(maxDuration)
+    ]).then(finish);
 
     return () => {
-      window.clearTimeout(fallback);
-      window.removeEventListener("load", finish);
+      cancelled = true;
+      timers.forEach((id) => window.clearTimeout(id));
     };
   }, []);
 }
