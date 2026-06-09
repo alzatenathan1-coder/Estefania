@@ -4,8 +4,8 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Servicios de Belleza en Cuenca | Stefania Panzariu Studio</title>
-<meta name="description" content="Micropigmentación, manicura rusa, estética facial y rituales corporales en Cuenca. Servicios personalizados. Reserva tu cita." />
-<meta name="keywords" content="servicios belleza Cuenca, micropigmentación Cuenca, manicura rusa Cuenca, uñas de autor Cuenca, limpieza facial Cuenca, maderoterapia Cuenca, drenaje linfático Cuenca, Stefania Panzariu" />
+<meta name="description" content="Micropigmentación, uñas de autor, estética facial y corporal en Cuenca. Servicios personalizados. Reserva tu cita." />
+<meta name="keywords" content="servicios belleza Cuenca, micropigmentación Cuenca, uñas de autor Cuenca, manicura Cuenca, estética facial Cuenca, estética corporal Cuenca, maderoterapia Cuenca, drenaje linfático Cuenca, Stefania Panzariu" />
 <meta name="robots" content="index, follow, max-image-preview:large" />
 <meta name="theme-color" content="#fbfaf8" />
 <link rel="canonical" href="https://stefaniavictoria.com/servicios" />
@@ -20,7 +20,7 @@
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:site" content="@victoria_e_p" />
 <meta name="twitter:title" content="Servicios de Belleza en Cuenca | Stefania Panzariu Studio" />
-<meta name="twitter:description" content="Micropigmentación, manicura rusa, estética facial y rituales corporales en Cuenca." />
+<meta name="twitter:description" content="Micropigmentación, uñas de autor, estética facial y corporal en Cuenca." />
 <meta name="twitter:image" content="https://stefaniavictoria.com/assets/brand/og-social-preview.jpg" />
 <meta name="twitter:image:alt" content="Servicios de belleza de Stefania Panzariu Studio en Cuenca" />
 
@@ -142,6 +142,9 @@
     box-shadow: 0 6px 32px -8px rgba(0,0,0,.45);
   }
   .logo { height: 48px; width: auto; }
+  /* El logo es un PNG cuadrado con fondo sólido; el blend elimina el recuadro. */
+  img.on-dark { mix-blend-mode: lighten; }
+  img.on-light { mix-blend-mode: multiply; }
   .nav-links {
     display: flex; justify-content: center; gap: 36px;
     font-size: 10.5px; letter-spacing: .26em; text-transform: uppercase;
@@ -261,6 +264,12 @@
   }
   .signature-row span { font-size: 10px; letter-spacing: .24em; text-transform: uppercase; color: var(--muted); }
   .services { padding: 108px 0; }
+  .service-chapter {
+    max-width: 760px; margin: 24px 0 8px;
+    padding-top: 64px; border-top: 1px solid var(--hair);
+  }
+  .service-chapter h2 { margin: 18px 0 16px; }
+  .service-chapter .lead { color: var(--ink-2, #555); }
   .service {
     display: grid; grid-template-columns: minmax(0, .86fr) minmax(0, 1.14fr);
     gap: 68px;
@@ -466,13 +475,13 @@
 <body>
   <header class="nav">
     <a href="/" aria-label="Volver a la página principal">
-      <img class="logo" src="assets/brand/stefania-panzariu-logo-white.png" alt="Stefania Panzariu Studio">
+      <img class="logo on-dark" src="assets/brand/stefania-panzariu-logo-black.png" alt="Stefania Panzariu Studio">
     </a>
     <nav class="nav-links" aria-label="Servicios">
       <a class="active" href="/servicios">Servicios</a>
       <a href="#micropigmentacion">Micropigmentación</a>
-      <a href="#unas">Uñas</a>
-      <a href="#facial">Facial</a>
+      <a href="#unas">Uñas de Autor</a>
+      <a href="#estetica">Estética</a>
       <a href="#corporal">Corporal</a>
     </nav>
     <a class="mini-cta" href="https://wa.me/34690699205?text=Hola%20Stefania%2C%20quiero%20pedir%20cita%20para%20uno%20de%20tus%20servicios." target="_blank" rel="noopener">Pedir cita</a>
@@ -484,7 +493,7 @@
         <div class="hero-copy">
           <div class="eyebrow"><span class="rule"></span><span class="small-caps">Servicios · Cuenca</span></div>
           <h1>Servicios de belleza de autor.</h1>
-          <p class="lead">Micropigmentación, manicura rusa, estética facial avanzada y rituales corporales en un estudio íntimo, preciso y sin prisas.</p>
+          <p class="lead">Micropigmentación, uñas de autor y estética facial y corporal en un estudio íntimo, preciso y sin prisas.</p>
         </div>
         <div class="hero-visual" aria-label="Servicios de Stefania Panzariu Studio">
           <div class="hero-photo">
@@ -495,7 +504,7 @@
             </div>
           </div>
           <div class="photo-stack">
-            <div class="stack-photo"><img src="assets/images/manicura-rusa-milky-cuenca.jpg" alt="Manicura rusa con acabado milky"></div>
+            <div class="stack-photo"><img src="assets/images/manicura-rusa-milky-cuenca.jpg" alt="Uñas de autor con acabado milky"></div>
             <div class="stack-photo"><img src="assets/images/cabina-estetica-facial-cuenca.jpg" alt="Cabina de estética facial avanzada"></div>
           </div>
         </div>
@@ -550,13 +559,19 @@
             </div>
             <p class="body">Manicura de alta precisión pensada para mantener la uña natural sana, estilizada y resistente, con acabados limpios y atemporales.</p>
             <div class="service-list">
-              <div class="service-item"><span class="tag">Técnica</span><div><h3>Manicura rusa</h3><p>Trabajo minucioso de cutícula y esmaltado profundo para un acabado impecable desde la raíz.</p></div></div>
+              <div class="service-item"><span class="tag">Técnica</span><div><h3>Manicura de alta precisión</h3><p>Trabajo minucioso de cutícula y esmaltado profundo para un acabado impecable desde la raíz.</p></div></div>
               <div class="service-item"><span class="tag">Refuerzo</span><div><h3>Nivelación de matriz · Rubber Base</h3><p>Corrección visual de imperfecciones y refuerzo flexible para una manicura más duradera.</p></div></div>
               <div class="service-item"><span class="tag">Diseño</span><div><h3>Milky, nude y diseños personalizados</h3><p>Acabados suaves, elegantes y adaptados a tu mano, tu ritmo y tu estilo.</p></div></div>
             </div>
-            <div class="service-cta"><a class="btn" href="https://wa.me/34690699205?text=Hola%20Stefania%2C%20quiero%20pedir%20cita%20para%20u%C3%B1as%20o%20manicura%20rusa." target="_blank" rel="noopener">Reservar manicura</a><a class="btn ghost" href="/manicura-rusa">Ver servicio</a></div>
+            <div class="service-cta"><a class="btn" href="https://wa.me/34690699205?text=Hola%20Stefania%2C%20quiero%20pedir%20cita%20para%20u%C3%B1as%20de%20autor." target="_blank" rel="noopener">Reservar manicura</a><a class="btn ghost" href="/unas-de-autor">Ver servicio</a></div>
           </div>
         </article>
+
+        <div class="service-chapter" id="estetica">
+          <div class="chapter"><span class="rule"></span><span class="small-caps">Estética facial y corporal</span></div>
+          <h2>Estética integral: rostro y cuerpo.</h2>
+          <p class="lead">La estética del estudio cuida las dos dimensiones de tu piel: el rostro, con tratamientos faciales avanzados, y el cuerpo, con terapias y rituales corporales. Dos especialidades complementarias bajo una misma mirada.</p>
+        </div>
 
         <article class="service" id="facial">
           <div class="service-visual"><img src="assets/images/cabina-estetica-facial-cuenca.jpg" alt="Cabina de estética facial avanzada en Cuenca"></div>
@@ -580,9 +595,9 @@
           <div class="service-copy">
             <div class="service-head">
               <div class="service-num">04</div>
-              <h2>Armonía corporal.</h2>
+              <h2>Estética corporal.</h2>
             </div>
-            <p class="body">Terapias manuales y rituales corporales para liberar tensión, estimular la circulación y devolver ligereza al cuerpo.</p>
+            <p class="body">La rama corporal de la estética: terapias manuales y rituales para liberar tensión, estimular la circulación, moldear la silueta y devolver ligereza al cuerpo.</p>
             <div class="service-list">
               <div class="service-item"><span class="tag">Moldear</span><div><h3>Maderoterapia</h3><p>Técnica natural con instrumentos de madera para tonificar, mejorar circulación y trabajar zonas con celulitis.</p></div></div>
               <div class="service-item"><span class="tag">Drenar</span><div><h3>Drenaje linfático</h3><p>Maniobras suaves y precisas para favorecer eliminación de líquidos y aliviar sensación de piernas cansadas.</p></div></div>
@@ -619,7 +634,7 @@
 
   <footer class="footer">
     <div class="container footer-inner">
-      <img src="assets/brand/stefania-panzariu-logo-white.png" alt="Stefania Panzariu Studio">
+      <img class="on-dark" src="assets/brand/stefania-panzariu-logo-black.png" alt="Stefania Panzariu Studio">
       <span>Centro Comercial 4 Caminos, nº 7 · 16004 Cuenca</span>
       <a href="/">Volver a la home</a>
     </div>
