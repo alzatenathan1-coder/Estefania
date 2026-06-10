@@ -36,6 +36,8 @@ const SITE_IMAGES = {
   nailMilky: "assets/images/manicura-rusa-milky-cuenca.jpg",
   nailNude: "assets/images/unas-nude-translucido-cuenca.jpg",
   facialCabin: "assets/images/cabina-estetica-facial-cuenca.jpg",
+  massagePareja: "assets/images/masaje-en-pareja-spa-cuenca.jpg",
+  massageDetail: "assets/images/masaje-relajante-detalle-manos.jpg",
 };
 
 const wa = (msg) => `https://wa.me/${BUSINESS.phone}?text=${encodeURIComponent(msg)}`;
@@ -280,14 +282,15 @@ function Drawer({ open, onClose }) {
 
   const links = [
   { href: "/servicios", label: "Servicios", idx: "00" },
-  { href: "#micropigmentacion", label: "Micropigmentación", idx: "01" },
+  { href: "#masajes", label: "Masajes", idx: "01" },
   { href: "#unas", label: "Uñas de Autor", idx: "02" },
   { href: "#estetica", label: "Estética Facial", idx: "03" },
   { href: "#corporal", label: "Estética Corporal", idx: "04" },
-  { href: "#testimonios", label: "Reseñas", idx: "05" },
-  { href: "#trayectoria", label: "Trayectoria", idx: "06" },
-  { href: "#faq", label: "Preguntas", idx: "07" },
-  { href: "#contacto", label: "El Refugio", idx: "08" }];
+  { href: "#micropigmentacion", label: "Micropigmentación", idx: "05" },
+  { href: "#testimonios", label: "Reseñas", idx: "06" },
+  { href: "#trayectoria", label: "Trayectoria", idx: "07" },
+  { href: "#faq", label: "Preguntas", idx: "08" },
+  { href: "#contacto", label: "El Refugio", idx: "09" }];
 
 
   return (
@@ -421,7 +424,7 @@ function Nav() {
         </a>
         <nav className="nav-links">
           <a href="/servicios">Servicios</a>
-          <a href="#micropigmentacion">Micropigmentación</a>
+          <a href="#masajes">Masajes</a>
           <a href="#unas">Uñas de Autor</a>
           <a href="#estetica">Estética</a>
           <a href="#corporal">Corporal</a>
@@ -518,15 +521,15 @@ function Hero() {
           </h1>
 
           <R className="lead" delay={1050}>
-            Diseño visagista hiperrealista, micropigmentación avanzada y rituales
-            de manicura de alta precisión en un espacio íntimo concebido para tu calma en Cuenca.
+            Masajes en pareja y rituales relajantes, uñas de autor y estética facial
+            y corporal en un espacio íntimo concebido para tu calma en Cuenca.
           </R>
 
           <R delay={1250} style={{ display: "flex", gap: 16, flexWrap: "wrap", marginTop: 8 }}>
-            <a className="btn dark" href={wa("Hola Stefania, he estado viendo la web de tu estudio y me gustaría solicitar una consulta de valoración gratuita para Micropigmentación.")}>
-              Reservar Consulta <span className="arrow">→</span>
+            <a className="btn dark" href={wa("Hola Stefania, he estado viendo la web de tu estudio y me gustaría reservar un masaje en pareja / relajante.")}>
+              Reservar Masaje <span className="arrow">→</span>
             </a>
-            <a className="btn" href="#micropigmentacion">Conocer el método</a>
+            <a className="btn" href="#masajes">Descubre los rituales</a>
           </R>
         </div>
 
@@ -558,45 +561,82 @@ function Hero() {
 
 }
 
-/* ---------- Healing cycle — calm vertical grid ---------- */
-function HealingPin() {
-  const weeks = [
-  { w: "01", t: "Intensidad y cuidado", h: "El color se observa más oscuro", d: "Debido al proceso de oxidación natural. Te acompañamos indicándote cómo hidratarlo y cuidarlo durante los primeros días." },
-  { w: "02", t: "La fase escondida", h: "La piel genera una microcostra", d: "Se desprende de forma natural y hace que el color parezca desaparecer temporalmente. Forma parte del proceso." },
-  { w: "03", t: "El retorno del tono", h: "La epidermis se repara", d: "La nueva piel se renueva por completo y el pigmento vuelve a subir a la superficie de manera natural y suave." },
-  { w: "04", t: "Retoque de perfección", h: "Sesión de asentamiento final", d: "Consolidamos un resultado impecable que te acompañará de 12 a 24 meses con plena armonía." }];
-
-
+/* ---------- Masajes ---------- */
+function MassageSection() {
   return (
-    <section className="healing-cycle">
-      <div className="container">
+    <section className="sec-nails sec-massage" id="masajes">
+      <GhostNum>01</GhostNum>
+      <div className="container" style={{ position: "relative", zIndex: 1 }}>
         <R className="chapter">
           <span className="rule"></span>
-          <span className="small-caps">Módulo educativo</span>
+          <span className="small-caps">Masajes · Bienestar</span>
         </R>
 
         <div className="grid-2 end">
           <h2 className="h-section">
-            <LineMask>El ciclo de tu piel,</LineMask>
-            <LineMask delay={120}>explicado con calma.</LineMask>
+            <LineMask>Un paréntesis</LineMask>
+            <LineMask delay={120}>para <em style={{ fontFamily: "var(--serif)" }}>dos</em>.</LineMask>
           </h2>
           <R className="body" delay={200}>
-            Cuatro semanas, cuatro fases naturales. Conocer el proceso de
-            cicatrización te ayuda a vivirlo con calma y a entender por qué el
-            resultado final llega sin prisas.
+            Reserva un momento de calma compartida o un ritual solo para ti. Manos
+            expertas, aromaterapia y un espacio pensado para que el tiempo se detenga.
           </R>
         </div>
 
-        <div className="cycle-grid">
-          {weeks.map((w, i) =>
-          <R as="div" className="cycle-card" key={w.w} delay={i * 90}>
-              <div className="w">{w.w}</div>
-              <div className="t">Semana {w.w}</div>
-              <div className="h">{w.h}</div>
-              <p className="d">{w.d}</p>
-              <div className="phase">{w.t}</div>
+        <div className="nails-stage">
+          <div className="col-photos">
+            <R v="r-mask" className="img">
+              <Parallax speed={0.08} className="inner">
+                <img className="cover-img" src={SITE_IMAGES.massagePareja} alt="Masaje en pareja en el estudio de Stefania Panzariu en Cuenca" loading="lazy" />
+              </Parallax>
             </R>
-          )}
+            <R v="r-fade" delay={120} className="quote-tile">
+              <span className="mark">✦</span>
+              <p>Un ritual a dúo, pensado para regalar y regalaros una pausa real.</p>
+              <span className="sign">Ritual Dúo</span>
+            </R>
+            <R v="r-mask" delay={200} className="img">
+              <Parallax speed={0.12} className="inner">
+                <img className="cover-img" src={SITE_IMAGES.massageDetail} alt="Detalle de masaje relajante de espalda en Stefania Panzariu Studio" loading="lazy" />
+              </Parallax>
+            </R>
+          </div>
+
+          <div className="col-text">
+            <R className="kicker" style={{ marginBottom: 16 }}>Rituales de bienestar</R>
+            <R as="h3" className="h-sub" delay={120} style={{ maxWidth: "20ch" }}>
+              Tres formas de desconectar, a tu ritmo y al de quien quieras llevar contigo.
+            </R>
+            <div className="nails-features">
+              <R as="div" className="feat" v="r-left">
+                <div className="label">En pareja</div>
+                <div>
+                  <h4>Masaje en Pareja · Ritual Dúo</h4>
+                  <p>Dos camillas, una misma cabina: comparte un ritual relajante con tu pareja, una amiga o en familia, en un ambiente cálido e íntimo.</p>
+                </div>
+              </R>
+              <R as="div" className="feat" v="r-left" delay={120}>
+                <div className="label">Relajante</div>
+                <div>
+                  <h4>Masaje Relajante</h4>
+                  <p>Maniobras suaves y envolventes que liberan tensión acumulada, calman la mente y devuelven la sensación de ligereza al cuerpo entero.</p>
+                </div>
+              </R>
+              <R as="div" className="feat" v="r-left" delay={240}>
+                <div className="label">Experiencia</div>
+                <div>
+                  <h4>Aromaterapia &amp; calma</h4>
+                  <p>Aceites esenciales, luz cálida y silencio acompañado: cada sesión se adapta a tu nivel de presión y al tiempo que quieras regalarte.</p>
+                </div>
+              </R>
+            </div>
+
+            <R delay={300} style={{ marginTop: 36 }}>
+              <a className="btn dark" href={wa("Hola Stefania, me gustaría reservar un masaje en pareja / relajante.")}>
+                Reservar mi masaje <span className="arrow">→</span>
+              </a>
+            </R>
+          </div>
         </div>
       </div>
     </section>);
@@ -623,66 +663,44 @@ function MicroSection() {
   }];
 
   return (
-    <React.Fragment>
-      <section className="sec-micro" id="micropigmentacion">
-        <GhostNum>01</GhostNum>
-        <div className="container" style={{ position: "relative", zIndex: 1 }}>
-          <R className="chapter">
-            <span className="rule"></span>
-            <span className="small-caps">Micropigmentación</span>
-          </R>
+    <section className="sec-micro sec-micro-secondary" id="micropigmentacion">
+      <div className="container" style={{ position: "relative", zIndex: 1 }}>
+        <R className="chapter">
+          <span className="rule"></span>
+          <span className="small-caps">También en el estudio · Micropigmentación</span>
+        </R>
 
-          <div className="grid-2 end">
-            <h2 className="h-section">
-              <LineMask>La armonía</LineMask>
-              <LineMask delay={120}>que siempre</LineMask>
-              <LineMask delay={240}>estuvo ahí.</LineMask>
-            </h2>
-            <R className="body" delay={200}>
-              La micropigmentación no busca transformar tu rostro en algo que no eres;
-              busca devolverle la simetría y la fuerza natural que el tiempo ha
-              difuminado. Cada trazo es una obra de precisión artesanal diseñada
-              en exclusiva para ti.
-            </R>
-          </div>
-
-          <div className="methods-wrap">
-            <div className="sticky-col">
-              <R className="kicker" style={{ marginBottom: 16 }}>El método en cabina</R>
-              <R as="h3" className="h-sub" delay={120} style={{ maxWidth: "16ch" }}>
-                Tres lenguajes,<br />una misma <em style={{ fontFamily: "var(--serif)" }}>precisión</em>.
-              </R>
-              <R delay={240} style={{ marginTop: 28 }}>
-                <p className="body" style={{ maxWidth: "32ch" }}>
-                  Asepsia de grado clínico bajo Decreto 5/2004 JCCM.
-                  Pigmentos AEMPS, agujas monodosis y certificación oficial sanitaria.
-                </p>
-              </R>
-            </div>
-
-            <div className="methods-list">
-              {methods.map((m, i) =>
-              <R as="div" key={m.n} className="row" v="r-left" delay={i * 100}>
-                  <div className="n">{m.n}</div>
-                  <div>
-                    <h4>{m.t}</h4>
-                    <p>{m.d}</p>
-                  </div>
-                </R>
-              )}
-            </div>
-          </div>
-
-          <R style={{ display: "flex", justifyContent: "center", marginTop: 120 }}>
-            <a className="btn dark" href={wa("Hola Stefania, me gustaría recibir más información y solicitar una cita para Micropigmentación.")}>
-              Solicitar estudio visagista <span className="arrow">→</span>
-            </a>
+        <div className="grid-2 end">
+          <h2 className="h-sub">
+            <LineMask>La armonía</LineMask>
+            <LineMask delay={120}>que siempre estuvo ahí.</LineMask>
+          </h2>
+          <R className="body" delay={200}>
+            Diseño visagista hiperrealista para cejas, labios y mirada, con asepsia
+            de grado clínico y pigmentos AEMPS. Consulta disponibilidad y resuelve
+            tus dudas por WhatsApp.
           </R>
         </div>
-      </section>
 
-      <HealingPin />
-    </React.Fragment>);
+        <div className="methods-list compact">
+          {methods.map((m, i) =>
+          <R as="div" key={m.n} className="row" v="r-left" delay={i * 80}>
+              <div className="n">{m.n}</div>
+              <div>
+                <h4>{m.t}</h4>
+                <p>{m.d}</p>
+              </div>
+            </R>
+          )}
+        </div>
+
+        <R style={{ marginTop: 48 }}>
+          <a className="linkish" href={wa("Hola Stefania, me gustaría recibir más información sobre Micropigmentación.")}>
+            Más información sobre micropigmentación <span className="arrow">→</span>
+          </a>
+        </R>
+      </div>
+    </section>);
 
 }
 
@@ -1458,6 +1476,10 @@ function FooterSection() {
 function FaqSection() {
   const faqs = [
   {
+    q: "¿En qué consiste el masaje en pareja?",
+    a: "Es un ritual dúo en el que dos personas reciben un masaje relajante a la vez, en la misma cabina, con aromaterapia y un ambiente cálido pensado para compartir un momento de calma."
+  },
+  {
     q: "¿Cuánto dura la micropigmentación de cejas, labios u ojos?",
     a: "El resultado se mantiene de forma natural entre 12 y 24 meses, según tu tipo de piel, el cuidado diario y la exposición solar. Incluimos una sesión de retoque de asentamiento para consolidar un acabado impecable."
   },
@@ -1542,11 +1564,11 @@ function App() {
       <main id="contenido">
         <Hero />
         <Interlude id="interlude-1"
-        src={SITE_IMAGES.pigmentDetail}
-        placeholder="Detalle macro — pigmento, agua, gesto del pincel"
-        label="Micropigmentación"
-        quote={<>Cada trazo, una obra de <em style={{ fontFamily: "var(--serif)" }}>precisión</em>.</>} />
-        <MicroSection />
+        src={SITE_IMAGES.massagePareja}
+        placeholder="Masaje en pareja · cabina con velas"
+        label="Masajes"
+        quote={<>Un paréntesis a dúo. <em style={{ fontFamily: "var(--serif)" }}>Tiempo para vosotros</em>.</>} />
+        <MassageSection />
         <Interlude id="interlude-2"
         src={SITE_IMAGES.nailDetail}
         placeholder="Mano de manicura · detalle macro"
@@ -1560,6 +1582,7 @@ function App() {
         quote={<>Silenciar el ruido. <em style={{ fontFamily: "var(--serif)" }}>Devolver el resplandor</em>.</>} />
         <FacialSection />
         <BodySection />
+        <MicroSection />
         <TestimonialsSection />
         <TrackSection />
         <FaqSection />
