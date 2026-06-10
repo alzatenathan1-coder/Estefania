@@ -24,14 +24,14 @@
 <meta name="twitter:image" content="https://stefaniavictoria.com/assets/brand/og-social-preview.jpg" />
 <meta name="twitter:image:alt" content="Servicios de belleza de Stefania Panzariu Studio en Cuenca" />
 
-<link rel="icon" type="image/png" sizes="48x48" href="https://stefaniavictoria.com/assets/brand/stefania-panzariu-favicon-48.png" />
-<link rel="icon" type="image/png" sizes="96x96" href="https://stefaniavictoria.com/assets/brand/stefania-panzariu-favicon-96.png" />
-<link rel="icon" type="image/png" sizes="192x192" href="https://stefaniavictoria.com/assets/brand/stefania-panzariu-favicon-192.png" />
-<link rel="shortcut icon" href="https://stefaniavictoria.com/favicon.ico" sizes="16x16 32x32 48x48" />
-<link rel="apple-touch-icon" sizes="180x180" href="https://stefaniavictoria.com/assets/brand/stefania-panzariu-apple-touch-icon.png" />
+<link rel="icon" type="image/png" sizes="48x48" href="/assets/brand/stefania-panzariu-favicon-48.png" />
+<link rel="icon" type="image/png" sizes="96x96" href="/assets/brand/stefania-panzariu-favicon-96.png" />
+<link rel="icon" type="image/png" sizes="192x192" href="/assets/brand/stefania-panzariu-favicon-192.png" />
+<link rel="shortcut icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/brand/stefania-panzariu-apple-touch-icon.png" />
 <link rel="manifest" href="/site.webmanifest" />
 
-<link rel="preload" as="image" href="assets/brand/stefania-panzariu-logo-white.png" />
+<link rel="preload" as="image" href="assets/brand/stefania-panzariu-logo-black.png" />
 <link rel="preload" as="image" href="assets/images/masaje-en-pareja-spa-cuenca.jpg" fetchpriority="high" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -79,7 +79,7 @@
     --sans: "Manrope", -apple-system, BlinkMacSystemFont, sans-serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; }
+  html { scroll-behavior: smooth; overflow-x: hidden; }
   body {
     min-height: 100vh;
     font-family: var(--sans);
@@ -444,9 +444,10 @@
     .nav { padding: 12px 18px; }
     .logo { height: 42px; }
     .nav .mini-cta { font-size: 9.5px; letter-spacing: .16em; padding: 11px 14px; }
-    .hero h1 { font-size: clamp(60px, 17vw, 88px); }
-    .hero-copy .lead { font-size: 17px; }
-    .hero-photo { min-height: 52vh; }
+    .hero { padding: 92px 0 52px; }
+    .hero h1 { font-size: clamp(50px, 14vw, 68px); line-height: .94; }
+    .hero-copy .lead { font-size: 16.5px; line-height: 1.55; margin-top: 24px; }
+    .hero-photo { min-height: 42svh; }
     .photo-stack { display: none; }
     .hero-card { left: 16px; right: 16px; bottom: 16px; grid-template-columns: 1fr; }
     .intro, .services, .process, .final-cta { padding: 76px 0; }
@@ -455,20 +456,23 @@
     .signature-row div:last-child { border-bottom: 0; }
     .service-head, .service-item, .step { grid-template-columns: 1fr; gap: 14px; }
     .service-num { font-size: 54px; }
-    .service h2 { font-size: clamp(45px, 14vw, 64px); }
+    .service > *, .service-copy, .service-visual, .service-head, .service-item { min-width: 0; }
+    .service h2 { font-size: clamp(38px, 11vw, 52px); overflow-wrap: break-word; hyphens: auto; }
     .service-item .tag { padding-top: 0; }
     .service-cta .btn { width: 100%; white-space: normal; text-align: center; }
     .footer-inner { flex-direction: column; align-items: flex-start; }
     .floating-cta {
       right: 12px;
-      grid-template-columns: 1fr auto;
-      width: calc(100% - 24px);
-      border-radius: 28px;
-      padding: 16px 14px 16px 18px;
+      width: auto;
+      min-height: 48px;
+      grid-template-columns: auto auto;
+      gap: 8px;
+      border-radius: 999px;
+      padding: 11px 12px 11px 16px;
     }
-    .floating-cta strong { font-size: 22px; }
-    .floating-cta span { letter-spacing: .16em; }
-    .floating-cta .cta-dot { width: 48px; height: 48px; }
+    .floating-cta strong { font-family: var(--sans); font-style: normal; font-size: 12px; font-weight: 700; letter-spacing: .02em; }
+    .floating-cta span:not(.cta-dot) { display: none; }
+    .floating-cta .cta-dot { width: 26px; height: 26px; font-size: 15px; }
   }
 </style>
 </head>

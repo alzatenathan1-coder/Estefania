@@ -81,7 +81,8 @@ class LiveReloadHandler(SimpleHTTPRequestHandler):
             self.handle_livereload()
             return
 
-        if parsed.path in ('/', '/index.html') or parsed.path.endswith(('.html', '.htm')):
+        clean_html = ROOT / f"{parsed.path.strip('/')}.html"
+        if parsed.path in ('/', '/index.html') or parsed.path.endswith(('.html', '.htm')) or clean_html.exists():
             self.serve_html(parsed.path)
             return
 
@@ -93,6 +94,8 @@ class LiveReloadHandler(SimpleHTTPRequestHandler):
         file_path = self.translate_path(path)
         if os.path.isdir(file_path):
             file_path = os.path.join(file_path, 'index.html')
+        elif not os.path.exists(file_path) and os.path.exists(file_path + '.html'):
+            file_path = file_path + '.html'
 
         if not os.path.exists(file_path):
             self.send_error(404, 'File not found')

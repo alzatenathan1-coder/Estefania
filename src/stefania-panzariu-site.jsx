@@ -525,7 +525,7 @@ function Hero() {
             y corporal en un espacio íntimo concebido para tu calma en Cuenca.
           </R>
 
-          <R delay={1250} style={{ display: "flex", gap: 16, flexWrap: "wrap", marginTop: 8 }}>
+          <R className="hero-actions" delay={1250}>
             <a className="btn dark" href={wa("Hola Stefania, he estado viendo la web de tu estudio y me gustaría reservar un masaje en pareja / relajante.")}>
               Reservar Masaje <span className="arrow">→</span>
             </a>
