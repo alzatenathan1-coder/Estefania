@@ -22,8 +22,8 @@ const BUSINESS = {
 };
 
 const BRAND_ASSETS = {
-  logoBlack: "assets/brand/stefania-panzariu-logo-black.png",
-  logoWhite: "assets/brand/stefania-panzariu-logo-white.png",
+  logoBlack: "assets/brand/stefania-panzariu-logo-black-192.webp",
+  logoWhite: "assets/brand/stefania-panzariu-logo-white-192.webp",
 };
 
 const SITE_IMAGES = {
@@ -38,6 +38,17 @@ const SITE_IMAGES = {
   facialCabin: "assets/images/cabina-estetica-facial-cuenca.jpg",
   massagePareja: "assets/images/masaje-en-pareja-spa-cuenca.jpg",
   massageDetail: "assets/images/masaje-relajante-detalle-manos.jpg",
+};
+
+// Variantes WebP generadas desde cada JPG: <nombre>-800.webp y <nombre>-<ancho>.webp
+const IMG_LARGE_W = {
+  [SITE_IMAGES.hero]: 1062,
+  [SITE_IMAGES.artistTool]: 1206,
+};
+const pic = (src, sizes = "(max-width: 1080px) 100vw, 50vw") => {
+  const base = src.replace(/\.jpg$/, "");
+  const lw = IMG_LARGE_W[src] || 1600;
+  return { src: `${base}-800.webp`, srcSet: `${base}-800.webp 800w, ${base}-${lw}.webp ${lw}w`, sizes };
 };
 
 const wa = (msg) => `https://wa.me/${BUSINESS.phone}?text=${encodeURIComponent(msg)}`;
@@ -66,120 +77,52 @@ function useScrollProgress() {
   }, []);
 }
 
-function useSitePreloader() {
-  useEffect(() => {
-    const startedAt = performance.now();
-    const minDuration = 500;
-    const maxDuration = 3600;
-    let done = false;
-    let cancelled = false;
-    const timers = new Set();
-
-    document.body.classList.add("app-mounted");
-
-    const delay = (ms) =>
-      new Promise((resolve) => {
-        const id = window.setTimeout(() => {
-          timers.delete(id);
-          resolve();
-        }, ms);
-        timers.add(id);
-      });
-
-    const waitForWindowLoad = () =>
-      document.readyState === "complete"
-        ? Promise.resolve()
-        : new Promise((resolve) => {
-          window.addEventListener("load", resolve, { once: true });
-        });
-
-    const waitForHeroImage = async () => {
-      const img = document.querySelector(".hero-photo img");
-      if (!img) return;
-
-      if (!img.complete || !img.naturalWidth) {
-        await Promise.race([
-          new Promise((resolve) => {
-            img.addEventListener("load", resolve, { once: true });
-            img.addEventListener("error", resolve, { once: true });
-          }),
-          delay(1800)
-        ]);
-      }
-
-      if (img.decode) await img.decode().catch(() => {});
-    };
-
-    const finish = () => {
-      if (done || cancelled) return;
-      done = true;
-      const wait = Math.max(0, minDuration - (performance.now() - startedAt));
-      const readyTimer = window.setTimeout(() => {
-        timers.delete(readyTimer);
-        document.body.classList.add("site-ready");
-        document.body.classList.remove("is-loading");
-        const removeTimer = window.setTimeout(() => {
-          timers.delete(removeTimer);
-          document.getElementById("site-preloader")?.remove();
-        }, 900);
-        timers.add(removeTimer);
-      }, wait);
-      timers.add(readyTimer);
-    };
-
-    Promise.race([
-      Promise.all([waitForWindowLoad(), waitForHeroImage(), delay(minDuration)]),
-      delay(maxDuration)
-    ]).then(finish);
-
-    return () => {
-      cancelled = true;
-      timers.forEach((id) => window.clearTimeout(id));
-    };
-  }, []);
-}
-
 /* ---------- Reveal hook ---------- */
 function useReveal(opts = {}) {
   const ref = useRef(null);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    // clip-path (r-mask) deja el elemento con área visible 0 y el observer no
+    // lo detecta nunca: en ese caso se observa el contenedor padre.
+    const target = el.matches(".r-mask, .r-mask-h") && el.parentElement ? el.parentElement : el;
+    const threshold = target === el ? opts.threshold ?? 0.18 : 0.05;
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((e) => {
           if (e.isIntersecting) {
             el.classList.add("in");
-            if (opts.once !== false) io.unobserve(el);
+            if (opts.once !== false) io.unobserve(target);
           } else if (opts.once === false) {
             el.classList.remove("in");
           }
         });
       },
-      { threshold: opts.threshold ?? 0.18, rootMargin: opts.rootMargin ?? "0px 0px -8% 0px" }
+      { threshold, rootMargin: opts.rootMargin ?? "0px 0px -8% 0px" }
     );
-    io.observe(el);
+    io.observe(target);
     return () => io.disconnect();
   }, []);
   return ref;
 }
 
-function R({ as = "div", v = "r-fade", delay = 0, children, className = "", style, ...rest }) {
+function R({ as = "div", v = "r-fade", delay = 0, instant = false, children, className = "", style, ...rest }) {
   const ref = useReveal();
   const Tag = as;
-  const s = { ...(style || {}), transitionDelay: `${delay}ms` };
+  // instant: visible desde el HTML prerenderizado, animado solo con CSS (hero)
+  const s = instant ? { ...(style || {}), animationDelay: `${delay}ms` } : { ...(style || {}), transitionDelay: `${delay}ms` };
   return (
-    <Tag ref={ref} className={`${v} ${className}`} style={s} {...rest}>
+    <Tag ref={ref} className={`${v} ${className}${instant ? " in hero-anim" : ""}`} style={s} {...rest}>
       {children}
     </Tag>);
 
 }
 
 /* line-by-line reveal — every line in own .line-mask span */
-function LineMask({ children, delay = 0 }) {
+function LineMask({ children, delay = 0, instant = false }) {
   const ref = useReveal();
   return (
-    <span ref={ref} className="line-mask" style={{ transitionDelay: `${delay}ms` }}>
+    <span ref={ref} className={`line-mask${instant ? " in hero-anim" : ""}`} style={instant ? { animationDelay: `${delay}ms` } : { transitionDelay: `${delay}ms` }}>
       <span>{children}</span>
     </span>);
 
@@ -263,7 +206,7 @@ function Interlude({ id, src, placeholder, label, quote, side = "left" }) {
   return (
     <section className="interlude" aria-hidden="false">
       <div className="photo" ref={photoRef}>
-        <img className="cover-img" src={src} alt={placeholder} loading="lazy" />
+        <img className="cover-img" {...pic(src, "100vw")} alt={placeholder} loading="lazy" />
       </div>
       <div className="legend">
         <R v="r-fade" className="ital">{quote}</R>
@@ -281,25 +224,25 @@ function Drawer({ open, onClose }) {
   }, [open]);
 
   const links = [
-  { href: "/servicios", label: "Servicios", idx: "00" },
-  { href: "#masajes", label: "Masajes", idx: "01" },
-  { href: "#unas", label: "Uñas de Autor", idx: "02" },
-  { href: "#estetica", label: "Estética Facial", idx: "03" },
-  { href: "#corporal", label: "Estética Corporal", idx: "04" },
+  { href: "#unas", label: "Uñas", idx: "01" },
+  { href: "#masajes", label: "Masajes", idx: "02" },
+  { href: "#estetica", label: "Estética facial", idx: "03" },
+  { href: "#corporal", label: "Estética corporal", idx: "04" },
   { href: "#micropigmentacion", label: "Micropigmentación", idx: "05" },
   { href: "#testimonios", label: "Reseñas", idx: "06" },
-  { href: "#trayectoria", label: "Trayectoria", idx: "07" },
+  { href: "#trayectoria", label: "Sobre Stefania", idx: "07" },
   { href: "#faq", label: "Preguntas", idx: "08" },
-  { href: "#contacto", label: "El Refugio", idx: "09" }];
+  { href: "#contacto", label: "Contacto y horario", idx: "09" },
+  { href: "/servicios", label: "Todos los servicios", idx: "→" }];
 
 
   return (
-    <div className={`drawer-overlay ${open ? "open" : ""}`} aria-hidden={!open}>
+    <div className={`drawer-overlay ${open ? "open" : ""}`} aria-hidden={!open} inert={open ? undefined : ""}>
       <div className="scrim" onClick={onClose}></div>
       <aside className="drawer" role="dialog" aria-label="Menú">
         <div className="drawer-top">
           <span className="brand-mark">
-            <img className="logo-img on-light" src={BRAND_ASSETS.logoWhite} alt={BUSINESS.name} style={{ height: 40 }} />
+            <img className="logo-img on-light" src={BRAND_ASSETS.logoWhite} alt={BUSINESS.name} width="40" height="40" style={{ height: 40 }} />
           </span>
           <button className="drawer-close" onClick={onClose} aria-label="Cerrar menú"></button>
         </div>
@@ -313,8 +256,9 @@ function Drawer({ open, onClose }) {
         </nav>
         <div className="drawer-foot">
           <div>
-            <div className="label">El Refugio</div>
+            <div className="label">Dónde estamos</div>
             <div className="addr">{BUSINESS.addressLine}<br />{BUSINESS.postalCity}</div>
+            <div className="addr" style={{ fontSize: 15, marginTop: 6 }}>Lunes a viernes · 9:00 a 21:00</div>
           </div>
           <div>
             <div className="label">Síguenos</div>
@@ -331,8 +275,11 @@ function Drawer({ open, onClose }) {
               </a>
             </div>
           </div>
-          <a className="btn dark" href={wa(CITA_MSG)} onClick={onClose}>
-            Pedir Cita por WhatsApp <span className="arrow">→</span>
+          <a className="btn dark" href={wa(CITA_MSG)} onClick={onClose} target="_blank" rel="noopener">
+            Pedir cita por WhatsApp <span className="arrow">→</span>
+          </a>
+          <a className="btn" href={`tel:+${BUSINESS.phone}`} onClick={onClose}>
+            Llamar al 690 699 205
           </a>
         </div>
       </aside>
@@ -420,15 +367,15 @@ function Nav() {
     <React.Fragment>
       <header className={`nav ${visible ? "visible" : ""} ${scrolled ? "scrolled" : ""}`}>
         <a href="#top" className="brand-mark" aria-label={BUSINESS.name}>
-          <img className="logo-img on-dark" src={BRAND_ASSETS.logoBlack} alt={BUSINESS.name} />
+          <img className="logo-img on-dark" src={BRAND_ASSETS.logoBlack} alt={BUSINESS.name} width="46" height="46" />
         </a>
         <nav className="nav-links">
           <a href="/servicios">Servicios</a>
+          <a href="#unas">Uñas</a>
           <a href="#masajes">Masajes</a>
-          <a href="#unas">Uñas de Autor</a>
           <a href="#estetica">Estética</a>
-          <a href="#corporal">Corporal</a>
-          <a href="#trayectoria">Trayectoria</a>
+          <a href="#testimonios">Reseñas</a>
+          <a href="#contacto">Contacto</a>
         </nav>
         <div className="nav-cta">
           <NavDropdown label={<><span className="lead-ic">{Pin}</span>Encuéntranos</>} panelClass="socials">
@@ -510,26 +457,27 @@ function Hero() {
     <section className="hero" id="top">
       <div className="hero-inner">
         <div className="hero-text">
-          <R v="r-fade" delay={0}>
-            <div className="kicker">{BUSINESS.name} · {BUSINESS.tagline}</div>
+          <R v="r-fade" delay={0} instant>
+            <h1 className="kicker">Uñas, masajes y estética en Cuenca</h1>
           </R>
 
-          <h1 className="display">
-            <LineMask delay={150}>El arte</LineMask>
-            <LineMask delay={350}>de sentirte</LineMask>
-            <LineMask delay={550}><em style={{ fontFamily: "var(--display)", fontStyle: "normal" }}>bien.</em></LineMask>
-          </h1>
+          <p className="display">
+            <LineMask delay={100} instant>El arte</LineMask>
+            <LineMask delay={200} instant>de sentirte</LineMask>
+            <LineMask delay={300} instant><em style={{ fontFamily: "var(--display)", fontStyle: "normal" }}>bien.</em></LineMask>
+          </p>
 
-          <R className="lead" delay={1050}>
-            Masajes en pareja y rituales relajantes, uñas de autor y estética facial
-            y corporal en un espacio íntimo concebido para tu calma en Cuenca.
+          <R className="lead" delay={450} instant>
+            Soy Stefania. En mi estudio de 4 Caminos hago uñas, masajes (también
+            en pareja), tratamientos faciales y corporales y micropigmentación.
+            Trabajo con cita previa para atenderte sin prisas.
           </R>
 
-          <R className="hero-actions" delay={1250}>
-            <a className="btn dark" href={wa("Hola Stefania, he estado viendo la web de tu estudio y me gustaría reservar un masaje en pareja / relajante.")}>
-              Reservar Masaje <span className="arrow">→</span>
+          <R className="hero-actions" delay={550} instant>
+            <a className="btn dark" href={wa(CITA_MSG)} target="_blank" rel="noopener">
+              Pedir cita por WhatsApp <span className="arrow">→</span>
             </a>
-            <a className="btn" href="#masajes">Descubre los rituales</a>
+            <a className="btn" href="#que-hago">Ver servicios</a>
           </R>
         </div>
 
@@ -537,11 +485,11 @@ function Hero() {
           <div className="inner" ref={photoRef} style={{ willChange: "transform" }}>
             <img
               className="cover-img"
-              src={SITE_IMAGES.hero}
+              {...pic(SITE_IMAGES.hero)}
               alt="Stefania Panzariu, fundadora del estudio de belleza de autor en Cuenca, especialista en micropigmentación y uñas"
               style={{ objectPosition: "50% 20%" }}
               width="1062" height="1509"
-              fetchPriority="high"
+              fetchpriority="high"
               loading="eager" />
           </div>
         </div>
@@ -561,15 +509,47 @@ function Hero() {
 
 }
 
+/* ---------- Acceso rápido a servicios ---------- */
+function QuickServices() {
+  const items = [
+  { href: "#unas", t: "Uñas", d: "Manicura de precisión, rubber base, milky y diseños." },
+  { href: "#masajes", t: "Masajes", d: "Relajantes, con aromaterapia o en pareja." },
+  { href: "#estetica", t: "Estética facial", d: "Limpieza profunda y tratamientos para dar luz." },
+  { href: "#corporal", t: "Estética corporal", d: "Maderoterapia, drenaje linfático y envolturas." },
+  { href: "#micropigmentacion", t: "Micropigmentación", d: "Cejas, labios y eyeliner con boceto previo." }];
+
+  return (
+    <section className="quick-services" id="que-hago" aria-labelledby="qs-title">
+      <div className="container">
+        <h2 id="qs-title" className="small-caps">Qué puedes reservar</h2>
+        <ul className="qs-grid">
+          {items.map((i) =>
+          <li key={i.href}>
+              <a href={i.href}>
+                <span className="qs-t">{i.t}</span>
+                <span className="qs-d">{i.d}</span>
+                <span className="qs-a" aria-hidden="true">→</span>
+              </a>
+            </li>
+          )}
+        </ul>
+        <p className="qs-note">
+          Lunes a viernes de 9:00 a 21:00 · Solo con cita previa · <a href="#contacto">Cómo llegar</a>
+        </p>
+      </div>
+    </section>);
+
+}
+
 /* ---------- Masajes ---------- */
 function MassageSection() {
   return (
     <section className="sec-nails sec-massage" id="masajes">
-      <GhostNum>01</GhostNum>
+      <GhostNum>02</GhostNum>
       <div className="container" style={{ position: "relative", zIndex: 1 }}>
         <R className="chapter">
           <span className="rule"></span>
-          <span className="small-caps">Masajes · Bienestar</span>
+          <span className="small-caps">Masajes en Cuenca · Relajante y en pareja</span>
         </R>
 
         <div className="grid-2 end">
@@ -578,8 +558,8 @@ function MassageSection() {
             <LineMask delay={120}>para <em style={{ fontFamily: "var(--serif)" }}>dos</em>.</LineMask>
           </h2>
           <R className="body" delay={200}>
-            Reserva un momento de calma compartida o un ritual solo para ti. Manos
-            expertas, aromaterapia y un espacio pensado para que el tiempo se detenga.
+            Puedes venir sola o acompañada: con tu pareja, una amiga o alguien de tu
+            familia. Aceites esenciales, luz cálida y la presión que tú prefieras.
           </R>
         </div>
 
@@ -587,17 +567,17 @@ function MassageSection() {
           <div className="col-photos">
             <R v="r-mask" className="img">
               <Parallax speed={0.08} className="inner">
-                <img className="cover-img" src={SITE_IMAGES.massagePareja} alt="Masaje en pareja en el estudio de Stefania Panzariu en Cuenca" loading="lazy" />
+                <img className="cover-img" {...pic(SITE_IMAGES.massagePareja)} alt="Masaje en pareja en el estudio de Stefania Panzariu en Cuenca" loading="lazy" />
               </Parallax>
             </R>
             <R v="r-fade" delay={120} className="quote-tile">
               <span className="mark">✦</span>
-              <p>Un ritual a dúo, pensado para regalar y regalaros una pausa real.</p>
-              <span className="sign">Ritual Dúo</span>
+              <p>Un buen regalo para dos personas. O para ti, que también te lo mereces.</p>
+              <span className="sign">Ritual dúo</span>
             </R>
             <R v="r-mask" delay={200} className="img">
               <Parallax speed={0.12} className="inner">
-                <img className="cover-img" src={SITE_IMAGES.massageDetail} alt="Detalle de masaje relajante de espalda en Stefania Panzariu Studio" loading="lazy" />
+                <img className="cover-img" {...pic(SITE_IMAGES.massageDetail)} alt="Detalle de masaje relajante de espalda en Stefania Panzariu Studio" loading="lazy" />
               </Parallax>
             </R>
           </div>
@@ -605,7 +585,7 @@ function MassageSection() {
           <div className="col-text">
             <R className="kicker" style={{ marginBottom: 16 }}>Rituales de bienestar</R>
             <R as="h3" className="h-sub" delay={120} style={{ maxWidth: "20ch" }}>
-              Tres formas de desconectar, a tu ritmo y al de quien quieras llevar contigo.
+              Elige cómo quieres desconectar: sola o con quien quieras.
             </R>
             <div className="nails-features">
               <R as="div" className="feat" v="r-left">
@@ -619,14 +599,14 @@ function MassageSection() {
                 <div className="label">Relajante</div>
                 <div>
                   <h4>Masaje Relajante</h4>
-                  <p>Maniobras suaves y envolventes que liberan tensión acumulada, calman la mente y devuelven la sensación de ligereza al cuerpo entero.</p>
+                  <p>Maniobras suaves y envolventes para soltar la tensión acumulada y salir con el cuerpo más ligero.</p>
                 </div>
               </R>
               <R as="div" className="feat" v="r-left" delay={240}>
                 <div className="label">Experiencia</div>
                 <div>
                   <h4>Aromaterapia &amp; calma</h4>
-                  <p>Aceites esenciales, luz cálida y silencio acompañado: cada sesión se adapta a tu nivel de presión y al tiempo que quieras regalarte.</p>
+                  <p>Aceites esenciales, luz cálida y silencio. Ajustamos la presión y la duración a lo que necesites.</p>
                 </div>
               </R>
             </div>
@@ -648,18 +628,18 @@ function MicroSection() {
   const methods = [
   {
     n: "01",
-    t: "Visagismo hiperrealista, pelo a pelo",
-    d: "Estudiamos tu estructura ósea, la dirección natural de tu vello y la tonalidad de tu piel para recrear unas cejas con un realismo tridimensional absoluto. No iniciamos el tratamiento hasta que apruebes el boceto a lápiz."
+    t: "Cejas pelo a pelo o sombreado",
+    d: "Estudio la forma de tu cara, la dirección de tu vello y el tono de tu piel para que las cejas parezcan tuyas. No empiezo hasta que apruebes el boceto a lápiz."
   },
   {
     n: "02",
-    t: "Labios de seda · Acuarela Lip Blush",
-    d: "Devolvemos la definición perdida al contorno de tus labios y aportamos un tono saludable y jugoso con pigmentos orgánicos de última generación."
+    t: "Labios · Lip blush",
+    d: "Recupera el contorno de los labios y les da un tono más vivo, con un acabado natural."
   },
   {
     n: "03",
-    t: "Eyeliner degradado de alta precisión",
-    d: "Una sombra sutil y elegante en el párpado que enmarca y despierta la mirada sin el efecto duro de un delineado convencional."
+    t: "Eyeliner degradado",
+    d: "Una sombra suave en el párpado que marca la mirada sin la línea dura de un delineado."
   }];
 
   return (
@@ -672,13 +652,13 @@ function MicroSection() {
 
         <div className="grid-2 end">
           <h2 className="h-sub">
-            <LineMask>La armonía</LineMask>
-            <LineMask delay={120}>que siempre estuvo ahí.</LineMask>
+            <LineMask>Cejas, labios y mirada</LineMask>
+            <LineMask delay={120}>con aspecto natural.</LineMask>
           </h2>
           <R className="body" delay={200}>
-            Diseño visagista hiperrealista para cejas, labios y mirada, con asepsia
-            de grado clínico y pigmentos AEMPS. Consulta disponibilidad y resuelve
-            tus dudas por WhatsApp.
+            Antes de empezar hago un boceto, y no pigmento nada hasta que te guste.
+            Uso pigmentos registrados en la AEMPS y agujas de un solo uso. Si tienes
+            dudas, pregúntame por WhatsApp.
           </R>
         </div>
 
@@ -687,7 +667,7 @@ function MicroSection() {
           <R as="div" key={m.n} className="row" v="r-left" delay={i * 80}>
               <div className="n">{m.n}</div>
               <div>
-                <h4>{m.t}</h4>
+                <h3>{m.t}</h3>
                 <p>{m.d}</p>
               </div>
             </R>
@@ -695,8 +675,12 @@ function MicroSection() {
         </div>
 
         <R style={{ marginTop: 48 }}>
-          <a className="linkish" href={wa("Hola Stefania, me gustaría recibir más información sobre Micropigmentación.")}>
-            Más información sobre micropigmentación <span className="arrow">→</span>
+          <a className="linkish" href="/micropigmentacion">
+            Cómo es el proceso, cuidados y retoque <span className="arrow">→</span>
+          </a>
+          <span style={{ display: "inline-block", width: 28 }}></span>
+          <a className="linkish" href={wa("Hola Stefania, me gustaría recibir más información sobre micropigmentación.")} target="_blank" rel="noopener">
+            Preguntar por WhatsApp <span className="arrow">→</span>
           </a>
         </R>
       </div>
@@ -708,11 +692,11 @@ function MicroSection() {
 function NailsSection() {
   return (
     <section className="sec-nails" id="unas">
-      <GhostNum>02</GhostNum>
+      <GhostNum>01</GhostNum>
       <div className="container" style={{ position: "relative", zIndex: 1 }}>
         <R className="chapter">
           <span className="rule"></span>
-          <span className="small-caps">Uñas de Autor</span>
+          <span className="small-caps">Uñas en Cuenca · Manicura de autor</span>
         </R>
 
         <div className="grid-2 end">
@@ -722,8 +706,8 @@ function NailsSection() {
             <LineMask delay={240}>desde la raíz.</LineMask>
           </h2>
           <R className="body" delay={200}>
-            Las uñas hermosas no son el resultado de ocultar imperfecciones bajo
-            capas pesadas. Esculpimos la elegancia sobre la salud de tu uña natural.
+            Unas uñas bonitas no salen de taparlas con capas gruesas. Primero cuido
+            tu uña natural y después le damos forma, color y el diseño que te guste.
           </R>
         </div>
 
@@ -731,53 +715,56 @@ function NailsSection() {
           <div className="col-photos">
             <R v="r-mask" className="img">
               <Parallax speed={0.08} className="inner">
-                <img className="cover-img" src={SITE_IMAGES.nailMilky} alt="Uñas de autor con acabado milky en Stefania Panzariu Studio" loading="lazy" />
+                <img className="cover-img" {...pic(SITE_IMAGES.nailMilky)} alt="Uñas de autor con acabado milky en Stefania Panzariu Studio" loading="lazy" />
               </Parallax>
             </R>
             <R v="r-fade" delay={120} className="quote-tile">
               <span className="mark">✦</span>
-              <p>Manos cuidadas, acabados limpios y una elegancia que no necesita gritar.</p>
-              <span className="sign">Quiet Luxury</span>
+              <p>“Son 7 años haciéndome las uñas con ella y jamás se me ha partido o caído una uña.”</p>
+              <span className="sign">Rebeca · Reseña en Google</span>
             </R>
             <R v="r-mask" delay={200} className="img">
               <Parallax speed={0.12} className="inner">
-                <img className="cover-img" src={SITE_IMAGES.nailNude} alt="Uñas nude translúcidas con acabado limpio y natural" loading="lazy" />
+                <img className="cover-img" {...pic(SITE_IMAGES.nailNude)} alt="Uñas nude translúcidas con acabado limpio y natural" loading="lazy" />
               </Parallax>
             </R>
           </div>
 
           <div className="col-text">
-            <R className="kicker" style={{ marginBottom: 16 }}>Quiet Luxury</R>
+            <R className="kicker" style={{ marginBottom: 16 }}>Acabados naturales y diseños</R>
             <R as="h3" className="h-sub" delay={120} style={{ maxWidth: "20ch" }}>
-              Tonos lechosos, nudes translúcidos y acabados limpios que estilizan tus manos.
+              Tonos lechosos, nudes translúcidos o el diseño que traigas en mente.
             </R>
             <div className="nails-features">
               <R as="div" className="feat" v="r-left">
                 <div className="label">Técnica</div>
                 <div>
                   <h4>Manicura de alta precisión</h4>
-                  <p>Trabajamos la cutícula con detalle y herramientas específicas, logrando un esmaltado impecable que nace bajo el pliegue de la piel.</p>
+                  <p>Trabajo la cutícula con calma y herramientas específicas para que el esmalte empiece justo en el borde de la piel.</p>
                 </div>
               </R>
               <R as="div" className="feat" v="r-left" delay={120}>
                 <div className="label">Refuerzo</div>
                 <div>
-                  <h4>Nivelación de matriz · Rubber Base</h4>
-                  <p>Bases de primera calidad para corregir imperfecciones y fortalecer la placa natural, con durabilidad de más de 3 semanas.</p>
+                  <h4>Nivelación y rubber base</h4>
+                  <p>Una base flexible que corrige pequeñas imperfecciones y refuerza la uña natural. Dura más de 3 semanas.</p>
                 </div>
               </R>
               <R as="div" className="feat" v="r-left" delay={240}>
                 <div className="label">Estética</div>
                 <div>
-                  <h4>Milky &amp; soft neutrals</h4>
-                  <p>Acabados limpios y atemporales que respetan la anatomía de la mano y se mantienen elegantes en cualquier contexto.</p>
+                  <h4>Milky, nude y diseños a tu gusto</h4>
+                  <p>Colores suaves que quedan bien con todo, o algo más atrevido. Lo adaptamos a la forma de tu mano.</p>
                 </div>
               </R>
             </div>
 
             <R delay={300} style={{ marginTop: 36 }}>
-              <a className="btn dark" href={wa("Hola, quiero reservar una cita para uñas de autor con refuerzo de matriz.")}>
-                Reservar mi ritual <span className="arrow">→</span>
+              <a className="btn dark" href={wa("Hola Stefania, quiero pedir cita para hacerme las uñas.")} target="_blank" rel="noopener">
+                Pedir cita para uñas <span className="arrow">→</span>
+              </a>
+              <a className="linkish" href="/unas-de-autor" style={{ marginLeft: 22 }}>
+                Más sobre las uñas <span className="arrow">→</span>
               </a>
             </R>
           </div>
@@ -802,46 +789,56 @@ function FacialSection() {
           <div className="facial-photos">
             <R v="r-mask" className="p1">
               <Parallax speed={0.08} className="inner">
-                <img className="cover-img" src={SITE_IMAGES.facialCabin} alt="Cabina de estética facial avanzada con luz cálida" loading="lazy" />
+                <img className="cover-img" {...pic(SITE_IMAGES.facialCabin)} alt="Cabina de estética facial avanzada con luz cálida" loading="lazy" />
               </Parallax>
             </R>
             <R v="r-mask" delay={200} className="p2">
               <Parallax speed={0.14} className="inner">
-                <img className="cover-img" src={SITE_IMAGES.pigmentDetail} alt="Detalle macro de la piel en un tratamiento de estética facial avanzada" loading="lazy" />
+                <img className="cover-img" {...pic(SITE_IMAGES.pigmentDetail)} alt="Detalle de pigmentos y material de trabajo en el estudio" loading="lazy" />
               </Parallax>
             </R>
           </div>
 
           <div>
             <h2 className="h-section" style={{ marginBottom: 28 }}>
-              <LineMask>Cuidando tu piel</LineMask>
-              <LineMask delay={120}>y tu alma.</LineMask>
+              <LineMask>Una piel más limpia</LineMask>
+              <LineMask delay={120}>y luminosa.</LineMask>
             </h2>
             <R className="lead" delay={200}>
-              Un ritual diseñado para silenciar el ruido exterior y devolver el
-              resplandor natural a tu rostro. Un momento de pausa y reconexión profunda.
+              Limpieza facial profunda y tratamientos para la piel apagada o con el
+              tono irregular, en una cabina tranquila y sin prisas.
             </R>
 
             <div className="ritual-list">
               <R as="div" v="r-left" className="it">
                 <div className="mark">✦</div>
                 <div>
-                  <h4>Brightening Action</h4>
-                  <p>Tratamiento profesional despigmentante e iluminador que unifica el tono, reduce imperfecciones y aporta un efecto glow inmediato desde la primera sesión.</p>
+                  <h3>Limpieza facial profunda</h3>
+                  <p>Higiene profesional para sacar impurezas, oxigenar la piel y notarla suave al momento.</p>
+                </div>
+              </R>
+              <R as="div" v="r-left" delay={60} className="it">
+                <div className="mark">✦</div>
+                <div>
+                  <h3>Brightening Action</h3>
+                  <p>Tratamiento despigmentante e iluminador que unifica el tono y reduce imperfecciones. Se nota desde la primera sesión.</p>
                 </div>
               </R>
               <R as="div" v="r-left" delay={120} className="it">
                 <div className="mark">✦</div>
                 <div>
-                  <h4>Argi-Mask White · Arcilla blanca</h4>
-                  <p>Ritual oxigenante que limpia en profundidad, equilibra la piel cansada y la deja increíblemente suave, fresca y luminosa.</p>
+                  <h3>Argi-Mask White · Arcilla blanca</h3>
+                  <p>Mascarilla oxigenante que limpia y equilibra la piel cansada. La deja fresca y suave.</p>
                 </div>
               </R>
             </div>
 
             <R delay={280} style={{ marginTop: 36 }}>
-              <a className="btn dark" href={wa("Hola Stefania, me gustaría reservar una sesión de Estética Facial Avanzada.")}>
-                Regalarme un momento de calma <span className="arrow">→</span>
+              <a className="btn dark" href={wa("Hola Stefania, me gustaría pedir cita para un tratamiento facial.")} target="_blank" rel="noopener">
+                Pedir cita para un facial <span className="arrow">→</span>
+              </a>
+              <a className="linkish" href="/estetica-facial" style={{ marginLeft: 22 }}>
+                Ver tratamientos <span className="arrow">→</span>
               </a>
             </R>
           </div>
@@ -869,37 +866,40 @@ function BodySection() {
               <LineMask delay={120}>tu <em style={{ fontFamily: "var(--serif)" }}>cuerpo</em>.</LineMask>
             </h2>
             <R className="lead" delay={200}>
-              Rituales diseñados para reconectar con tu cuerpo, liberando tensión
-              y realzando tu firmeza natural a través de terapias manuales y técnicas avanzadas.
+              Terapias manuales para soltar tensión, mejorar la circulación y
+              trabajar la silueta.
             </R>
 
             <div className="ritual-list">
               <R as="div" v="r-left" className="it">
                 <div className="mark">✦</div>
                 <div>
-                  <h4>Maderoterapia</h4>
-                  <p>Técnica natural que moldea y tonifica la silueta mediante fricciones profundas con instrumentos de madera noble. Ayuda a reducir volumen, mejorar la circulación y combatir la celulitis.</p>
+                  <h3>Maderoterapia</h3>
+                  <p>Instrumentos de madera para tonificar, mejorar la circulación y trabajar las zonas con celulitis.</p>
                 </div>
               </R>
               <R as="div" v="r-left" delay={120} className="it">
                 <div className="mark">✦</div>
                 <div>
-                  <h4>Drenaje Linfático</h4>
-                  <p>Terapia manual suave y precisa que favorece la eliminación de toxinas. Ideal para aliviar la sensación de piernas cansadas, reducir la inflamación y tratar la retención de líquidos.</p>
+                  <h3>Drenaje Linfático</h3>
+                  <p>Maniobras suaves que alivian la sensación de piernas cansadas y ayudan con la retención de líquidos.</p>
                 </div>
               </R>
               <R as="div" v="r-left" delay={240} className="it">
                 <div className="mark">✦</div>
                 <div>
-                  <h4>Exfoliación y Envoltura</h4>
-                  <p>Renovación celular profunda que elimina impurezas y devuelve la elasticidad a la piel. Un tratamiento intensivo que deja el cuerpo profundamente hidratado, firme y luminoso.</p>
+                  <h3>Exfoliación y Envoltura</h3>
+                  <p>Renueva la piel y la deja hidratada, más firme y luminosa.</p>
                 </div>
               </R>
             </div>
 
             <R delay={320} style={{ marginTop: 36 }}>
-              <a className="btn dark" href={wa("Hola Stefania, me gustaría reservar una sesión de tratamiento corporal (Armonía Corporal).")}>
-                Reservar mi ritual corporal <span className="arrow">→</span>
+              <a className="btn dark" href={wa("Hola Stefania, me gustaría pedir cita para un tratamiento corporal.")} target="_blank" rel="noopener">
+                Pedir cita para corporal <span className="arrow">→</span>
+              </a>
+              <a className="linkish" href="/rituales-corporales" style={{ marginLeft: 22 }}>
+                Ver tratamientos <span className="arrow">→</span>
               </a>
             </R>
           </div>
@@ -944,8 +944,8 @@ function TrackSection() {
   const steps = [
   {
     n: "01",
-    t: "Perfección bajo presión",
-    d: "Compitiendo a nivel nacional con los mejores talentos del maquillaje permanente en el campeonato The Beauty Experts (Valencia) para mantener nuestro estudio a la vanguardia absoluta.",
+    t: "Competir a nivel nacional",
+    d: "Participé en el campeonato The Beauty Experts de Valencia, junto a profesionales del maquillaje permanente de toda España.",
     tag: "El Reconocimiento",
     src: SITE_IMAGES.artistTool,
     alt: "Stefania Panzariu con su dermógrafo de micropigmentación en el estudio de Cuenca",
@@ -953,8 +953,8 @@ function TrackSection() {
   },
   {
     n: "02",
-    t: "Innovación sin fronteras",
-    d: "Formación continua en el World PMU Congress 2026 a bordo del MSC Fantasia. Análisis de tendencias mundiales en técnicas de implantación de pigmentos hiperrealistas.",
+    t: "Formarme fuera",
+    d: "Asistí al World PMU Congress 2026, a bordo del MSC Fantasia, para conocer las técnicas de micropigmentación que se usan en otros países.",
     tag: "El Congreso Mundial",
     src: SITE_IMAGES.hero,
     alt: "Retrato de Stefania Panzariu, artista de micropigmentación y belleza de autor en Cuenca",
@@ -962,8 +962,8 @@ function TrackSection() {
   },
   {
     n: "03",
-    t: "Tu confianza es el destino",
-    d: "Traer la excelencia internacional directamente al corazón de Cuenca, ofreciéndote un refugio donde la técnica se convierte en arte.",
+    t: "Traerlo a Cuenca",
+    d: "Lo que aprendo fuera lo aplico aquí, en el estudio de 4 Caminos, con cada clienta.",
     tag: "La Misión",
     src: SITE_IMAGES.facialCabin,
     alt: "Cabina del estudio Stefania Panzariu en Cuenca, un refugio íntimo de belleza",
@@ -977,18 +977,17 @@ function TrackSection() {
       <div className="container" style={{ position: "relative", zIndex: 1 }}>
         <R className="chapter">
           <span className="rule" style={{ background: "rgba(255,255,255,.5)" }}></span>
-          <span className="small-caps">El cuaderno de la artista</span>
+          <span className="small-caps">Formación y trayectoria</span>
         </R>
 
         <div className="grid-2 end">
           <h2 className="h-section">
-            <LineMask>La trayectoria</LineMask>
-            <LineMask delay={120}>del autor.</LineMask>
+            <LineMask>Sobre</LineMask>
+            <LineMask delay={120}>Stefania.</LineMask>
           </h2>
           <R className="body" delay={200} style={{ color: "rgba(255,255,255,.72)" }}>
-            Tres hitos que cuentan, sin atajos, cómo nace este estudio: del
-            entrenamiento competitivo al congreso mundial, y de ahí a un rincón
-            íntimo en el corazón de Cuenca.
+            Sigo formándome y compitiendo para hacer mejor mi trabajo. Estos son
+            algunos momentos de ese camino.
           </R>
         </div>
 
@@ -1000,7 +999,7 @@ function TrackSection() {
             <React.Fragment>
                   <div className="img-wrap">
                     <Parallax speed={0.1} className="inner">
-                      <img className="cover-img" src={s.src} alt={s.alt} style={{ objectPosition: s.pos }} loading="lazy" />
+                      <img className="cover-img" {...pic(s.src)} alt={s.alt} style={{ objectPosition: s.pos }} loading="lazy" />
                     </Parallax>
                   </div>
                   <div className="dot"></div>
@@ -1020,7 +1019,7 @@ function TrackSection() {
                   <div className="dot"></div>
                   <div className="img-wrap">
                     <Parallax speed={0.1} className="inner">
-                      <img className="cover-img" src={s.src} alt={s.alt} style={{ objectPosition: s.pos }} loading="lazy" />
+                      <img className="cover-img" {...pic(s.src)} alt={s.alt} style={{ objectPosition: s.pos }} loading="lazy" />
                     </Parallax>
                   </div>
                 </React.Fragment>
@@ -1166,7 +1165,7 @@ function TestimonialsSection() {
         </div>
 
         <div className="reviews-board">
-          <div className="review-filters" role="tablist" aria-label="Filtrar reseñas por servicio">
+          <div className="review-filters" role="group" aria-label="Filtrar reseñas por servicio">
             {filters.map((f) => (
               <button
                 key={f.id}
@@ -1227,7 +1226,7 @@ function TestimonialsSection() {
           </R>
           <R as="div" className="stat" delay={200}>
             <span className="n">{reviews.length}</span>
-            <span className="l">Comentarios visibles clasificados</span>
+            <span className="l">Reseñas en esta página</span>
           </R>
           <R as="div" className="stat" delay={300}>
             <span className="n">+7<span style={{ fontSize: ".5em", color: "var(--muted)" }}> años</span></span>
@@ -1284,7 +1283,7 @@ function LegalNoticeModal({ open, onClose }) {
   }, [open, onClose]);
 
   return (
-    <div className={`legal-modal ${open ? "open" : ""}`} aria-hidden={!open}>
+    <div className={`legal-modal ${open ? "open" : ""}`} aria-hidden={!open} inert={open ? undefined : ""}>
       <div className="scrim" onClick={onClose}></div>
       <section className="legal-panel" role="dialog" aria-modal="true" aria-labelledby="legal-title">
         <button className="legal-close" onClick={onClose} aria-label="Cerrar aviso legal y privacidad"></button>
@@ -1369,16 +1368,16 @@ function FooterSection() {
       <div className="container">
         <R className="chapter">
           <span className="rule"></span>
-          <span className="small-caps">El refugio · Contacto</span>
+          <span className="small-caps">Contacto · Cómo llegar</span>
         </R>
 
         <div className="footer-head">
           <R as="h2">
-            <LineMask>El refugio.</LineMask>
+            <LineMask>Ven a vernos.</LineMask>
           </R>
           <R className="body" delay={150} style={{ maxWidth: "44ch" }}>
-            Te esperamos en un rincón diseñado en exclusiva para el bienestar de tus
-            manos, tu piel y tu autoestima. Sin prisas, con toda la atención que te mereces.
+            Estamos en el Centro Comercial 4 Caminos, a pocos pasos de la Plaza de la
+            Hispanidad. Escríbeme por WhatsApp y buscamos un hueco que te venga bien.
           </R>
         </div>
 
@@ -1411,7 +1410,7 @@ function FooterSection() {
             <R as="div" className="info-row" delay={80}>
               <div className="label">Horario</div>
               <div className="val">Lunes a viernes · 9:00 – 21:00</div>
-              <div className="note">Atención con cita previa para garantizar la exclusividad del espacio.</div>
+              <div className="note">Solo con cita previa, para atenderte sin esperas.</div>
             </R>
 
             <R as="div" className="info-row" delay={160}>
@@ -1450,7 +1449,7 @@ function FooterSection() {
 
         {/* Signature */}
         <div className="footer-signature">
-          <img className="footer-logo-img on-dark" src={BRAND_ASSETS.logoBlack} alt={BUSINESS.name} />
+          <img className="footer-logo-img on-dark" src={BRAND_ASSETS.logoBlack} alt={BUSINESS.name} width="192" height="192" loading="lazy" />
           <div className="tag">Belleza de autor · {BUSINESS.city} · {BUSINESS.addressTag}</div>
         </div>
 
@@ -1492,8 +1491,8 @@ function FaqSection() {
     a: "Trabajamos con asepsia de grado clínico conforme al Decreto 5/2004 de la JCCM, pigmentos registrados en la AEMPS, agujas monodosis de un solo uso y certificación sanitaria oficial."
   },
   {
-    q: "¿En qué consisten las uñas de autor y cuánto duran?",
-    a: "Son una manicura de alta precisión que trabaja la cutícula con detalle para lograr un esmaltado impecable que nace bajo el pliegue de la piel. Con nivelación de matriz y rubber base, la durabilidad supera las 3 semanas."
+    q: "¿Cuánto duran las uñas?",
+    a: "Con nivelación y rubber base suelen durar más de 3 semanas, según lo rápido que te crezcan y cómo las cuides. Es una manicura de precisión: se trabaja la cutícula con detalle para que el esmalte empiece justo en el borde de la piel."
   },
   {
     q: "¿Dónde estáis y cómo pido cita?",
@@ -1510,8 +1509,8 @@ function FaqSection() {
         <div className="faq-grid">
           <div className="faq-head">
             <h2 className="h-section">
-              <LineMask>Todo lo que</LineMask>
-              <LineMask delay={120}>quieres <em style={{ fontFamily: "var(--serif)" }}>saber</em>.</LineMask>
+              <LineMask>Antes de tu</LineMask>
+              <LineMask delay={120}>primera <em style={{ fontFamily: "var(--serif)" }}>cita</em>.</LineMask>
             </h2>
             <R className="body" delay={200} style={{ marginTop: 24 }}>
               Resolvemos las dudas más habituales antes de tu primera cita. Si te queda
@@ -1557,29 +1556,29 @@ function WhatsAppFab() {
 /* ---------- App ---------- */
 function App() {
   useScrollProgress();
-  useSitePreloader();
   return (
     <React.Fragment>
       <Nav />
       <main id="contenido">
         <Hero />
+        <QuickServices />
         <Interlude id="interlude-1"
-        src={SITE_IMAGES.massagePareja}
-        placeholder="Masaje en pareja · cabina con velas"
-        label="Masajes"
-        quote={<>Un paréntesis a dúo. <em style={{ fontFamily: "var(--serif)" }}>Tiempo para vosotros</em>.</>} />
-        <MassageSection />
-        <Interlude id="interlude-2"
         src={SITE_IMAGES.nailDetail}
-        placeholder="Mano de manicura · detalle macro"
-        label="Uñas de Autor"
-        quote={<>Esculpir la elegancia sobre la <em style={{ fontFamily: "var(--serif)" }}>salud natural</em>.</>} />
+        placeholder="Detalle de una manicura hecha en el estudio"
+        label="Uñas"
+        quote={<>Uñas bonitas, sobre una <em style={{ fontFamily: "var(--serif)" }}>uña sana</em>.</>} />
         <NailsSection />
+        <Interlude id="interlude-2"
+        src={SITE_IMAGES.massagePareja}
+        placeholder="Cabina de masaje en pareja con velas"
+        label="Masajes"
+        quote={<>Un rato para dos. <em style={{ fontFamily: "var(--serif)" }}>Tiempo para vosotros</em>.</>} />
+        <MassageSection />
         <Interlude id="interlude-3"
         src={SITE_IMAGES.facialCabin}
-        placeholder="Cabina · velas, humo de aromaterapia"
+        placeholder="Cabina de estética facial con luz cálida"
         label="Estética facial"
-        quote={<>Silenciar el ruido. <em style={{ fontFamily: "var(--serif)" }}>Devolver el resplandor</em>.</>} />
+        quote={<>Tiempo para ti <em style={{ fontFamily: "var(--serif)" }}>y para tu piel</em>.</>} />
         <FacialSection />
         <BodySection />
         <MicroSection />
@@ -1593,4 +1592,9 @@ function App() {
 
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+globalThis.__STEFANIA_APP__ = App;
+if (typeof document !== "undefined" && !globalThis.__PRERENDER__) {
+  const rootEl = document.getElementById("root");
+  if (rootEl.firstElementChild) ReactDOM.hydrateRoot(rootEl, <App />);
+  else ReactDOM.createRoot(rootEl).render(<App />);
+}

@@ -19,11 +19,20 @@ Ahora el `.jsx` se precompila a `src/stefania-panzariu-site.js`, que es el archi
 **Cada vez que edites `src/stefania-panzariu-site.jsx` debes recompilar:**
 
 ```bash
-npm run build      # compila una vez
-npm run watch      # recompila automáticamente al guardar
+npm install        # solo la primera vez (React para el prerender)
+npm run build      # compila el JSX y prerenderiza la home en index.html
 ```
 
-No necesitas instalar nada: el script usa `npx esbuild` (se descarga y se cachea solo).
+`npm run build` hace dos cosas: compila el `.jsx` con esbuild y ejecuta
+`scripts/prerender.mjs`, que mete el HTML de la home dentro de `<div id="root">`.
+Así el contenido se ve antes de que cargue el JavaScript y Google lo lee directamente.
+No edites a mano lo que hay entre `<div id="root">` y `<!-- /root -->`.
+
+## Imágenes
+
+Cada JPG de `assets/images/` tiene dos versiones WebP (`-800.webp` y la grande).
+La web carga las WebP con `srcset`; los JPG se mantienen para redes sociales y datos
+estructurados. Si añades una foto nueva, genera también sus WebP.
 
 ## Desarrollo local
 
