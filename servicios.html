@@ -473,6 +473,11 @@
     .floating-cta span:not(.cta-dot) { display: none; }
     .floating-cta .cta-dot { width: 26px; height: 26px; font-size: 15px; }
   }
+  @view-transition { navigation: auto; }
+  ::view-transition-old(root) { animation: vtOut .45s cubic-bezier(.65,.05,.36,1) both; }
+  ::view-transition-new(root) { animation: vtIn .7s cubic-bezier(.2,.7,.2,1) both; }
+  @keyframes vtOut { to { opacity: 0; transform: translateY(-20px); } }
+  @keyframes vtIn { from { opacity: 0; transform: translateY(28px); } }
 </style>
 </head>
 <body>
@@ -666,5 +671,7 @@
     <span>WhatsApp directo · Stefania Panzariu Studio</span>
     <span class="cta-dot">→</span>
   </a>
+<script defer src="assets/vendor/lenis.min.js"></script>
+<script defer src="assets/js/landing-fx.js"></script>
 </body>
 </html>

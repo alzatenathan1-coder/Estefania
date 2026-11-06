@@ -56,6 +56,158 @@ const wa = (msg) => `https://wa.me/${BUSINESS.phone}?text=${encodeURIComponent(m
 // Mensaje estándar de cita (incluye la dirección centralizada).
 const CITA_MSG = `Hola Stefania, me gustaría pedir cita en el estudio (${BUSINESS.addressLine}, ${BUSINESS.city}). ¿Me indicas tu disponibilidad?`;
 
+/* ---------- Motor de efectos: cada elemento registrado recibe --p (0→1) ----------
+   mode "through": 0 cuando el elemento asoma por abajo, 1 cuando sale por arriba.
+   mode "pin":     0 cuando su borde superior toca el techo, 1 cuando su borde
+                   inferior toca el suelo (para escenas fijadas con sticky). */
+const FX = (() => {
+  const items = new Set();
+  let running = false;
+  let idle = 0;
+  const api = { lenis: null, ready: false };
+  const frame = () => {
+    const vh = window.innerHeight;
+    const reads = [];
+    items.forEach((it) => reads.push([it, it.el.getBoundingClientRect()]));
+    for (const [it, r] of reads) {
+      let p = it.mode === "pin" ? -r.top / Math.max(1, r.height - vh) : (vh - r.top) / (r.height + vh);
+      p = p < 0 ? 0 : p > 1 ? 1 : p;
+      if (it.p === undefined || Math.abs(p - it.p) > 0.0004) {
+        it.p = p;
+        it.el.style.setProperty("--p", p.toFixed(4));
+        if (it.cb) it.cb(p, r);
+      }
+    }
+    if (idle-- > 0) requestAnimationFrame(frame);else running = false;
+  };
+  api.wake = () => {
+    idle = 30;
+    if (!running && typeof window !== "undefined") {running = true;requestAnimationFrame(frame);}
+  };
+  api.add = (el, mode, cb) => {
+    const it = { el, mode, cb };
+    items.add(it);
+    api.wake();
+    return () => items.delete(it);
+  };
+  api.reduce = () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  api.fine = () => typeof window !== "undefined" && window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  api.init = () => {
+    if (typeof window === "undefined" || api.ready) return;
+    api.ready = true;
+    window.addEventListener("scroll", api.wake, { passive: true });
+    window.addEventListener("resize", api.wake);
+    window.addEventListener("load", api.wake);
+    if (!api.reduce() && api.fine() && window.Lenis) {
+      api.lenis = new window.Lenis({ autoRaf: true, lerp: 0.085, smoothWheel: true, anchors: { offset: -84 } });
+      document.documentElement.classList.add("has-lenis");
+    }
+  };
+  return api;
+})();
+
+function useProgress(mode = "through", cb) {
+  const ref = useRef(null);
+  const cbRef = useRef(cb);
+  cbRef.current = cb;
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    return FX.add(el, mode, (p, r) => cbRef.current && cbRef.current(p, r));
+  }, [mode]);
+  return ref;
+}
+
+/* Texto en círculo (SVG) que gira con el scroll de su sección */
+function CircleText({ id, text, className = "" }) {
+  return (
+    <svg className={`circle-text ${className}`} viewBox="0 0 200 200" aria-hidden="true" focusable="false">
+      <defs>
+        <path id={id} d="M100,100 m-76,0 a76,76 0 1,1 152,0 a76,76 0 1,1 -152,0" />
+      </defs>
+      <text><textPath href={`#${id}`}>{text}</textPath></text>
+    </svg>);
+
+}
+
+/* Contador que sube al entrar en pantalla */
+const Counter = React.memo(function Counter({ to, decimals = 0, prefix = "", suffix = "" }) {
+  const ref = useRef(null);
+  const fmt = (v) => v.toFixed(decimals).replace(".", ",");
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || FX.reduce()) return;
+    let raf = 0;
+    const io = new IntersectionObserver(([e]) => {
+      if (!e.isIntersecting) return;
+      io.disconnect();
+      const t0 = performance.now();
+      const step = (t) => {
+        const k = Math.min(1, (t - t0) / 1600);
+        el.textContent = prefix + fmt(to * (1 - Math.pow(1 - k, 4))) + suffix;
+        if (k < 1) raf = requestAnimationFrame(step);
+      };
+      raf = requestAnimationFrame(step);
+    }, { threshold: 0.6 });
+    io.observe(el);
+    return () => {io.disconnect();cancelAnimationFrame(raf);};
+  }, []);
+  return <span ref={ref}>{prefix + fmt(to) + suffix}</span>;
+});
+
+/* Cursor propio + botones magnéticos (solo ratón, sin reduced-motion) */
+function Cursor() {
+  const dot = useRef(null);
+  const ring = useRef(null);
+  const [on, setOn] = useState(false);
+  useEffect(() => {
+    if (!FX.fine() || FX.reduce()) return;
+    setOn(true);
+    document.documentElement.classList.add("has-cursor");
+    let x = -100,y = -100,rx = -100,ry = -100,raf = 0,mag = null;
+    const loop = () => {
+      rx += (x - rx) * 0.2;ry += (y - ry) * 0.2;
+      if (dot.current) dot.current.style.transform = `translate3d(${x}px,${y}px,0)`;
+      if (ring.current) ring.current.style.transform = `translate3d(${rx.toFixed(1)}px,${ry.toFixed(1)}px,0)`;
+      raf = Math.abs(x - rx) + Math.abs(y - ry) > 0.2 ? requestAnimationFrame(loop) : 0;
+    };
+    const move = (e) => {
+      x = e.clientX;y = e.clientY;
+      if (!raf) raf = requestAnimationFrame(loop);
+      const m = e.target.closest && e.target.closest(".btn, .footer-cta, .wa-fab, .nav-dd-btn, .rv-nav");
+      if (mag && mag !== m) {mag.style.transform = "";mag = null;}
+      if (m) {
+        mag = m;
+        const r = m.getBoundingClientRect();
+        m.style.transform = `translate3d(${((x - r.left - r.width / 2) * 0.22).toFixed(1)}px,${((y - r.top - r.height / 2) * 0.3).toFixed(1)}px,0)`;
+      }
+    };
+    const over = (e) => {
+      const r = ring.current;if (!r) return;
+      const t = e.target.closest && e.target.closest("a, button, summary, [data-cursor], input[type=range]");
+      r.classList.toggle("hover", !!t);
+      r.dataset.label = t ? t.dataset.cursor || "" : "";
+    };
+    const leave = () => {x = -100;y = -100;if (!raf) raf = requestAnimationFrame(loop);};
+    window.addEventListener("pointermove", move, { passive: true });
+    document.addEventListener("pointerover", over);
+    document.addEventListener("pointerleave", leave);
+    return () => {
+      window.removeEventListener("pointermove", move);
+      document.removeEventListener("pointerover", over);
+      document.removeEventListener("pointerleave", leave);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+  if (!on) return null;
+  return (
+    <React.Fragment>
+      <div className="cursor-dot" ref={dot} aria-hidden="true"></div>
+      <div className="cursor-ring" ref={ring} aria-hidden="true"></div>
+    </React.Fragment>);
+
+}
+
 /* ---------- Scroll progress bar ---------- */
 function useScrollProgress() {
   useEffect(() => {
@@ -184,33 +336,19 @@ function GhostNum({ children }) {
   return <div ref={ref} className="ghost-num">{children}</div>;
 }
 
-/* ---------- Interlude full-bleed band ---------- */
-function Interlude({ id, src, placeholder, label, quote, side = "left" }) {
-  const photoRef = useRef(null);
-  useEffect(() => {
-    const el = photoRef.current;if (!el) return;
-    let raf = 0;
-    const update = () => {
-      const r = el.parentElement.getBoundingClientRect();
-      const vh = window.innerHeight;
-      const center = r.top + r.height / 2 - vh / 2;
-      el.style.transform = `translate3d(0, ${(-center * 0.22).toFixed(1)}px, 0)`;
-      raf = 0;
-    };
-    const on = () => {if (!raf) raf = requestAnimationFrame(update);};
-    update();
-    window.addEventListener("scroll", on, { passive: true });
-    window.addEventListener("resize", on);
-    return () => {window.removeEventListener("scroll", on);window.removeEventListener("resize", on);cancelAnimationFrame(raf);};
-  }, []);
+/* ---------- Interludio: la imagen crece desde un marco hasta ocupar la pantalla ---------- */
+function Interlude({ id, src, placeholder, label, quote, pos = "50% 50%" }) {
+  const ref = useProgress("through");
   return (
-    <section className="interlude" aria-hidden="false">
-      <div className="photo" ref={photoRef}>
-        <img className="cover-img" {...pic(src, "100vw")} alt={placeholder} loading="lazy" />
-      </div>
-      <div className="legend">
-        <R v="r-fade" className="ital">{quote}</R>
-        <R v="r-right" as="span">{label}</R>
+    <section className="interlude" id={id} ref={ref}>
+      <div className="frame">
+        <div className="photo">
+          <img className="cover-img" {...pic(src, "100vw")} alt={placeholder} style={{ objectPosition: pos }} loading="lazy" />
+        </div>
+        <div className="legend">
+          <R v="r-fade" className="ital">{quote}</R>
+          <R v="r-right" as="span">{label}</R>
+        </div>
       </div>
     </section>);
 
@@ -318,10 +456,15 @@ function NavDropdown({ label, dark = false, panelClass = "", children, align = "
 function Nav() {
   const [visible, setVisible] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [hidden, setHidden] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   useEffect(() => {
+    let lastY = window.scrollY;
     const onScroll = () => {
       const y = window.scrollY;
+      if (y > lastY + 6 && y > window.innerHeight * 0.6) setHidden(true);else
+      if (y < lastY - 6 || y < 80) setHidden(false);
+      lastY = y;
       // Aparece elegantemente cuando pasas el hero (≈ 88% del viewport)
       setVisible(y > window.innerHeight * 0.88);
       // Sombra y padding extra al haber scrolleado más
@@ -365,7 +508,7 @@ function Nav() {
 
   return (
     <React.Fragment>
-      <header className={`nav ${visible ? "visible" : ""} ${scrolled ? "scrolled" : ""}`}>
+      <header className={`nav ${visible ? "visible" : ""} ${scrolled ? "scrolled" : ""} ${hidden && !drawerOpen ? "nav-hidden" : ""}`}>
         <a href="#top" className="brand-mark" aria-label={BUSINESS.name}>
           <img className="logo-img on-dark" src={BRAND_ASSETS.logoBlack} alt={BUSINESS.name} width="46" height="46" />
         </a>
@@ -437,121 +580,183 @@ function Nav() {
 
 }
 
-/* ---------- Hero ---------- */
+/* ---------- Hero: escena fijada, la foto se recoge en arco al bajar ---------- */
 function Hero() {
-  const photoRef = useRef(null);
-  useEffect(() => {
-    let raf = 0;
-    const apply = () => {
-      const y = window.scrollY;
-      if (photoRef.current) photoRef.current.style.transform = `translate3d(0, ${(y * 0.22).toFixed(1)}px, 0) scale(1.08)`;
-      raf = 0;
-    };
-    const onScroll = () => { if (!raf) raf = requestAnimationFrame(apply); };
-    apply();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => { window.removeEventListener("scroll", onScroll); cancelAnimationFrame(raf); };
-  }, []);
-
+  const ref = useProgress("pin");
   return (
-    <section className="hero" id="top">
-      <div className="hero-inner">
-        <div className="hero-text">
-          <R v="r-fade" delay={0} instant>
-            <h1 className="kicker">Uñas, masajes y estética en Cuenca</h1>
-          </R>
+    <section className="hero" id="top" ref={ref}>
+      <div className="hero-sticky">
+        <div className="hero-word" aria-hidden="true">Stefania</div>
+        <div className="hero-inner">
+          <div className="hero-text">
+            <R v="r-fade" delay={0} instant>
+              <h1 className="kicker">Uñas, masajes y estética en Cuenca</h1>
+            </R>
 
-          <p className="display">
-            <LineMask delay={100} instant>El arte</LineMask>
-            <LineMask delay={200} instant>de sentirte</LineMask>
-            <LineMask delay={300} instant><em style={{ fontFamily: "var(--display)", fontStyle: "normal" }}>bien.</em></LineMask>
-          </p>
+            <p className="display">
+              <LineMask delay={100} instant>El arte</LineMask>
+              <LineMask delay={200} instant>de sentirte</LineMask>
+              <LineMask delay={300} instant><em style={{ fontFamily: "var(--display)", fontStyle: "normal" }}>bien.</em></LineMask>
+            </p>
 
-          <R className="lead" delay={450} instant>
-            Soy Stefania. En mi estudio de 4 Caminos hago uñas, masajes (también
-            en pareja), tratamientos faciales y corporales y micropigmentación.
-            Trabajo con cita previa para atenderte sin prisas.
-          </R>
+            <R className="lead" delay={450} instant>
+              Soy Stefania. En mi estudio de 4 Caminos hago uñas, masajes (también
+              en pareja), tratamientos faciales y corporales y micropigmentación.
+              Trabajo con cita previa para atenderte sin prisas.
+            </R>
 
-          <R className="hero-actions" delay={550} instant>
-            <a className="btn dark" href={wa(CITA_MSG)} target="_blank" rel="noopener">
-              Pedir cita por WhatsApp <span className="arrow">→</span>
-            </a>
-            <a className="btn" href="#que-hago">Ver servicios</a>
-          </R>
-        </div>
+            <R className="hero-actions" delay={550} instant>
+              <a className="btn dark" href={wa(CITA_MSG)} target="_blank" rel="noopener">
+                Pedir cita por WhatsApp <span className="arrow">→</span>
+              </a>
+              <a className="btn" href="#que-hago">Ver servicios</a>
+            </R>
+          </div>
 
-        <div className="hero-photo">
-          <div className="inner" ref={photoRef} style={{ willChange: "transform" }}>
-            <img
-              className="cover-img"
-              {...pic(SITE_IMAGES.hero)}
-              alt="Stefania Panzariu, fundadora del estudio de belleza de autor en Cuenca, especialista en micropigmentación y uñas"
-              style={{ objectPosition: "50% 20%" }}
-              width="1062" height="1509"
-              fetchpriority="high"
-              loading="eager" />
+          <div className="hero-photo">
+            <div className="inner">
+              <img
+                className="cover-img"
+                {...pic(SITE_IMAGES.hero)}
+                alt="Stefania Panzariu, fundadora del estudio de belleza de autor en Cuenca, especialista en micropigmentación y uñas"
+                style={{ objectPosition: "50% 20%" }}
+                width="1062" height="1509"
+                fetchpriority="high"
+                loading="eager" />
+            </div>
+            <div className="hero-caption" aria-hidden="true">
+              <span>Stefania Panzariu</span>
+              <span>Fundadora · {BUSINESS.city}</span>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="hero-meta">
-        <div><span className="num">— </span>{BUSINESS.city} · {BUSINESS.country}</div>
-        <div>EST · {BUSINESS.area}</div>
-        <div><span className="num">— </span>Belleza de autor</div>
-      </div>
+        <div className="hero-meta">
+          <div><span className="num">— </span>{BUSINESS.city} · {BUSINESS.country}</div>
+          <div>EST · {BUSINESS.area}</div>
+          <div><span className="num">— </span>Belleza de autor</div>
+        </div>
 
-      <div className="scroll-cue">
-        <span>Desliza</span>
-        <span className="bar"></span>
+        <div className="scroll-cue" aria-hidden="true">
+          <span>Desliza</span>
+          <span className="bar"></span>
+        </div>
       </div>
     </section>);
 
 }
 
-/* ---------- Acceso rápido a servicios ---------- */
+/* ---------- Cinta de servicios que se desplaza con el scroll ---------- */
+function Marquee() {
+  const ref = useProgress("through");
+  const words = ["Uñas de autor", "Masajes", "Estética facial", "Estética corporal", "Micropigmentación"];
+  const group = (k, hidden) =>
+  <span className="mq-group" key={k} aria-hidden={hidden ? "true" : undefined}>
+      {words.map((w) =>
+    <React.Fragment key={w}><span className="mq-word">{w}</span><span className="mq-star">✦</span></React.Fragment>
+    )}
+    </span>;
+
+  return (
+    <section className="marquee" ref={ref} aria-label="Servicios del estudio">
+      <div className="mq-row"><div className="mq-track">{group(0, false)}{group(1, true)}{group(2, true)}</div></div>
+      <div className="mq-row mq-outline" aria-hidden="true"><div className="mq-track">{group(3, true)}{group(4, true)}{group(5, true)}</div></div>
+    </section>);
+
+}
+
+/* ---------- Índice de servicios con vista previa que sigue al ratón ---------- */
 function QuickServices() {
   const items = [
-  { href: "#unas", t: "Uñas", d: "Manicura de precisión, rubber base, milky y diseños." },
-  { href: "#masajes", t: "Masajes", d: "Relajantes, con aromaterapia o en pareja." },
-  { href: "#estetica", t: "Estética facial", d: "Limpieza profunda y tratamientos para dar luz." },
-  { href: "#corporal", t: "Estética corporal", d: "Maderoterapia, drenaje linfático y envolturas." },
-  { href: "#micropigmentacion", t: "Micropigmentación", d: "Cejas, labios y eyeliner con boceto previo." }];
+  { href: "#unas", t: "Uñas", d: "Manicura de precisión, rubber base, milky y diseños.", img: SITE_IMAGES.nailMilky },
+  { href: "#masajes", t: "Masajes", d: "Relajantes, con aromaterapia o en pareja.", img: SITE_IMAGES.massagePareja },
+  { href: "#estetica", t: "Estética facial", d: "Limpieza profunda y tratamientos para dar luz.", img: SITE_IMAGES.facialCabin },
+  { href: "#corporal", t: "Estética corporal", d: "Maderoterapia, drenaje linfático y envolturas.", img: SITE_IMAGES.massageDetail },
+  { href: "#micropigmentacion", t: "Micropigmentación", d: "Cejas, labios y eyeliner con boceto previo.", img: SITE_IMAGES.browAfter }];
+
+  const [active, setActive] = useState(-1);
+  const wrapRef = useRef(null);
+  const figRef = useRef(null);
+  useEffect(() => {
+    const wrap = wrapRef.current,fig = figRef.current;
+    if (!wrap || !fig || !FX.fine()) return;
+    let x = 0,y = 0,tx = 0,ty = 0,raf = 0;
+    const loop = () => {
+      x += (tx - x) * 0.14;y += (ty - y) * 0.14;
+      fig.style.transform = `translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0) rotate(${((tx - x) * 0.04).toFixed(2)}deg)`;
+      raf = Math.abs(tx - x) + Math.abs(ty - y) > 0.3 ? requestAnimationFrame(loop) : 0;
+    };
+    const move = (e) => {
+      const r = wrap.getBoundingClientRect();
+      tx = e.clientX - r.left;ty = e.clientY - r.top;
+      if (!raf) raf = requestAnimationFrame(loop);
+    };
+    wrap.addEventListener("pointermove", move);
+    return () => {wrap.removeEventListener("pointermove", move);cancelAnimationFrame(raf);};
+  }, []);
 
   return (
     <section className="quick-services" id="que-hago" aria-labelledby="qs-title">
       <div className="container">
-        <h2 id="qs-title" className="small-caps">Qué puedes reservar</h2>
-        <ul className="qs-grid">
-          {items.map((i) =>
-          <li key={i.href}>
-              <a href={i.href}>
-                <span className="qs-t">{i.t}</span>
-                <span className="qs-d">{i.d}</span>
-                <span className="qs-a" aria-hidden="true">→</span>
-              </a>
-            </li>
-          )}
-        </ul>
-        <p className="qs-note">
-          Lunes a viernes de 9:00 a 21:00 · Solo con cita previa · <a href="#contacto">Cómo llegar</a>
-        </p>
+        <div className="qs-head">
+          <h2 id="qs-title" className="small-caps">Qué puedes reservar</h2>
+          <span className="qs-hint">Lunes a viernes · 9:00 a 21:00 · Solo con cita previa</span>
+        </div>
+        <div className="qs-wrap" ref={wrapRef} onPointerLeave={() => setActive(-1)}>
+          <ul className={`qs-list ${active >= 0 ? "has-active" : ""}`}>
+            {items.map((it, i) =>
+            <li key={it.href} className={active === i ? "is-active" : ""}>
+                <a href={it.href} onPointerEnter={() => setActive(i)} onFocus={() => setActive(i)} onBlur={() => setActive(-1)} data-cursor="Ver">
+                  <span className="qs-n">{`0${i + 1}`}</span>
+                  <span className="qs-t">{it.t}</span>
+                  <span className="qs-d">{it.d}</span>
+                  <img className="qs-thumb" src={pic(it.img).src} alt="" loading="lazy" width="64" height="80" />
+                  <span className="qs-a" aria-hidden="true">→</span>
+                </a>
+              </li>
+            )}
+          </ul>
+          <div className={`qs-preview ${active >= 0 ? "on" : ""}`} ref={figRef} aria-hidden="true">
+            {items.map((it, i) =>
+            <img key={it.href} className={active === i ? "on" : ""} src={pic(it.img).src} alt="" loading="lazy" />
+            )}
+          </div>
+        </div>
+        <p className="qs-note"><a href="#contacto">Cómo llegar al estudio <span aria-hidden="true">→</span></a></p>
       </div>
     </section>);
 
 }
 
-/* ---------- Masajes ---------- */
+/* ---------- Masajes: pantalla dividida, la imagen cambia con máscara al avanzar ---------- */
 function MassageSection() {
+  const steps = [
+  { label: "En pareja", t: "Masaje en pareja · Ritual dúo", d: "Dos camillas, una misma cabina: comparte un ritual relajante con tu pareja, una amiga o en familia, en un ambiente cálido e íntimo.", img: SITE_IMAGES.massagePareja, alt: "Masaje en pareja en el estudio de Stefania Panzariu en Cuenca", pos: "50% 50%" },
+  { label: "Relajante", t: "Masaje relajante", d: "Maniobras suaves y envolventes para soltar la tensión acumulada y salir con el cuerpo más ligero.", img: SITE_IMAGES.massageDetail, alt: "Detalle de masaje relajante de espalda en Stefania Panzariu Studio", pos: "50% 40%" },
+  { label: "Experiencia", t: "Aromaterapia y calma", d: "Aceites esenciales, luz cálida y silencio. Ajustamos la presión y la duración a lo que necesites.", img: SITE_IMAGES.facialCabin, alt: "Cabina del estudio con luz cálida y velas", pos: "50% 50%" }];
+
+  const [active, setActive] = useState(0);
+  const mediaRef = useRef(null);
+  const splitRef = useProgress("pin", (p) => {
+    const n = steps.length - 1;
+    const s = p * n;
+    const m = mediaRef.current;
+    if (m) for (let i = 1; i <= n; i++) {
+      const r = Math.min(1, Math.max(0, (s - (i - 0.62)) / 0.62));
+      m.style.setProperty(`--r${i}`, r.toFixed(4));
+    }
+    const a = Math.min(n, Math.max(0, Math.round(s)));
+    setActive((prev) => prev === a ? prev : a);
+  });
+
   return (
-    <section className="sec-nails sec-massage" id="masajes">
+    <section className="sec-massage" id="masajes">
       <GhostNum>02</GhostNum>
       <div className="container" style={{ position: "relative", zIndex: 1 }}>
         <R className="chapter">
           <span className="rule"></span>
           <span className="small-caps">Masajes en Cuenca · Relajante y en pareja</span>
         </R>
-
         <div className="grid-2 end">
           <h2 className="h-section">
             <LineMask>Un paréntesis</LineMask>
@@ -562,64 +767,76 @@ function MassageSection() {
             familia. Aceites esenciales, luz cálida y la presión que tú prefieras.
           </R>
         </div>
+      </div>
 
-        <div className="nails-stage">
-          <div className="col-photos">
-            <R v="r-mask" className="img">
-              <Parallax speed={0.08} className="inner">
-                <img className="cover-img" {...pic(SITE_IMAGES.massagePareja)} alt="Masaje en pareja en el estudio de Stefania Panzariu en Cuenca" loading="lazy" />
-              </Parallax>
-            </R>
-            <R v="r-fade" delay={120} className="quote-tile">
-              <span className="mark">✦</span>
-              <p>Un buen regalo para dos personas. O para ti, que también te lo mereces.</p>
-              <span className="sign">Ritual dúo</span>
-            </R>
-            <R v="r-mask" delay={200} className="img">
-              <Parallax speed={0.12} className="inner">
-                <img className="cover-img" {...pic(SITE_IMAGES.massageDetail)} alt="Detalle de masaje relajante de espalda en Stefania Panzariu Studio" loading="lazy" />
-              </Parallax>
-            </R>
+      <div className="split" ref={splitRef}>
+        <div className="split-media" ref={mediaRef} aria-hidden="true">
+          {steps.map((s, i) =>
+          <figure key={s.t} className={`sm-fig sm-${i}`}>
+              <img className="cover-img" {...pic(s.img)} alt="" style={{ objectPosition: s.pos }} loading="lazy" />
+            </figure>
+          )}
+          <div className="sm-counter">
+            <span className="cur">{`0${active + 1}`}</span><span className="sep"></span><span>{`0${steps.length}`}</span>
           </div>
-
-          <div className="col-text">
-            <R className="kicker" style={{ marginBottom: 16 }}>Rituales de bienestar</R>
-            <R as="h3" className="h-sub" delay={120} style={{ maxWidth: "20ch" }}>
-              Elige cómo quieres desconectar: sola o con quien quieras.
-            </R>
-            <div className="nails-features">
-              <R as="div" className="feat" v="r-left">
-                <div className="label">En pareja</div>
-                <div>
-                  <h4>Masaje en Pareja · Ritual Dúo</h4>
-                  <p>Dos camillas, una misma cabina: comparte un ritual relajante con tu pareja, una amiga o en familia, en un ambiente cálido e íntimo.</p>
-                </div>
-              </R>
-              <R as="div" className="feat" v="r-left" delay={120}>
-                <div className="label">Relajante</div>
-                <div>
-                  <h4>Masaje Relajante</h4>
-                  <p>Maniobras suaves y envolventes para soltar la tensión acumulada y salir con el cuerpo más ligero.</p>
-                </div>
-              </R>
-              <R as="div" className="feat" v="r-left" delay={240}>
-                <div className="label">Experiencia</div>
-                <div>
-                  <h4>Aromaterapia &amp; calma</h4>
-                  <p>Aceites esenciales, luz cálida y silencio. Ajustamos la presión y la duración a lo que necesites.</p>
-                </div>
-              </R>
-            </div>
-
-            <R delay={300} style={{ marginTop: 36 }}>
-              <a className="btn dark" href={wa("Hola Stefania, me gustaría reservar un masaje en pareja / relajante.")}>
-                Reservar mi masaje <span className="arrow">→</span>
-              </a>
-            </R>
-          </div>
+          <div className="sm-label">{steps[active].label}</div>
+        </div>
+        <div className="split-steps">
+          {steps.map((s, i) =>
+          <article key={s.t} className={`split-step ${active === i ? "is-active" : ""}`}>
+              <div className="step-img"><img className="cover-img" {...pic(s.img)} alt={s.alt} style={{ objectPosition: s.pos }} loading="lazy" /></div>
+              <div className="step-n">{`0${i + 1}`} · {s.label}</div>
+              <h3>{s.t}</h3>
+              <p>{s.d}</p>
+              {i === steps.length - 1 &&
+            <a className="btn dark" href={wa("Hola Stefania, me gustaría reservar un masaje en pareja / relajante.")} target="_blank" rel="noopener">
+                  Reservar mi masaje <span className="arrow">→</span>
+                </a>
+            }
+            </article>
+          )}
         </div>
       </div>
     </section>);
+
+}
+
+/* ---------- Antes / después arrastrable ---------- */
+function BeforeAfter() {
+  const [pos, setPos] = useState(50);
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || FX.reduce()) return;
+    let raf = 0,t0 = 0;
+    const io = new IntersectionObserver(([e]) => {
+      if (!e.isIntersecting) return;
+      io.disconnect();
+      const run = (t) => {
+        if (!t0) t0 = t;
+        const k = (t - t0) / 2200;
+        if (k >= 1) {setPos(50);return;}
+        setPos(50 + Math.sin(k * Math.PI * 2) * 22 * (1 - k));
+        raf = requestAnimationFrame(run);
+      };
+      raf = requestAnimationFrame(run);
+    }, { threshold: 0.55 });
+    io.observe(el);
+    return () => {io.disconnect();cancelAnimationFrame(raf);};
+  }, []);
+  return (
+    <div className="ba-slider" ref={ref} style={{ "--pos": `${pos}%` }}>
+      <img className="ba-img" {...pic(SITE_IMAGES.browBefore)} alt="Cejas antes de la micropigmentación" loading="lazy" />
+      <div className="ba-side after">
+        <img className="ba-img" {...pic(SITE_IMAGES.browAfter)} alt="Las mismas cejas después de la micropigmentación" loading="lazy" />
+      </div>
+      <div className="ba-divider"></div>
+      <div className="ba-handle"></div>
+      <span className="ba-label left">Antes</span>
+      <span className="ba-label right">Después</span>
+      <input className="ba-range" type="range" min="0" max="100" step="1" value={Math.round(pos)}
+      onChange={(e) => setPos(Number(e.target.value))} aria-label="Comparar antes y después" data-cursor="Desliza" />
+    </div>);
 
 }
 
@@ -661,6 +878,8 @@ function MicroSection() {
             dudas, pregúntame por WhatsApp.
           </R>
         </div>
+
+        <R v="r-fade" className="ba-wrap"><BeforeAfter /></R>
 
         <div className="methods-list compact">
           {methods.map((m, i) =>
@@ -776,8 +995,9 @@ function NailsSection() {
 
 /* ---------- Facial ---------- */
 function FacialSection() {
+  const ref = useProgress("through");
   return (
-    <section className="sec-facial" id="estetica">
+    <section className="sec-facial" id="estetica" ref={ref}>
       <GhostNum>03</GhostNum>
       <div className="container" style={{ position: "relative", zIndex: 1 }}>
         <R className="chapter">
@@ -787,6 +1007,10 @@ function FacialSection() {
 
         <div className="facial-grid">
           <div className="facial-photos">
+            <div className="facial-badge" aria-hidden="true">
+              <CircleText id="ct-facial" text="Estética facial · Cuenca · Piel luminosa · " />
+              <span className="core">✦</span>
+            </div>
             <R v="r-mask" className="p1">
               <Parallax speed={0.08} className="inner">
                 <img className="cover-img" {...pic(SITE_IMAGES.facialCabin)} alt="Cabina de estética facial avanzada con luz cálida" loading="lazy" />
@@ -850,8 +1074,9 @@ function FacialSection() {
 
 /* ---------- Armonía Corporal ---------- */
 function BodySection() {
+  const ref = useProgress("through");
   return (
-    <section className="sec-body" id="corporal">
+    <section className="sec-body" id="corporal" ref={ref}>
       <GhostNum>04</GhostNum>
       <div className="container" style={{ position: "relative", zIndex: 1 }}>
         <R className="chapter">
@@ -920,121 +1145,109 @@ function BodySection() {
 
 }
 
-/* ---------- Trayectoria ---------- */
+/* ---------- Trayectoria: recorrido horizontal fijado (escritorio) ---------- */
 function TrackSection() {
-  const wrapRef = useRef(null);
-  const progRef = useRef(null);
+  const trackRef = useRef(null);
+  const distRef = useRef(0);
+  const wide = () => typeof window !== "undefined" && window.matchMedia("(min-width: 1081px)").matches;
+  const hzRef = useProgress("pin", (p) => {
+    const t = trackRef.current;
+    if (!t) return;
+    t.style.transform = wide() && !FX.reduce() ? `translate3d(${(-p * distRef.current).toFixed(1)}px,0,0)` : "";
+  });
   useEffect(() => {
-    const wrap = wrapRef.current;const prog = progRef.current;
-    if (!wrap || !prog) return;
-    const update = () => {
-      const r = wrap.getBoundingClientRect();
-      const vh = window.innerHeight;
-      const start = r.top - vh * 0.5;
-      const end = r.top + r.height - vh * 0.5;
-      const t = Math.max(0, Math.min(1, -start / (end - start)));
-      prog.style.height = `${(t * 100).toFixed(1)}%`;
+    const t = trackRef.current,hz = hzRef.current;
+    if (!t || !hz) return;
+    const measure = () => {
+      if (wide() && !FX.reduce()) {
+        distRef.current = Math.max(0, t.scrollWidth - window.innerWidth);
+        hz.style.height = `${distRef.current + window.innerHeight}px`;
+      } else {
+        distRef.current = 0;
+        hz.style.height = "";
+        t.style.transform = "";
+      }
+      FX.wake();
     };
-    update();
-    window.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", update);
-    return () => {window.removeEventListener("scroll", update);window.removeEventListener("resize", update);};
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(t);
+    window.addEventListener("resize", measure);
+    return () => {ro.disconnect();window.removeEventListener("resize", measure);};
   }, []);
 
   const steps = [
   {
-    n: "01",
     t: "Competir a nivel nacional",
     d: "Participé en el campeonato The Beauty Experts de Valencia, junto a profesionales del maquillaje permanente de toda España.",
-    tag: "El Reconocimiento",
+    tag: "El reconocimiento",
     src: SITE_IMAGES.artistTool,
     alt: "Stefania Panzariu con su dermógrafo de micropigmentación en el estudio de Cuenca",
     pos: "50% 28%"
   },
   {
-    n: "02",
     t: "Formarme fuera",
     d: "Asistí al World PMU Congress 2026, a bordo del MSC Fantasia, para conocer las técnicas de micropigmentación que se usan en otros países.",
-    tag: "El Congreso Mundial",
+    tag: "El congreso mundial",
     src: SITE_IMAGES.hero,
     alt: "Retrato de Stefania Panzariu, artista de micropigmentación y belleza de autor en Cuenca",
     pos: "50% 18%"
   },
   {
-    n: "03",
     t: "Traerlo a Cuenca",
     d: "Lo que aprendo fuera lo aplico aquí, en el estudio de 4 Caminos, con cada clienta.",
-    tag: "La Misión",
+    tag: "La misión",
     src: SITE_IMAGES.facialCabin,
-    alt: "Cabina del estudio Stefania Panzariu en Cuenca, un refugio íntimo de belleza",
+    alt: "Cabina del estudio Stefania Panzariu en Cuenca",
     pos: "50% 50%"
   }];
 
-
   return (
     <section className="sec-track" id="trayectoria">
-      <GhostNum>05</GhostNum>
-      <div className="container" style={{ position: "relative", zIndex: 1 }}>
-        <R className="chapter">
-          <span className="rule" style={{ background: "rgba(255,255,255,.5)" }}></span>
-          <span className="small-caps">Formación y trayectoria</span>
-        </R>
-
-        <div className="grid-2 end">
-          <h2 className="h-section">
-            <LineMask>Sobre</LineMask>
-            <LineMask delay={120}>Stefania.</LineMask>
-          </h2>
-          <R className="body" delay={200} style={{ color: "rgba(255,255,255,.72)" }}>
-            Sigo formándome y compitiendo para hacer mejor mi trabajo. Estos son
-            algunos momentos de ese camino.
-          </R>
-        </div>
-
-        <div className="track-timeline" ref={wrapRef}>
-          <div className="track-progress" ref={progRef}></div>
-          {steps.map((s, i) =>
-          <R as="div" key={s.n} className={`track-step ${i % 2 === 1 ? "right" : ""}`}>
-              {i % 2 === 0 ?
-            <React.Fragment>
-                  <div className="img-wrap">
-                    <Parallax speed={0.1} className="inner">
-                      <img className="cover-img" {...pic(s.src)} alt={s.alt} style={{ objectPosition: s.pos }} loading="lazy" />
-                    </Parallax>
-                  </div>
-                  <div className="dot"></div>
-                  <div className="text">
-                    <div className="n">{s.n}</div>
-                    <h3>{s.t}</h3>
-                    <p>{s.d}</p>
-                  </div>
-                </React.Fragment> :
-
-            <React.Fragment>
-                  <div className="text">
-                    <div className="n">{s.n}</div>
-                    <h3>{s.t}</h3>
-                    <p>{s.d}</p>
-                  </div>
-                  <div className="dot"></div>
-                  <div className="img-wrap">
-                    <Parallax speed={0.1} className="inner">
-                      <img className="cover-img" {...pic(s.src)} alt={s.alt} style={{ objectPosition: s.pos }} loading="lazy" />
-                    </Parallax>
-                  </div>
-                </React.Fragment>
-            }
-            </R>
-          )}
+      <div className="hz" ref={hzRef}>
+        <div className="hz-sticky">
+          <div className="hz-track" ref={trackRef}>
+            <div className="hz-panel hz-intro">
+              <R className="chapter">
+                <span className="rule" style={{ background: "rgba(255,255,255,.5)" }}></span>
+                <span className="small-caps">Formación y trayectoria</span>
+              </R>
+              <h2 className="h-section">
+                <LineMask>Sobre</LineMask>
+                <LineMask delay={120}>Stefania.</LineMask>
+              </h2>
+              <R className="body" delay={200} style={{ color: "rgba(255,255,255,.72)" }}>
+                Sigo formándome y compitiendo para hacer mejor mi trabajo. Estos son
+                algunos momentos de ese camino.
+              </R>
+              <span className="hz-hint" aria-hidden="true">Sigue bajando <span>→</span></span>
+            </div>
+            {steps.map((s, i) =>
+            <article key={s.t} className="hz-panel hz-step">
+                <div className="img-wrap">
+                  <img className="cover-img" {...pic(s.src)} alt={s.alt} style={{ objectPosition: s.pos }} loading="lazy" />
+                </div>
+                <div className="text">
+                  <div className="n">{`0${i + 1}`} · {s.tag}</div>
+                  <h3>{s.t}</h3>
+                  <p>{s.d}</p>
+                </div>
+              </article>
+            )}
+            <div className="hz-panel hz-outro">
+              <p className="hz-quote">¿Hablamos de tu próxima cita?</p>
+              <a className="btn rose" href={wa(CITA_MSG)} target="_blank" rel="noopener">Pedir cita <span className="arrow">→</span></a>
+            </div>
+          </div>
+          <div className="hz-progress" aria-hidden="true"><span></span></div>
         </div>
       </div>
     </section>);
 
 }
 
-/* ---------- Testimonials ---------- */
+/* ---------- Reseñas: cita destacada que rota + dos cintas de reseñas ---------- */
 function TestimonialsSection() {
-  const [activeFilter, setActiveFilter] = useState("all");
   const reviews = [
     { name: "Cecilia Gil Navarro", service: "Estética facial", date: "Hace 3 días", tags: ["facial", "experiencia"], text: "Como siempre, una experiencia maravillosa. Nunca deja de sorprenderme por su profesionalidad, dedicación y el cariño con el que realiza cada tratamiento.", a: "C" },
     { name: "P. María del Carmen", service: "Facial y labios", date: "Hace 3 días", tags: ["facial", "micro"], text: "Resultados espectaculares. No puedo estar más feliz con el resultado. El tratamiento facial dejó mi piel luminosa e hidratada.", a: "M" },
@@ -1111,42 +1324,39 @@ function TestimonialsSection() {
   ];
 
   const filters = [
-    { id: "all", label: "Todas", note: "Reseñas con texto" },
-    { id: "unas", label: "Uñas", note: "Diseño, duración y manicura" },
-    { id: "micro", label: "Micro", note: "Cejas, labios y ojos" },
-    { id: "facial", label: "Facial", note: "Limpieza y tratamientos" },
-    { id: "pies", label: "Pies", note: "Cuidado y bienestar" },
-    { id: "experiencia", label: "Trato", note: "Puntualidad y confianza" },
-  ];
-  const catLabel = {
-    unas: "Uñas",
-    micro: "Micropigmentación",
-    facial: "Facial",
-    pies: "Pies",
-    experiencia: "Trato",
-  };
-  const activeReviews = activeFilter === "all" ? reviews : reviews.filter((r) => r.tags.includes(activeFilter));
-  const activeMeta = filters.find((f) => f.id === activeFilter) || filters[0];
-  const countFor = (id) => id === "all" ? reviews.length : reviews.filter((r) => r.tags.includes(id)).length;
+  { id: "all", label: "Todas" },
+  { id: "unas", label: "Uñas" },
+  { id: "micro", label: "Micropigmentación" },
+  { id: "facial", label: "Facial" },
+  { id: "experiencia", label: "Trato" }];
 
-  const Star = () => (
-    <svg viewBox="0 0 24 24"><path d="M12 2l2.95 6.97L22 10l-5.5 4.78L18.18 22 12 18.27 5.82 22l1.68-7.22L2 10l7.05-1.03L12 2z"/></svg>
-  );
+  const poolFor = (id) => id === "all" ? reviews.filter((r) => r.text.length > 90) : reviews.filter((r) => r.tags.includes(id));
+  const [filter, setFilter] = useState("all");
+  const [idx, setIdx] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const pool = poolFor(filter);
+  const i = idx % pool.length;
+  const cur = pool[i];
+  useEffect(() => {
+    if (paused || FX.reduce()) return;
+    const t = setTimeout(() => setIdx((v) => (v + 1) % pool.length), 7000);
+    return () => clearTimeout(t);
+  }, [idx, paused, filter, pool.length]);
 
-  const GoogleG = () => (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path fill="#4285F4" d="M22.5 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.76h3.56c2.08-1.92 3.22-4.74 3.22-8.09z"/>
-      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.56-2.76c-.98.66-2.23 1.06-3.72 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"/>
-      <path fill="#FBBC05" d="M5.84 14.11a6.6 6.6 0 0 1 0-4.22V7.05H2.18a11 11 0 0 0 0 9.9l3.66-2.84z"/>
-      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1A11 11 0 0 0 2.18 7.05l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/>
-    </svg>
-  );
+  const short = reviews.filter((r) => r.text.length >= 40 && r.text.length < 150);
+  const rowA = short.filter((_, k) => k % 2 === 0).slice(0, 12);
+  const rowB = short.filter((_, k) => k % 2 === 1).slice(0, 12);
+  const card = (r, k, hidden) =>
+  <figure className="rv-card" key={k} aria-hidden={hidden ? "true" : undefined}>
+      <div className="rv-stars" aria-hidden="true">★★★★★</div>
+      <blockquote>{r.text}</blockquote>
+      <figcaption><span className="avatar">{r.a}</span><span>{r.name}<em>{r.service}</em></span></figcaption>
+    </figure>;
+
+  const pad = (n) => String(n).padStart(2, "0");
 
   return (
     <section className="sec-testimonials" id="testimonios">
-      <Ornament style={{ top: 60, right: -40 }} speed={0.05}>06</Ornament>
-      <Ornament tick style={{ bottom: 60, left: -20 }} speed={-0.08}>“</Ornament>
-
       <div className="container" style={{ position: "relative", zIndex: 1 }}>
         <R className="chapter">
           <span className="rule"></span>
@@ -1156,80 +1366,64 @@ function TestimonialsSection() {
         <div className="testimonials-head">
           <h2 className="h-section">
             <LineMask>Lo que dicen</LineMask>
-            <LineMask delay={120}>en <em style={{fontFamily:"var(--serif)"}}>Cuenca</em>.</LineMask>
+            <LineMask delay={120}>en <em style={{ fontFamily: "var(--serif)" }}>Cuenca</em>.</LineMask>
           </h2>
           <R className="body" delay={200}>
-            Reseñas reales de Google clasificadas por servicio: uñas, micropigmentación,
-            estética facial, pies y experiencia en el estudio.
+            Opiniones reales de clientas en Google. Elige un servicio para leer
+            las que hablan de él.
           </R>
         </div>
 
-        <div className="reviews-board">
-          <div className="review-filters" role="group" aria-label="Filtrar reseñas por servicio">
-            {filters.map((f) => (
-              <button
-                key={f.id}
-                type="button"
-                className={`review-filter ${activeFilter === f.id ? "is-active" : ""}`}
-                onClick={() => setActiveFilter(f.id)}
-                aria-pressed={activeFilter === f.id}>
-                <span className="rf-label">{f.label}</span>
-                <span className="rf-count">{countFor(f.id)}</span>
+        <div className="rv-feature" onPointerEnter={() => setPaused(true)} onPointerLeave={() => setPaused(false)}>
+          <div className="rv-filters" role="group" aria-label="Filtrar reseñas por servicio">
+            {filters.map((f) =>
+            <button key={f.id} type="button" className={`rv-filter ${filter === f.id ? "is-active" : ""}`}
+            aria-pressed={filter === f.id} onClick={() => {setFilter(f.id);setIdx(0);}}>
+                {f.label}<span>{poolFor(f.id).length}</span>
               </button>
-            ))}
+            )}
           </div>
 
-          <div className="reviews-panel-head">
-            <div>
-              <span className="small-caps">{activeMeta.note}</span>
-              <h3>{activeMeta.label}</h3>
+          <div className="rv-quote" key={`${filter}-${i}`}>
+            <span className="rv-mark" aria-hidden="true">“</span>
+            <blockquote>{cur.text}</blockquote>
+            <div className="rv-meta">
+              <span className="rv-name">{cur.name}</span>
+              <span>{cur.service}</span>
+              <span>{cur.date}</span>
             </div>
-            <span className="reviews-total">{activeReviews.length} comentarios</span>
           </div>
 
-          <div className="reviews-table">
-            {activeReviews.map((r, i) => {
-              const primary = r.tags[0];
-              return (
-                <R as="article" key={`${r.name}-${i}`} className={`review-row tone-${primary}`} v="r-fade" delay={(i % 8) * 45}>
-                  <div className="review-rating" aria-label="5 estrellas en Google">
-                    <GoogleG/>
-                    <span className="score">5,0</span>
-                    <span className="stars-text">★★★★★</span>
-                  </div>
-                  <div className="review-main">
-                    <div className="review-meta">
-                      <span className="review-name">{r.name}</span>
-                      <span>{r.service}</span>
-                      <span>{r.date}</span>
-                    </div>
-                    <blockquote>{r.text}</blockquote>
-                  </div>
-                  <div className="review-side">
-                    <span className={`review-chip chip-${primary}`}>{catLabel[primary] || "Google"}</span>
-                    <span className="avatar">{r.a}</span>
-                  </div>
-                </R>
-              );
-            })}
+          <div className="rv-controls">
+            <button type="button" className="rv-nav" aria-label="Reseña anterior" onClick={() => setIdx((v) => (v - 1 + pool.length) % pool.length)}>←</button>
+            <span className="rv-count">{pad(i + 1)} <span>/ {pad(pool.length)}</span></span>
+            <button type="button" className="rv-nav" aria-label="Reseña siguiente" onClick={() => setIdx((v) => (v + 1) % pool.length)}>→</button>
+            <span className={`rv-timer ${paused ? "paused" : ""}`} key={`t-${filter}-${i}`} aria-hidden="true"></span>
           </div>
         </div>
+      </div>
 
+      <div className="rv-marquee" aria-label="Más reseñas de Google">
+        <div className="rv-row"><div className="rv-track">{rowA.map((r, k) => card(r, `a${k}`))}{rowA.map((r, k) => card(r, `ad${k}`, true))}</div></div>
+        <div className="rv-row rev"><div className="rv-track">{rowB.map((r, k) => card(r, `b${k}`))}{rowB.map((r, k) => card(r, `bd${k}`, true))}</div></div>
+      </div>
+
+      <div className="container">
         <div className="testimonials-stats">
           <R as="div" className="stat">
-            <span className="n">5,0<span style={{ fontSize: ".5em", color: "var(--muted)" }}>★</span></span>
+            <span className="n"><Counter to={5} decimals={1} /><span style={{ fontSize: ".5em", color: "var(--muted)" }}>★</span></span>
             <span className="l">Valoración en Google</span>
           </R>
           <R as="div" className="stat" delay={100}>
-            <span className="n">+75</span>
+            <span className="n"><Counter to={75} prefix="+" /></span>
             <span className="l">Reseñas reales en Google</span>
           </R>
           <R as="div" className="stat" delay={200}>
-            <span className="n">{reviews.length}</span>
+            <span className="n"><Counter to={reviews.length} /></span>
             <span className="l">Reseñas en esta página</span>
           </R>
           <R as="div" className="stat" delay={300}>
-            <span className="n">+7<span style={{ fontSize: ".5em", color: "var(--muted)" }}> años</span></span>
+            <span className="n"><Counter to={7} prefix="+" /><span style={{ fontSize: ".5em", color: "var(--muted)" }}> años</span></span>
             <span className="l">De clientas fieles que repiten</span>
           </R>
         </div>
@@ -1243,8 +1437,8 @@ function TestimonialsSection() {
           </a>
         </R>
       </div>
-    </section>
-  );
+    </section>);
+
 }
 
 /* ---------- Ornament (drift-on-scroll decoration) ---------- */
@@ -1341,6 +1535,7 @@ function LegalNoticeModal({ open, onClose }) {
 /* ---------- Footer ---------- */
 function FooterSection() {
   const [legalOpen, setLegalOpen] = useState(false);
+  const ref = useProgress("through");
   const mapsEmbed = "https://www.openstreetmap.org/export/embed.html?bbox=-2.148%2C40.060%2C-2.122%2C40.074&layer=mapnik&marker=40.0657%2C-2.1357";
   const mapsLink  = BUSINESS.mapsShort;
 
@@ -1364,7 +1559,7 @@ function FooterSection() {
   ];
 
   return (
-    <footer className="footer" id="contacto">
+    <footer className="footer" id="contacto" ref={ref}>
       <div className="container">
         <R className="chapter">
           <span className="rule"></span>
@@ -1379,6 +1574,11 @@ function FooterSection() {
             Estamos en el Centro Comercial 4 Caminos, a pocos pasos de la Plaza de la
             Hispanidad. Escríbeme por WhatsApp y buscamos un hueco que te venga bien.
           </R>
+          <a className="footer-cta" href={wa(CITA_MSG)} target="_blank" rel="noopener">
+            <span className="sr-only">Pedir cita por WhatsApp</span>
+            <CircleText id="ct-footer" text="Pedir cita · WhatsApp · Pedir cita · WhatsApp · " />
+            <span className="core" aria-hidden="true">→</span>
+          </a>
         </div>
 
         <div className="footer-layout">
@@ -1556,11 +1756,14 @@ function WhatsAppFab() {
 /* ---------- App ---------- */
 function App() {
   useScrollProgress();
+  useEffect(() => {FX.init();}, []);
   return (
     <React.Fragment>
+      <Cursor />
       <Nav />
       <main id="contenido">
         <Hero />
+        <Marquee />
         <QuickServices />
         <Interlude id="interlude-1"
         src={SITE_IMAGES.nailDetail}
@@ -1568,19 +1771,14 @@ function App() {
         label="Uñas"
         quote={<>Uñas bonitas, sobre una <em style={{ fontFamily: "var(--serif)" }}>uña sana</em>.</>} />
         <NailsSection />
-        <Interlude id="interlude-2"
-        src={SITE_IMAGES.massagePareja}
-        placeholder="Cabina de masaje en pareja con velas"
-        label="Masajes"
-        quote={<>Un rato para dos. <em style={{ fontFamily: "var(--serif)" }}>Tiempo para vosotros</em>.</>} />
         <MassageSection />
-        <Interlude id="interlude-3"
-        src={SITE_IMAGES.facialCabin}
-        placeholder="Cabina de estética facial con luz cálida"
-        label="Estética facial"
-        quote={<>Tiempo para ti <em style={{ fontFamily: "var(--serif)" }}>y para tu piel</em>.</>} />
         <FacialSection />
         <BodySection />
+        <Interlude id="interlude-2"
+        src={SITE_IMAGES.pigmentDetail}
+        placeholder="Pigmentos y material de micropigmentación en el estudio"
+        label="Micropigmentación"
+        quote={<>Cada trazo se decide <em style={{ fontFamily: "var(--serif)" }}>antes de tocar la piel</em>.</>} />
         <MicroSection />
         <TestimonialsSection />
         <TrackSection />

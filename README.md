@@ -53,3 +53,13 @@ python3 serve.py 8001
 - WhatsApp: `+34 690 699 205`.
 - Email: `estefaniapanzariu@gmail.com`.
 - Instagram: `https://www.instagram.com/victoria_e_p?igsh=MWppMjdoaXlhYWxpOA==`.
+
+## Movimiento y efectos
+
+- `FX` (en el `.jsx`) es un motor de scroll mínimo: cada sección registrada con
+  `useProgress()` recibe la variable CSS `--p` (0 → 1) y el CSS hace el resto
+  (foto del hero que se recoge en arco, cintas, interludios que se expanden,
+  masajes en pantalla dividida, trayectoria horizontal).
+- `assets/vendor/lenis.min.js` da el scroll con inercia, solo con ratón.
+- `assets/js/landing-fx.js` aplica scroll suave y revelado en las páginas de servicio.
+- Con "reducir movimiento" activado en el sistema, todo se muestra estático.
