@@ -100,6 +100,15 @@ const FX = (() => {
     window.addEventListener("load", api.wake);
     if (!api.reduce() && api.fine() && window.Lenis) {
       api.lenis = new window.Lenis({ autoRaf: true, lerp: 0.085, smoothWheel: true, anchors: { offset: -84 } });
+      // Velocidad del scroll → --v (las imágenes se inclinan levemente al bajar rápido)
+      const root = document.documentElement;
+      let rest = 0;
+      api.lenis.on("scroll", (l) => {
+        const v = Math.max(-28, Math.min(28, l.velocity || 0));
+        root.style.setProperty("--v", v.toFixed(2));
+        clearTimeout(rest);
+        rest = setTimeout(() => root.style.setProperty("--v", "0"), 140);
+      });
       document.documentElement.classList.add("has-lenis");
     }
   };
@@ -294,6 +303,116 @@ function Words({ text, baseDelay = 0, step = 60, className = "" }) {
 }
 
 /* Parallax wrapper */
+/* Letras que suben una a una (solo CSS: funciona desde el HTML prerenderizado) */
+function Chars({ text, delay = 0, step = 32 }) {
+  let k = 0;
+  const words = text.split(" ");
+  return words.map((w, wi) =>
+  <React.Fragment key={wi}>
+      <span className="ch-word">
+        {Array.from(w).map((c) => {
+        const d = delay + k++ * step;
+        return <span key={d} className="ch" style={{ animationDelay: `${d}ms` }}>{c}</span>;
+      })}
+      </span>
+      {wi < words.length - 1 ? " " : null}
+    </React.Fragment>
+  );
+}
+
+/* Borde en cúpula que se aplana al entrar la sección (secciones oscuras) */
+function useEdge(extra) {
+  const ref = useProgress("through", (p, r) => {
+    const el = ref.current;
+    if (!el) return;
+    const e = Math.min(1, Math.max(0, r.top / window.innerHeight));
+    el.style.setProperty("--edge", e.toFixed(4));
+    if (extra) extra(p, r);
+  });
+  return ref;
+}
+
+/* Atmósfera: el fondo cambia de tono por capítulo + índice lateral */
+const CHAPTERS = [
+{ id: "unas", label: "Uñas" },
+{ id: "masajes", label: "Masajes" },
+{ id: "estetica", label: "Facial" },
+{ id: "corporal", label: "Corporal" },
+{ id: "micropigmentacion", label: "Micropigmentación" },
+{ id: "testimonios", label: "Reseñas" },
+{ id: "trayectoria", label: "Stefania" },
+{ id: "contacto", label: "Contacto" }];
+
+function Atmosphere() {
+  const [active, setActive] = useState(-1);
+  useEffect(() => {
+    const root = document.documentElement;
+    const toned = Array.from(document.querySelectorAll("[data-tone]"));
+    const ids = CHAPTERS.map((c) => c.id);
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        const t = e.target;
+        if (t.dataset.tone) root.style.setProperty("--page-bg", t.dataset.tone);
+        const idx = ids.indexOf(t.id);
+        if (idx >= 0) setActive(idx);else
+        if (!t.dataset.keep) setActive(-1);
+      });
+    }, { rootMargin: "-50% 0px -50% 0px" });
+    const watched = new Set([...toned, ...ids.map((id) => document.getElementById(id)).filter(Boolean)]);
+    watched.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, []);
+  return (
+    <nav className={`chapter-nav ${active >= 0 ? "on" : ""}`} aria-label="Capítulos">
+      {CHAPTERS.map((c, i) =>
+      <a key={c.id} href={`#${c.id}`} className={active === i ? "is-active" : ""} aria-current={active === i ? "true" : undefined}>
+          <span className="cn-label">{c.label}</span>
+          <span className="cn-line"></span>
+        </a>
+      )}
+    </nav>);
+
+}
+
+/* ---------- Manifiesto: las palabras se iluminan al bajar ---------- */
+function Manifesto() {
+  const ref = useProgress("pin");
+  const raw = "Un estudio íntimo en 4 Caminos, donde cada cita va *sin prisas.* Uñas que duran, una piel más luminosa y cejas que *parecen tuyas.* Belleza de autor, *hecha a mano* en Cuenca.";
+  let em = false;
+  const tokens = raw.split(" ").map((w) => {
+    const open = w.startsWith("*");
+    const close = w.endsWith("*");
+    if (open) em = true;
+    const t = { w: w.replace(/\*/g, ""), em };
+    if (close) em = false;
+    return t;
+  });
+  const n = tokens.length;
+  return (
+    <section className="manifesto" ref={ref} data-tone="#f6f1ec" aria-labelledby="mf-title">
+      <div className="mf-sticky">
+        <h2 id="mf-title" className="small-caps mf-label">Así trabajo</h2>
+        <p className="sr-only">{raw.replace(/\*/g, "")}</p>
+        <p className="mf-text" aria-hidden="true">
+          {tokens.map((t, i) =>
+          <React.Fragment key={i}>
+              <span className={`mf-w${t.em ? " em" : ""}`} style={{ "--w": (i / (n - 1)).toFixed(3) }}>{t.w}</span>{i < n - 1 ? " " : null}
+            </React.Fragment>
+          )}
+        </p>
+        <figure className="mf-img mf-img-a" aria-hidden="true">
+          <img className="cover-img" {...pic(SITE_IMAGES.nailDetail, "18vw")} alt="" loading="lazy" />
+        </figure>
+        <figure className="mf-img mf-img-b" aria-hidden="true">
+          <img className="cover-img" {...pic(SITE_IMAGES.facialCabin, "18vw")} alt="" loading="lazy" />
+        </figure>
+        <div className="mf-sign" aria-hidden="true">Stefania Panzariu · Cuenca</div>
+      </div>
+    </section>);
+
+}
+
 function Parallax({ speed = 0.18, children, className = "", style }) {
   const ref = useRef(null);
   useEffect(() => {
@@ -584,7 +703,7 @@ function Nav() {
 function Hero() {
   const ref = useProgress("pin");
   return (
-    <section className="hero" id="top" ref={ref}>
+    <section className="hero" id="top" ref={ref} data-tone="#fbfaf8">
       <div className="hero-sticky">
         <div className="hero-word" aria-hidden="true">Stefania</div>
         <div className="hero-inner">
@@ -594,18 +713,18 @@ function Hero() {
             </R>
 
             <p className="display">
-              <LineMask delay={100} instant>El arte</LineMask>
-              <LineMask delay={200} instant>de sentirte</LineMask>
-              <LineMask delay={300} instant><em style={{ fontFamily: "var(--display)", fontStyle: "normal" }}>bien.</em></LineMask>
+              <span className="line-mask hero-line"><span><Chars text="El arte" delay={120} /></span></span>
+              <span className="line-mask hero-line"><span><Chars text="de sentirte" delay={330} /></span></span>
+              <span className="line-mask hero-line"><span><em style={{ fontFamily: "var(--display)", fontStyle: "normal" }}><Chars text="bien." delay={640} step={60} /></em></span></span>
             </p>
 
-            <R className="lead" delay={450} instant>
+            <R className="lead" delay={900} instant>
               Soy Stefania. En mi estudio de 4 Caminos hago uñas, masajes (también
               en pareja), tratamientos faciales y corporales y micropigmentación.
               Trabajo con cita previa para atenderte sin prisas.
             </R>
 
-            <R className="hero-actions" delay={550} instant>
+            <R className="hero-actions" delay={1020} instant>
               <a className="btn dark" href={wa(CITA_MSG)} target="_blank" rel="noopener">
                 Pedir cita por WhatsApp <span className="arrow">→</span>
               </a>
@@ -696,7 +815,7 @@ function QuickServices() {
   }, []);
 
   return (
-    <section className="quick-services" id="que-hago" aria-labelledby="qs-title">
+    <section className="quick-services" id="que-hago" aria-labelledby="qs-title" data-tone="#fbfaf8">
       <div className="container">
         <div className="qs-head">
           <h2 id="qs-title" className="small-caps">Qué puedes reservar</h2>
@@ -750,7 +869,7 @@ function MassageSection() {
   });
 
   return (
-    <section className="sec-massage" id="masajes">
+    <section className="sec-massage" id="masajes" data-tone="#f0e9e1">
       <GhostNum>02</GhostNum>
       <div className="container" style={{ position: "relative", zIndex: 1 }}>
         <R className="chapter">
@@ -860,7 +979,7 @@ function MicroSection() {
   }];
 
   return (
-    <section className="sec-micro sec-micro-secondary" id="micropigmentacion">
+    <section className="sec-micro sec-micro-secondary" id="micropigmentacion" data-tone="#f5f0ec">
       <div className="container" style={{ position: "relative", zIndex: 1 }}>
         <R className="chapter">
           <span className="rule"></span>
@@ -909,8 +1028,34 @@ function MicroSection() {
 
 /* ---------- Nails ---------- */
 function NailsSection() {
+  const cards = [
+  { n: "01", label: "Técnica", t: "Manicura de precisión", d: "Trabajo la cutícula con calma y herramientas específicas para que el esmalte empiece justo en el borde de la piel. Así la uña se ve limpia desde el primer día.", img: SITE_IMAGES.nailDetail, alt: "Detalle de una manicura de precisión hecha en el estudio", tone: "light", pos: "50% 50%" },
+  { n: "02", label: "Refuerzo", t: "Nivelación y rubber base", d: "Una base flexible que corrige pequeñas imperfecciones y refuerza la uña natural. Es lo que hace que la manicura dure más de 3 semanas.", img: SITE_IMAGES.nailNude, alt: "Uñas nude translúcidas con acabado limpio y natural", tone: "blush", pos: "50% 50%" },
+  { n: "03", label: "Estética", t: "Milky, nude o tu diseño", d: "Colores suaves que quedan bien con todo, o la idea que traigas en una foto. Lo adaptamos a la forma de tu mano.", img: SITE_IMAGES.nailMilky, alt: "Uñas de autor con acabado milky en Stefania Panzariu Studio", tone: "ink", pos: "50% 55%" }];
+
+  const cardRefs = useRef([]);
+  useEffect(() => {
+    // Cada tarjeta, al subir, va tapando la anterior: --s (0→1) en la de debajo
+    let tops = [];
+    const measure = () => {tops = cardRefs.current.map((el) => el ? parseFloat(getComputedStyle(el).top) || 0 : 0);FX.wake();};
+    measure();
+    window.addEventListener("resize", measure);
+    const offs = cardRefs.current.map((el, i) => {
+      if (i === 0 || !el) return null;
+      const prev = cardRefs.current[i - 1];
+      return FX.add(el, "through", (p, r) => {
+        if (!prev) return;
+        const top = tops[i] || 0;
+        const dist = Math.max(1, r.height);
+        const s = Math.min(1, Math.max(0, 1 - (r.top - top) / dist));
+        prev.style.setProperty("--s", s.toFixed(4));
+      });
+    });
+    return () => {window.removeEventListener("resize", measure);offs.forEach((off) => off && off());};
+  }, []);
+
   return (
-    <section className="sec-nails" id="unas">
+    <section className="sec-nails" id="unas" data-tone="#f6efec">
       <GhostNum>01</GhostNum>
       <div className="container" style={{ position: "relative", zIndex: 1 }}>
         <R className="chapter">
@@ -930,74 +1075,48 @@ function NailsSection() {
           </R>
         </div>
 
-        <div className="nails-stage">
-          <div className="col-photos">
-            <R v="r-mask" className="img">
-              <Parallax speed={0.08} className="inner">
-                <img className="cover-img" {...pic(SITE_IMAGES.nailMilky)} alt="Uñas de autor con acabado milky en Stefania Panzariu Studio" loading="lazy" />
-              </Parallax>
-            </R>
-            <R v="r-fade" delay={120} className="quote-tile">
-              <span className="mark">✦</span>
-              <p>“Son 7 años haciéndome las uñas con ella y jamás se me ha partido o caído una uña.”</p>
-              <span className="sign">Rebeca · Reseña en Google</span>
-            </R>
-            <R v="r-mask" delay={200} className="img">
-              <Parallax speed={0.12} className="inner">
-                <img className="cover-img" {...pic(SITE_IMAGES.nailNude)} alt="Uñas nude translúcidas con acabado limpio y natural" loading="lazy" />
-              </Parallax>
-            </R>
-          </div>
+        <div className="stack">
+          {cards.map((c, i) =>
+          <article key={c.n} className={`stack-card t-${c.tone}`} style={{ "--i": i }} ref={(el) => cardRefs.current[i] = el}>
+              <div className="stack-inner">
+                <div className="stack-media">
+                  <img className="cover-img" {...pic(c.img)} alt={c.alt} style={{ objectPosition: c.pos }} loading="lazy" />
+                </div>
+                <div className="stack-text">
+                  <div className="stack-top"><span className="stack-n">{c.n}</span><span className="small-caps">{c.label}</span></div>
+                  <h3>{c.t}</h3>
+                  <p>{c.d}</p>
+                </div>
+              </div>
+            </article>
+          )}
+        </div>
 
-          <div className="col-text">
-            <R className="kicker" style={{ marginBottom: 16 }}>Acabados naturales y diseños</R>
-            <R as="h3" className="h-sub" delay={120} style={{ maxWidth: "20ch" }}>
-              Tonos lechosos, nudes translúcidos o el diseño que traigas en mente.
-            </R>
-            <div className="nails-features">
-              <R as="div" className="feat" v="r-left">
-                <div className="label">Técnica</div>
-                <div>
-                  <h4>Manicura de alta precisión</h4>
-                  <p>Trabajo la cutícula con calma y herramientas específicas para que el esmalte empiece justo en el borde de la piel.</p>
-                </div>
-              </R>
-              <R as="div" className="feat" v="r-left" delay={120}>
-                <div className="label">Refuerzo</div>
-                <div>
-                  <h4>Nivelación y rubber base</h4>
-                  <p>Una base flexible que corrige pequeñas imperfecciones y refuerza la uña natural. Dura más de 3 semanas.</p>
-                </div>
-              </R>
-              <R as="div" className="feat" v="r-left" delay={240}>
-                <div className="label">Estética</div>
-                <div>
-                  <h4>Milky, nude y diseños a tu gusto</h4>
-                  <p>Colores suaves que quedan bien con todo, o algo más atrevido. Lo adaptamos a la forma de tu mano.</p>
-                </div>
-              </R>
-            </div>
-
-            <R delay={300} style={{ marginTop: 36 }}>
-              <a className="btn dark" href={wa("Hola Stefania, quiero pedir cita para hacerme las uñas.")} target="_blank" rel="noopener">
-                Pedir cita para uñas <span className="arrow">→</span>
-              </a>
-              <a className="linkish" href="/unas-de-autor" style={{ marginLeft: 22 }}>
-                Más sobre las uñas <span className="arrow">→</span>
-              </a>
-            </R>
-          </div>
+        <div className="nails-after">
+          <R as="figure" className="nails-quote">
+            <blockquote>“Son 7 años haciéndome las uñas con ella y jamás se me ha partido o caído una uña.”</blockquote>
+            <figcaption>Rebeca · Reseña en Google</figcaption>
+          </R>
+          <R className="nails-cta" delay={120}>
+            <a className="btn dark" href={wa("Hola Stefania, quiero pedir cita para hacerme las uñas.")} target="_blank" rel="noopener">
+              Pedir cita para uñas <span className="arrow">→</span>
+            </a>
+            <a className="linkish" href="/unas-de-autor">
+              Más sobre las uñas <span className="arrow">→</span>
+            </a>
+          </R>
         </div>
       </div>
     </section>);
 
 }
 
+
 /* ---------- Facial ---------- */
 function FacialSection() {
   const ref = useProgress("through");
   return (
-    <section className="sec-facial" id="estetica" ref={ref}>
+    <section className="sec-facial" id="estetica" ref={ref} data-tone="#f7f3ef">
       <GhostNum>03</GhostNum>
       <div className="container" style={{ position: "relative", zIndex: 1 }}>
         <R className="chapter">
@@ -1076,7 +1195,7 @@ function FacialSection() {
 function BodySection() {
   const ref = useProgress("through");
   return (
-    <section className="sec-body" id="corporal" ref={ref}>
+    <section className="sec-body" id="corporal" ref={ref} data-tone="#eee7e0">
       <GhostNum>04</GhostNum>
       <div className="container" style={{ position: "relative", zIndex: 1 }}>
         <R className="chapter">
@@ -1135,8 +1254,12 @@ function BodySection() {
                 <div className="ring"></div>
                 <div className="ring"></div>
                 <div className="ring"></div>
-                <div className="center-mark">✦</div>
+                <div className="breath" aria-hidden="true">
+                  <span className="b-in">Inhala</span>
+                  <span className="b-out">Exhala</span>
+                </div>
               </div>
+              <p className="breath-cap">Respira con el círculo</p>
             </R>
           </div>
         </div>
@@ -1202,8 +1325,9 @@ function TrackSection() {
     pos: "50% 50%"
   }];
 
+  const secRef = useEdge();
   return (
-    <section className="sec-track" id="trayectoria">
+    <section className="sec-track" id="trayectoria" ref={secRef}>
       <div className="hz" ref={hzRef}>
         <div className="hz-sticky">
           <div className="hz-track" ref={trackRef}>
@@ -1356,7 +1480,7 @@ function TestimonialsSection() {
   const pad = (n) => String(n).padStart(2, "0");
 
   return (
-    <section className="sec-testimonials" id="testimonios">
+    <section className="sec-testimonials" id="testimonios" data-tone="#fbfaf8">
       <div className="container" style={{ position: "relative", zIndex: 1 }}>
         <R className="chapter">
           <span className="rule"></span>
@@ -1535,7 +1659,8 @@ function LegalNoticeModal({ open, onClose }) {
 /* ---------- Footer ---------- */
 function FooterSection() {
   const [legalOpen, setLegalOpen] = useState(false);
-  const ref = useProgress("through");
+  const ref = useEdge();
+  const megaRef = useReveal({ threshold: 0.3 });
   const mapsEmbed = "https://www.openstreetmap.org/export/embed.html?bbox=-2.148%2C40.060%2C-2.122%2C40.074&layer=mapnik&marker=40.0657%2C-2.1357";
   const mapsLink  = BUSINESS.mapsShort;
 
@@ -1666,6 +1791,11 @@ function FooterSection() {
           </a>
         </div>
       </div>
+      <div className="footer-mega r-mega" ref={megaRef} aria-hidden="true">
+        {Array.from("Stefania Panzariu").map((c, i) =>
+        <span key={i} style={{ transitionDelay: `${i * 38}ms` }}>{c === " " ? "\u00a0" : c}</span>
+        )}
+      </div>
       <LegalNoticeModal open={legalOpen} onClose={() => setLegalOpen(false)} />
     </footer>);
 
@@ -1700,7 +1830,7 @@ function FaqSection() {
   }];
 
   return (
-    <section className="sec-faq" id="faq">
+    <section className="sec-faq" id="faq" data-tone="#f3f1ed" data-keep="1">
       <div className="container">
         <R className="chapter">
           <span className="rule"></span>
@@ -1760,9 +1890,11 @@ function App() {
   return (
     <React.Fragment>
       <Cursor />
+      <Atmosphere />
       <Nav />
       <main id="contenido">
         <Hero />
+        <Manifesto />
         <Marquee />
         <QuickServices />
         <Interlude id="interlude-1"
