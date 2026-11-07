@@ -8,16 +8,20 @@ const BUSINESS = {
   instagramHandle: "@victoria_e_p",
   instagramUrl: "https://www.instagram.com/victoria_e_p?igsh=MWppMjdoaXlhYWxpOA==",
   // —— Dirección centralizada: para mudanzas, cambia SOLO estos campos ——
-  addressLine: "Centro Comercial 4 Caminos, número 7", // calle + número (texto largo)
-  addressShort: "Centro Comercial 4 Caminos, nº 7",     // versión corta
-  postalCity: "16004 Cuenca",                            // CP + ciudad
+  // Igual que en la ficha de Google (NAP coherente para el SEO local)
+  addressLine: "Centro Comercial Cuatro Caminos, local 7 · Av. República Argentina, 1", // texto largo
+  addressShort: "C.C. Cuatro Caminos, local 7",          // versión corta
+  street: "Av. República Argentina, 1",
+  postalCity: "16002 Cuenca",                            // CP + ciudad
   city: "Cuenca",
   region: "Cuenca",
   country: "España",
   area: "4 Caminos",                                     // barrio/zona (hero, branding)
-  addressTag: "Número 7",                                // motivo de marca (footer/redes)
+  addressTag: "Local 7",                                 // motivo de marca (footer/redes)
   landmark: "A pocos pasos de la Plaza de la Hispanidad.", // referencia cercana
-  mapsShort: "https://maps.app.goo.gl/RmEoSxGfpnqJU6RFA",
+  mapsShort: "https://maps.google.com/?cid=4648610474896952883", // ficha del estudio en Google Maps
+  rating: 5,
+  reviewsTotal: 87,                                      // valoraciones en Google (nov. 2026)
   reviewsUrl: "https://share.google/glBQvfSFh7AWF6Wdg",
 };
 
@@ -54,7 +58,7 @@ const pic = (src, sizes = "(max-width: 1080px) 100vw, 50vw") => {
 const wa = (msg) => `https://wa.me/${BUSINESS.phone}?text=${encodeURIComponent(msg)}`;
 
 // Mensaje estándar de cita (incluye la dirección centralizada).
-const CITA_MSG = `Hola Stefania, me gustaría pedir cita en el estudio (${BUSINESS.addressLine}, ${BUSINESS.city}). ¿Me indicas tu disponibilidad?`;
+const CITA_MSG = `Hola Stefania, me gustaría pedir cita en el estudio (${BUSINESS.addressShort}, ${BUSINESS.city}). ¿Me indicas tu disponibilidad?`;
 
 /* ---------- Motor de efectos: cada elemento registrado recibe --p (0→1) ----------
    mode "through": 0 cuando el elemento asoma por abajo, 1 cuando sale por arriba.
@@ -401,12 +405,9 @@ function Manifesto() {
             </React.Fragment>
           )}
         </p>
-        <figure className="mf-img mf-img-a" aria-hidden="true">
-          <img className="cover-img" {...pic(SITE_IMAGES.nailDetail, "18vw")} alt="" loading="lazy" />
-        </figure>
-        <figure className="mf-img mf-img-b" aria-hidden="true">
-          <img className="cover-img" {...pic(SITE_IMAGES.facialCabin, "18vw")} alt="" loading="lazy" />
-        </figure>
+        {/* Arcos dibujados (sin foto): cada imagen del sitio aparece una sola vez */}
+        <span className="mf-img mf-arch mf-img-a" aria-hidden="true"><span className="mf-star">✦</span><span className="mf-arch-t">Sin prisas</span></span>
+        <span className="mf-img mf-arch mf-img-b" aria-hidden="true"><span className="mf-star">✦</span><span className="mf-arch-t">Hecho a mano</span></span>
         <div className="mf-sign" aria-hidden="true">Stefania Panzariu · Cuenca</div>
       </div>
     </section>);
@@ -709,7 +710,7 @@ function Hero() {
         <div className="hero-inner">
           <div className="hero-text">
             <R v="r-fade" delay={0} instant>
-              <h1 className="kicker">Uñas, masajes y estética en Cuenca</h1>
+              <h1 className="kicker">Uñas, masajes relajantes y estética en Cuenca</h1>
             </R>
 
             <p className="display">
@@ -784,35 +785,16 @@ function Marquee() {
 
 }
 
-/* ---------- Índice de servicios con vista previa que sigue al ratón ---------- */
+/* ---------- Índice de servicios: tipografía y barrido de color (sin fotos repetidas) ---------- */
 function QuickServices() {
   const items = [
-  { href: "#unas", t: "Uñas", d: "Manicura de precisión, rubber base, milky y diseños.", img: SITE_IMAGES.nailMilky },
-  { href: "#masajes", t: "Masajes", d: "Relajantes, con aromaterapia o en pareja.", img: SITE_IMAGES.massagePareja },
-  { href: "#estetica", t: "Estética facial", d: "Limpieza profunda y tratamientos para dar luz.", img: SITE_IMAGES.facialCabin },
-  { href: "#corporal", t: "Estética corporal", d: "Maderoterapia, drenaje linfático y envolturas.", img: SITE_IMAGES.massageDetail },
-  { href: "#micropigmentacion", t: "Micropigmentación", d: "Cejas, labios y eyeliner con boceto previo.", img: SITE_IMAGES.browAfter }];
+  { href: "#unas", t: "Uñas", d: "Manicura de precisión, rubber base, milky y diseños.", k: "Manicura" },
+  { href: "#masajes", t: "Masajes", d: "Relajantes, con aromaterapia o en pareja.", k: "Relajante" },
+  { href: "#estetica", t: "Estética facial", d: "Limpieza profunda y tratamientos para dar luz.", k: "Piel" },
+  { href: "#corporal", t: "Estética corporal", d: "Maderoterapia, drenaje linfático y envolturas.", k: "Cuerpo" },
+  { href: "#micropigmentacion", t: "Micropigmentación", d: "Cejas, labios y eyeliner con boceto previo.", k: "Mirada" }];
 
   const [active, setActive] = useState(-1);
-  const wrapRef = useRef(null);
-  const figRef = useRef(null);
-  useEffect(() => {
-    const wrap = wrapRef.current,fig = figRef.current;
-    if (!wrap || !fig || !FX.fine()) return;
-    let x = 0,y = 0,tx = 0,ty = 0,raf = 0;
-    const loop = () => {
-      x += (tx - x) * 0.14;y += (ty - y) * 0.14;
-      fig.style.transform = `translate3d(${x.toFixed(1)}px,${y.toFixed(1)}px,0) rotate(${((tx - x) * 0.04).toFixed(2)}deg)`;
-      raf = Math.abs(tx - x) + Math.abs(ty - y) > 0.3 ? requestAnimationFrame(loop) : 0;
-    };
-    const move = (e) => {
-      const r = wrap.getBoundingClientRect();
-      tx = e.clientX - r.left;ty = e.clientY - r.top;
-      if (!raf) raf = requestAnimationFrame(loop);
-    };
-    wrap.addEventListener("pointermove", move);
-    return () => {wrap.removeEventListener("pointermove", move);cancelAnimationFrame(raf);};
-  }, []);
 
   return (
     <section className="quick-services" id="que-hago" aria-labelledby="qs-title" data-tone="#fbfaf8">
@@ -821,7 +803,7 @@ function QuickServices() {
           <h2 id="qs-title" className="small-caps">Qué puedes reservar</h2>
           <span className="qs-hint">Lunes a viernes · 9:00 a 21:00 · Solo con cita previa</span>
         </div>
-        <div className="qs-wrap" ref={wrapRef} onPointerLeave={() => setActive(-1)}>
+        <div className="qs-wrap" onPointerLeave={() => setActive(-1)}>
           <ul className={`qs-list ${active >= 0 ? "has-active" : ""}`}>
             {items.map((it, i) =>
             <li key={it.href} className={active === i ? "is-active" : ""}>
@@ -829,21 +811,26 @@ function QuickServices() {
                   <span className="qs-n">{`0${i + 1}`}</span>
                   <span className="qs-t">{it.t}</span>
                   <span className="qs-d">{it.d}</span>
-                  <img className="qs-thumb" src={pic(it.img).src} alt="" loading="lazy" width="64" height="80" />
                   <span className="qs-a" aria-hidden="true">→</span>
+                  <span className="qs-k" aria-hidden="true">{it.k}</span>
                 </a>
               </li>
             )}
           </ul>
-          <div className={`qs-preview ${active >= 0 ? "on" : ""}`} ref={figRef} aria-hidden="true">
-            {items.map((it, i) =>
-            <img key={it.href} className={active === i ? "on" : ""} src={pic(it.img).src} alt="" loading="lazy" />
-            )}
-          </div>
         </div>
         <p className="qs-note"><a href="#contacto">Cómo llegar al estudio <span aria-hidden="true">→</span></a></p>
       </div>
     </section>);
+
+}
+
+/* Tercer paso de masajes sin foto: panel de luz cálida (la cabina ya sale en Estética facial) */
+function Glow() {
+  return (
+    <div className="glow-panel" aria-hidden="true">
+      <span className="gl-halo"></span>
+      <span className="gl-arch"><span className="gl-word">Calma</span><span className="gl-sub">Aceites<br />Luz cálida<br />Silencio</span></span>
+    </div>);
 
 }
 
@@ -852,7 +839,7 @@ function MassageSection() {
   const steps = [
   { label: "En pareja", t: "Masaje en pareja · Ritual dúo", d: "Dos camillas, una misma cabina: comparte un ritual relajante con tu pareja, una amiga o en familia, en un ambiente cálido e íntimo.", img: SITE_IMAGES.massagePareja, alt: "Masaje en pareja en el estudio de Stefania Panzariu en Cuenca", pos: "50% 50%" },
   { label: "Relajante", t: "Masaje relajante", d: "Maniobras suaves y envolventes para soltar la tensión acumulada y salir con el cuerpo más ligero.", img: SITE_IMAGES.massageDetail, alt: "Detalle de masaje relajante de espalda en Stefania Panzariu Studio", pos: "50% 40%" },
-  { label: "Experiencia", t: "Aromaterapia y calma", d: "Aceites esenciales, luz cálida y silencio. Ajustamos la presión y la duración a lo que necesites.", img: SITE_IMAGES.facialCabin, alt: "Cabina del estudio con luz cálida y velas", pos: "50% 50%" }];
+  { label: "Experiencia", t: "Aromaterapia y calma", d: "Aceites esenciales, luz cálida y silencio. Ajustamos la presión y la duración a lo que necesites.", img: null }];
 
   const [active, setActive] = useState(0);
   const mediaRef = useRef(null);
@@ -892,7 +879,7 @@ function MassageSection() {
         <div className="split-media" ref={mediaRef} aria-hidden="true">
           {steps.map((s, i) =>
           <figure key={s.t} className={`sm-fig sm-${i}`}>
-              <img className="cover-img" {...pic(s.img)} alt="" style={{ objectPosition: s.pos }} loading="lazy" />
+              {s.img ? <img className="cover-img" {...pic(s.img)} alt="" style={{ objectPosition: s.pos }} loading="lazy" /> : <Glow />}
             </figure>
           )}
           <div className="sm-counter">
@@ -903,14 +890,19 @@ function MassageSection() {
         <div className="split-steps">
           {steps.map((s, i) =>
           <article key={s.t} className={`split-step ${active === i ? "is-active" : ""}`}>
-              <div className="step-img"><img className="cover-img" {...pic(s.img)} alt={s.alt} style={{ objectPosition: s.pos }} loading="lazy" /></div>
+              <div className="step-img">{s.img ? <img className="cover-img" {...pic(s.img)} alt={s.alt} style={{ objectPosition: s.pos }} loading="lazy" /> : <Glow />}</div>
               <div className="step-n">{`0${i + 1}`} · {s.label}</div>
               <h3>{s.t}</h3>
               <p>{s.d}</p>
               {i === steps.length - 1 &&
-            <a className="btn dark" href={wa("Hola Stefania, me gustaría reservar un masaje en pareja / relajante.")} target="_blank" rel="noopener">
-                  Reservar mi masaje <span className="arrow">→</span>
-                </a>
+            <div className="step-ctas">
+                  <a className="btn dark" href={wa("Hola Stefania, me gustaría reservar un masaje en pareja / relajante.")} target="_blank" rel="noopener">
+                    Reservar mi masaje <span className="arrow">→</span>
+                  </a>
+                  <a className="linkish" href="/masajes-relajantes">
+                    Masajes relajantes en Cuenca <span className="arrow">→</span>
+                  </a>
+                </div>
             }
             </article>
           )}
@@ -1029,9 +1021,17 @@ function MicroSection() {
 /* ---------- Nails ---------- */
 function NailsSection() {
   const cards = [
-  { n: "01", label: "Técnica", t: "Manicura de precisión", d: "Trabajo la cutícula con calma y herramientas específicas para que el esmalte empiece justo en el borde de la piel. Así la uña se ve limpia desde el primer día.", img: SITE_IMAGES.nailDetail, alt: "Detalle de una manicura de precisión hecha en el estudio", tone: "light", pos: "50% 50%" },
-  { n: "02", label: "Refuerzo", t: "Nivelación y rubber base", d: "Una base flexible que corrige pequeñas imperfecciones y refuerza la uña natural. Es lo que hace que la manicura dure más de 3 semanas.", img: SITE_IMAGES.nailNude, alt: "Uñas nude translúcidas con acabado limpio y natural", tone: "blush", pos: "50% 50%" },
-  { n: "03", label: "Estética", t: "Milky, nude o tu diseño", d: "Colores suaves que quedan bien con todo, o la idea que traigas en una foto. Lo adaptamos a la forma de tu mano.", img: SITE_IMAGES.nailMilky, alt: "Uñas de autor con acabado milky en Stefania Panzariu Studio", tone: "ink", pos: "50% 55%" }];
+  { n: "01", label: "Técnica", t: "Manicura de precisión", d: "Trabajo la cutícula con calma y herramientas específicas para que el esmalte empiece justo en el borde de la piel. Así la uña se ve limpia desde el primer día.", img: SITE_IMAGES.nailNude, alt: "Uñas nude translúcidas con la cutícula trabajada y un acabado limpio", tone: "light", pos: "50% 50%" },
+  { n: "02", label: "Refuerzo", t: "Nivelación y rubber base", d: "Una base flexible que corrige pequeñas imperfecciones y refuerza la uña natural. Es lo que hace que la manicura dure más de 3 semanas.", img: SITE_IMAGES.nailMilky, alt: "Manicura con acabado milky sobre rubber base hecha en el estudio de Cuenca", tone: "blush", pos: "50% 55%" },
+  { n: "03", label: "Estética", t: "Milky, nude o tu diseño", d: "Colores suaves que quedan bien con todo, o la idea que traigas en una foto. Lo adaptamos a la forma de tu mano.", img: null, tone: "ink" }];
+
+  // Carta de color dibujada para la tercera tarjeta (sin repetir fotos)
+  const swatches = [
+  { n: "Milky", c: "#efe8e1" },
+  { n: "Nude", c: "#dcbba8" },
+  { n: "Rosa", c: "#d6a2ac" },
+  { n: "Rojo", c: "#9b2633" },
+  { n: "Translúcido", c: "rgba(255,255,255,.16)" }];
 
   const cardRefs = useRef([]);
   useEffect(() => {
@@ -1079,8 +1079,19 @@ function NailsSection() {
           {cards.map((c, i) =>
           <article key={c.n} className={`stack-card t-${c.tone}`} style={{ "--i": i }} ref={(el) => cardRefs.current[i] = el}>
               <div className="stack-inner">
-                <div className="stack-media">
-                  <img className="cover-img" {...pic(c.img)} alt={c.alt} style={{ objectPosition: c.pos }} loading="lazy" />
+                <div className={`stack-media${c.img ? "" : " stack-swatch"}`}>
+                  {c.img ?
+                <img className="cover-img" {...pic(c.img)} alt={c.alt} style={{ objectPosition: c.pos }} loading="lazy" /> :
+
+                <ul className="sw-row" aria-label="Algunos tonos: milky, nude, rosa, rojo y translúcido">
+                      {swatches.map((s, k) =>
+                  <li key={s.n} className="sw" style={{ "--c": s.c, "--k": k }}>
+                          <span className="sw-nail" aria-hidden="true"></span>
+                          <span className="sw-n">{s.n}</span>
+                        </li>
+                  )}
+                    </ul>
+                }
                 </div>
                 <div className="stack-text">
                   <div className="stack-top"><span className="stack-n">{c.n}</span><span className="small-caps">{c.label}</span></div>
@@ -1094,7 +1105,7 @@ function NailsSection() {
 
         <div className="nails-after">
           <R as="figure" className="nails-quote">
-            <blockquote>“Son 7 años haciéndome las uñas con ella y jamás se me ha partido o caído una uña.”</blockquote>
+            <blockquote>“Son 7 años los que llevo haciéndome las uñas con ella y la calidad es inmejorable. Jamás se me ha partido o caído una uña.”</blockquote>
             <figcaption>Rebeca · Reseña en Google</figcaption>
           </R>
           <R className="nails-cta" delay={120}>
@@ -1102,7 +1113,7 @@ function NailsSection() {
               Pedir cita para uñas <span className="arrow">→</span>
             </a>
             <a className="linkish" href="/unas-de-autor">
-              Más sobre las uñas <span className="arrow">→</span>
+              Uñas en Cuenca: cómo trabajo <span className="arrow">→</span>
             </a>
           </R>
         </div>
@@ -1125,19 +1136,15 @@ function FacialSection() {
         </R>
 
         <div className="facial-grid">
-          <div className="facial-photos">
+          <div className="facial-photos solo">
             <div className="facial-badge" aria-hidden="true">
               <CircleText id="ct-facial" text="Estética facial · Cuenca · Piel luminosa · " />
               <span className="core">✦</span>
             </div>
+            <span className="facial-frame" aria-hidden="true"></span>
             <R v="r-mask" className="p1">
               <Parallax speed={0.08} className="inner">
-                <img className="cover-img" {...pic(SITE_IMAGES.facialCabin)} alt="Cabina de estética facial avanzada con luz cálida" loading="lazy" />
-              </Parallax>
-            </R>
-            <R v="r-mask" delay={200} className="p2">
-              <Parallax speed={0.14} className="inner">
-                <img className="cover-img" {...pic(SITE_IMAGES.pigmentDetail)} alt="Detalle de pigmentos y material de trabajo en el estudio" loading="lazy" />
+                <img className="cover-img" {...pic(SITE_IMAGES.facialCabin)} alt="Cabina de estética facial avanzada con luz cálida en el estudio de Cuenca" loading="lazy" />
               </Parallax>
             </R>
           </div>
@@ -1312,17 +1319,14 @@ function TrackSection() {
     t: "Formarme fuera",
     d: "Asistí al World PMU Congress 2026, a bordo del MSC Fantasia, para conocer las técnicas de micropigmentación que se usan en otros países.",
     tag: "El congreso mundial",
-    src: SITE_IMAGES.hero,
-    alt: "Retrato de Stefania Panzariu, artista de micropigmentación y belleza de autor en Cuenca",
-    pos: "50% 18%"
+    // Tarjeta tipográfica: el retrato ya abre la página y la cabina sale en Estética facial
+    type: { k: "World PMU Congress", big: "2026", s: "A bordo del MSC Fantasia" }
   },
   {
     t: "Traerlo a Cuenca",
-    d: "Lo que aprendo fuera lo aplico aquí, en el estudio de 4 Caminos, con cada clienta.",
+    d: "Lo que aprendo fuera lo aplico aquí, en el estudio de Cuatro Caminos, con cada clienta.",
     tag: "La misión",
-    src: SITE_IMAGES.facialCabin,
-    alt: "Cabina del estudio Stefania Panzariu en Cuenca",
-    pos: "50% 50%"
+    type: { k: "Estudio · Local 7", big: "Cuenca", s: "40,07° N · 2,14° O" }
   }];
 
   const secRef = useEdge();
@@ -1348,9 +1352,18 @@ function TrackSection() {
             </div>
             {steps.map((s, i) =>
             <article key={s.t} className="hz-panel hz-step">
-                <div className="img-wrap">
-                  <img className="cover-img" {...pic(s.src)} alt={s.alt} style={{ objectPosition: s.pos }} loading="lazy" />
-                </div>
+                {s.type ?
+              <div className="img-wrap tk-type" aria-hidden="true">
+                    <span className="tk-k">{s.type.k}</span>
+                    <span className="tk-big">{s.type.big}</span>
+                    <span className="tk-line"></span>
+                    <span className="tk-s">{s.type.s}</span>
+                  </div> :
+
+              <div className="img-wrap">
+                    <img className="cover-img" {...pic(s.src)} alt={s.alt} style={{ objectPosition: s.pos }} loading="lazy" />
+                  </div>
+              }
                 <div className="text">
                   <div className="n">{`0${i + 1}`} · {s.tag}</div>
                   <h3>{s.t}</h3>
@@ -1373,83 +1386,94 @@ function TrackSection() {
 /* ---------- Reseñas: cita destacada que rota + dos cintas de reseñas ---------- */
 function TestimonialsSection() {
   const reviews = [
-    { name: "Cecilia Gil Navarro", service: "Estética facial", date: "Hace 3 días", tags: ["facial", "experiencia"], text: "Como siempre, una experiencia maravillosa. Nunca deja de sorprenderme por su profesionalidad, dedicación y el cariño con el que realiza cada tratamiento.", a: "C" },
-    { name: "P. María del Carmen", service: "Facial y labios", date: "Hace 3 días", tags: ["facial", "micro"], text: "Resultados espectaculares. No puedo estar más feliz con el resultado. El tratamiento facial dejó mi piel luminosa e hidratada.", a: "M" },
-    { name: "Maria IM", service: "Limpieza facial", date: "Hace una semana", tags: ["facial", "experiencia"], text: "He salido encantada con la limpieza facial. Desde que entras por la puerta te sientes como en casa: ambiente acogedor, trato cercano y muy profesional.", a: "M" },
-    { name: "Carmen Lopez Sanabria", service: "Atención y paciencia", date: "Hace 2 semanas", tags: ["experiencia"], text: "Estefanía, un amor como siempre. Ama lo que hace y la atención es un 10. Sobre todo tiene mucha paciencia.", a: "C" },
-    { name: "Isabel Aranda Garcia", service: "Trato profesional", date: "Hace 3 semanas", tags: ["experiencia"], text: "Profesional a tope y muy amable. La recomiendo al 100%.", a: "I" },
-    { name: "Maria Mercedes Felipe Auñón", service: "Sombreado de cejas", date: "Hace 3 semanas", tags: ["micro"], text: "Me hice un sombreado de cejas y me quedaron espectaculares. Tenía tatuaje por debajo y ha sido todo un acierto. Recomendado 100%.", a: "M" },
-    { name: "Eden Niknafs", service: "Uñas y maquillaje permanente", date: "Hace 3 semanas", tags: ["unas", "micro"], text: "I have been visiting Estefania for my nails and have been delighted with her work. She is a true professional and talented technician.", a: "E" },
-    { name: "Conchi Pérez Real", service: "Todos los tratamientos", date: "Hace 3 semanas", tags: ["experiencia", "facial"], text: "Ponerte en manos de Estefanía es garantía de éxito. Es una profesional muy perfeccionista; su asesoramiento, trato y amabilidad diferencian su trabajo.", a: "C" },
-    { name: "Judith Barrios Gómez", service: "Centro de estética", date: "Hace 3 semanas", tags: ["facial", "experiencia"], text: "Estoy encantada con este centro de estética. Desde la primera visita me hizo sentir súper cómoda y muy bien atendida.", a: "J" },
-    { name: "Débora Gómez Romero", service: "Manos y pies", date: "Hace 4 semanas", tags: ["unas", "pies"], text: "No solo hizo su arte en mis manos, que como siempre es espectacular; también sanó unos pies que llevaban mucho encima.", a: "D" },
-    { name: "Maribel Rabadan", service: "Trato cercano", date: "Hace un mes", tags: ["experiencia"], text: "Estefania es una buenísima profesional, con mucho interés en su profesión. Siempre está contenta; se ve que es feliz con lo que hace.", a: "M" },
-    { name: "Natalia Abanades", service: "Limpieza facial", date: "Hace un mes", tags: ["facial"], text: "La limpieza facial ha sido espectacular. Mi piel ha quedado con una luz increíble, súper fresca y mucho más uniforme. Noté el resultado al instante.", a: "N" },
-    { name: "Sabrina Calleja", service: "Manicura", date: "Hace un año", tags: ["unas"], text: "Llevo haciéndome las uñas 20 años. Estefania es la manicurista más profesional que he tenido. Mis uñas están preciosas y duran 6 semanas perfectamente.", a: "S" },
-    { name: "Lau GasCar", service: "Experiencia", date: "Hace 2 años", tags: ["experiencia"], text: "Mi experiencia con Estefanía es espectacular siempre, así como de espectacular es ella.", a: "L" },
-    { name: "Paula Lapeña Gonzalez", service: "Uñas y asesoramiento", date: "Hace 2 años", tags: ["unas", "experiencia"], text: "Súper satisfecha con mi experiencia. Es muy profesional, el sitio es acogedor y aconseja lo mejor para el cuidado de tus uñas.", a: "P" },
-    { name: "Judit GG", service: "Diseños de uñas", date: "Hace 2 años", tags: ["unas"], text: "Más de cuatro años llevo a su lado haciéndome las uñas. Siempre crea los diseños perfectos y te deja las uñas perfectísimas.", a: "J" },
-    { name: "Rebeca Lorente Martínez", service: "Durabilidad", date: "Hace 2 años", tags: ["unas"], text: "Son 7 años haciéndome las uñas con ella y la calidad es inmejorable. Jamás se me ha partido o caído una uña. Siempre innovando.", a: "R" },
-    { name: "Déborah García Plaza", service: "Puntualidad y calidad", date: "Hace un año", tags: ["unas", "experiencia"], text: "La mejor de Cuenca: buen precio, calidad y duración. No te hace esperar; es muy puntual y organizada con los tiempos.", a: "D" },
-    { name: "Beatriz Murcia Collado", service: "Uñas sanas", date: "Hace 2 años", tags: ["unas"], text: "Elegir a Estefanía para el cuidado de tus uñas es un acierto. Nunca he tenido mis uñas tan bonitas y sanas.", a: "B" },
-    { name: "Cristina Castellanos", service: "Duración y horarios", date: "Hace 2 años", tags: ["unas", "experiencia"], text: "Gran profesional. Las uñas duran muchísimo y lo más importante: respeta mucho los horarios. Calidad-precio, la mejor.", a: "C" },
-    { name: "Ikigai Bienestar", service: "Uñas sanas", date: "Hace 2 años", tags: ["unas"], text: "Desde hace 3 años mis uñas cuidadas y bonitas gracias a Estefanía, con la seguridad de que están sanas. Adapta el diseño a mis gustos.", a: "I" },
-    { name: "Sheyla Villarreal", service: "Terminación de uña", date: "Hace 2 años", tags: ["unas"], text: "Es una auténtica profesional. Una calidad buenísima y un terminado de uña perfecto.", a: "S" },
-    { name: "Amalia Avram", service: "Diseños exactos", date: "Hace un año", tags: ["unas"], text: "En mi vida he tenido las uñas tan perfectas e impecables. Duran un montón y te hace los diseños tal cual.", a: "A" },
-    { name: "Sonia Del Hoyo", service: "Uñas bonitas", date: "Hace 2 años", tags: ["unas"], text: "Desde que me hizo las uñas por primera vez, tengo las uñas bonitas. Gracias a ella, mis uñas me encantan.", a: "S" },
-    { name: "Silvia Silvia", service: "Detalle y elegancia", date: "Hace 2 años", tags: ["unas"], text: "Si buscas unas uñas que te identifiquen, cuidadas hasta en el más mínimo detalle, este es el sitio idóneo.", a: "S" },
-    { name: "Noemí De la Morena López", service: "Trato y manicura", date: "Hace 2 años", tags: ["unas", "experiencia"], text: "Llevo dos años haciéndome las uñas con Estefania y estoy encantada: uñas muy bien hechas y trato buenísimo.", a: "N" },
-    { name: "María MePo", service: "Uñas perfectas", date: "Hace 2 años", tags: ["unas", "experiencia"], text: "Magnífica persona y profesional. Salgo siempre encantada por el trato y por mis uñas perfectas.", a: "M" },
-    { name: "Leticia Guadalajara Pérez", service: "Uñas y trato", date: "Hace 2 años", tags: ["unas", "experiencia"], text: "Encantada con los resultados cada vez que voy. Estefania es una gran profesional y muy agradable.", a: "L" },
-    { name: "Explora Cuenca", service: "Cuidado de uñas", date: "Hace 2 años", tags: ["unas", "experiencia"], text: "Trato y profesionalidad excelentes. Hace años que Estefanía cuida mis uñas y sigo encantada. Recomendable 100%.", a: "E" },
-    { name: "Laura Aparicio Puerta", service: "Diseño personalizado", date: "Hace 2 años", tags: ["unas"], text: "Siempre consigue mejorar tus ideas y hacer que te encante su trabajo. Sabe plasmar tus gustos y jamás se equivoca.", a: "L" },
-    { name: "Elena Viana", service: "Tendencias y calidad", date: "Hace 2 años", tags: ["unas", "experiencia"], text: "Excepcional. Profesionalidad, calidad y trato. Está a la última en tendencias y productos. Llevo siete años con ella.", a: "E" },
-    { name: "Purificación Blanco", service: "Resultado y cercanía", date: "Hace 9 meses", tags: ["experiencia"], text: "Muy satisfecha con el resultado, mucha profesionalidad y cercanía.", a: "P" },
-    { name: "Feli Cuenca", service: "Duración", date: "Hace 2 años", tags: ["unas"], text: "Llegué a hacerme las uñas después de un mes y siete días con todas enteritas, ni una partida. Contentísima.", a: "F" },
-    { name: "Lorena Del Cubo", service: "Fidelidad", date: "Hace 2 años", tags: ["experiencia"], text: "Trabajo magnífico y maravillosa persona. Llevo muchísimos años con Estefania y así seguiré.", a: "L" },
-    { name: "Alina Baciu", service: "Confianza", date: "Hace 11 meses", tags: ["experiencia"], text: "Súper satisfecha con el trabajo que hace y lo profesional que es. El sitio es acogedor y transmite mucha confianza.", a: "A" },
-    { name: "María Teresa", service: "Arte en uñas", date: "Hace un año", tags: ["unas"], text: "Excelente profesional. Una artista de las uñas con todas las letras. Encantadísima siempre con su trabajo.", a: "M" },
-    { name: "Sandra Molinero", service: "Trabajos impecables", date: "Hace 2 años", tags: ["unas", "experiencia"], text: "Excelente profesional. Trabajos impecables. Llevo más de 5 años con ella y no cambio.", a: "S" },
-    { name: "Teresa Tejeda", service: "Clienta fiel", date: "Hace un año", tags: ["experiencia", "unas"], text: "Son muchos años desde que empecé con ella y no puedo estar más satisfecha con su trabajo. Para mí, la mejor.", a: "T" },
-    { name: "Patricia SJB", service: "Trato humano", date: "Hace 2 años", tags: ["experiencia"], text: "Persona 10 en todos los sentidos. Verdadera profesional y maravillosa persona, siempre sacando una sonrisa.", a: "P" },
-    { name: "Alicia Ruiz", service: "Arte en uñas", date: "Hace 2 años", tags: ["unas", "experiencia"], text: "Una profesional de los pies a la cabeza, hace arte en las uñas y además es una persona maravillosa.", a: "A" },
-    { name: "Alexia Pardo", service: "Experiencia", date: "Hace un año", tags: ["experiencia"], text: "Muy satisfecha con mi experiencia. Estoy con ella desde hace mucho tiempo y es una gran profesional.", a: "A" },
-    { name: "Belén Torralba Plaza", service: "Manicura", date: "Hace 2 años", tags: ["unas"], text: "Llevo varios años haciéndome la manicura con Estefania. Es magnífica y encantadora. Se supera con cada diseño.", a: "B" },
-    { name: "Lucía Abad Ayora", service: "Experiencia", date: "Hace 2 años", tags: ["experiencia"], text: "Me encanta cómo lo hace y cada día que voy me gusta más.", a: "L" },
-    { name: "Teresa Fuentes", service: "Uñas perfectas", date: "Hace 2 años", tags: ["unas", "experiencia"], text: "Excelente trato y profesionalidad en su trabajo. Uñas perfectas. 100% recomendable.", a: "T" },
-    { name: "Ana Cepas Muñoz", service: "Uñas en Cuenca", date: "Hace 2 años", tags: ["unas"], text: "Aparte de hacer las mejores uñas de Cuenca, ella en sí es estupenda. Vuelvo siempre.", a: "A" },
-    { name: "Elena Silvestre", service: "Fidelidad", date: "Hace 2 años", tags: ["experiencia"], text: "Una auténtica profesional. Llevo 8 años en sus manos y como persona es inmejorable.", a: "E" },
-    { name: "Sonia Langreo Escudero", service: "Profesionalidad", date: "Hace un año", tags: ["experiencia"], text: "Llevo muchos años con ella y es muy buena. Profesional y simpática.", a: "S" },
-    { name: "Diana Panadero Alvarez", service: "Uñas y cercanía", date: "Hace 2 años", tags: ["unas", "experiencia"], text: "Dos años con Estefanía y nunca defrauda. Además de hacer unas bonitas uñas, te sientes en casa.", a: "D" },
-    { name: "Virginia Valenciano Saiz", service: "Uñas rápidas", date: "Hace un año", tags: ["unas"], text: "Manicurista maravillosa. Llevo años con ella y hace un trabajo excelente y en una hora.", a: "V" },
-    { name: "Mónica López Ortiz", service: "Puntualidad y producto", date: "Hace 2 años", tags: ["unas", "experiencia"], text: "De 10 como siempre. Puntual, trabajo excelente, calidad en los productos y unas uñas preciosas.", a: "M" },
-    { name: "Alexandra Vilcan", service: "Uñas", date: "Hace 2 años", tags: ["unas"], text: "Llevo años haciéndome las uñas con ella y estoy muy encantada.", a: "A" },
-    { name: "Bea Langreo", service: "Experiencia", date: "Hace un año", tags: ["experiencia"], text: "Es mi segunda vez con Estefanía y la verdad que volveré. Un placer.", a: "B" },
-    { name: "Jenifer Rodriguez", service: "Uñas en Cuenca", date: "Hace un año", tags: ["unas"], text: "El mejor sitio de uñas en Cuenca. Llevo años haciéndome las uñas con ella y no la cambio por nada.", a: "J" },
-    { name: "Rocio De las Heras Sanchez", service: "Uñas acrílicas", date: "Hace un año", tags: ["unas"], text: "Uñas acrílicas muy bien hechas, con muchísima variedad de colores y diseños muy bonitos y detallados.", a: "R" },
-    { name: "Adriana Castellanos", service: "Manicura", date: "Hace un año", tags: ["unas", "experiencia"], text: "La mejor manicurista que hay. Increíble su trabajo y su trato. 100% recomendada.", a: "A" },
-    { name: "Virginia Hernansaiz Arguisuelas", service: "Rapidez y trato", date: "Hace 2 años", tags: ["experiencia"], text: "Una profesional de los pies a la cabeza. Además de su rapidez y trato. Encantada siempre con los resultados.", a: "V" },
-    { name: "Natalia Vindel", service: "Servicio y resultado", date: "Hace 2 años", tags: ["experiencia"], text: "Gran profesional; atención, servicio y resultado inmejorable. No hay otra mejor. Recomendable al 100%.", a: "N" },
-    { name: "Paula Mora", service: "Adaptación a gustos", date: "Hace un año", tags: ["unas", "experiencia"], text: "Una experiencia increíble, siempre con una gran adaptación a tus gustos. Da gusto encontrar a alguien tan profesional.", a: "P" },
-    { name: "Carmen Dominguez", service: "Cuidado de manos", date: "Hace 2 años", tags: ["unas"], text: "Donde mejor y con más cariño te cuida de tus manos. Muy recomendable y muy profesional.", a: "C" },
-    { name: "Coral Valverde Templado", service: "Uñas perfectas", date: "Hace 2 años", tags: ["unas", "experiencia"], text: "Una auténtica profesional en mayúsculas. Nunca he llevado las uñas tan perfectas y el trato es exquisito.", a: "C" },
-    { name: "Cristina Plaza", service: "Resultado", date: "Hace un año", tags: ["experiencia"], text: "Trabajo espectacular. Muy profesional y amable. Encantada.", a: "C" },
-    { name: "Veronica Jimenez", service: "Uñas de ensueño", date: "Hace un año", tags: ["unas"], text: "La mejor para hacerse uñas. Gracias a ella tengo unas uñas de ensueño.", a: "V" },
-    { name: "Nerea Fernández", service: "Uñas", date: "Hace un año", tags: ["unas"], text: "Es la mejor haciendo uñas y un amor.", a: "N" },
-    { name: "Raquel Oliver", service: "Trato agradable", date: "Hace 2 años", tags: ["experiencia"], text: "Profesional, hace genial su trabajo y además es muy agradable.", a: "R" },
-    { name: "Antonio Baciu", service: "Uñas", date: "Hace un año", tags: ["unas"], text: "Muy buen servicio y las uñas chulísimas.", a: "A" },
-    { name: "Verónica Ventura", service: "Cercanía", date: "Hace 2 años", tags: ["experiencia"], text: "Muy profesional, cercana y amable. Recomiendo totalmente. Es un 10.", a: "V" },
-    { name: "Patricia Martinez Portero", service: "Manicura", date: "Hace 2 años", tags: ["unas"], text: "El mejor sitio de Cuenca para tener una manicura perfecta.", a: "P" },
-    { name: "Irene Navarro Palencia", service: "Cercanía", date: "Hace 2 años", tags: ["experiencia"], text: "Es profesional y muy cercana con los clientes. Sin duda, la mejor.", a: "I" },
-    { name: "Brujillaratona Niña", service: "Experiencia", date: "Hace un año", tags: ["experiencia"], text: "Donde la vida te la hace más fácil. Gracias por tanto.", a: "B" },
-    { name: "Lucía Torrijos Laín", service: "Renovación", date: "Hace un año", tags: ["experiencia"], text: "Muy profesional y renovándose continuamente.", a: "L" },
-    { name: "Julia Pontones", service: "Servicio", date: "Hace 2 años", tags: ["experiencia"], text: "Muy buen servicio y Estefanía muy maja.", a: "J" },
-    { name: "Luz María Carrasco Castro", service: "Experiencia", date: "Hace un año", tags: ["experiencia"], text: "Eres la mejor, en todos los sentidos.", a: "L" },
+  { name: "Laura", service: "Confianza y alergias", date: "Noviembre 2026", tags: ["experiencia"], text: "Trato inmejorable. Tengo alergia a ciertos productos y cuando le comenté mi situación no fue profesional si no mucho más que eso, me aseguró al 100% que pudiera usar esos productos y ofrecerme un servicio de calidad. Como era de esperar, el resultado fue sido brillante. Sin duda mi centro de confianza donde volveré", a: "L" },
+  { name: "Maria C.", service: "Masaje relajante", date: "Octubre 2026", tags: ["masaje", "experiencia"], text: "Una experiencia exquisita. Disfruté de un masaje relajante que fue una auténtica invitación a desconectar, liberar tensiones y dedicarme un momento de bienestar. El trato es excelente, el ambiente transmite calma y armonía, y se percibe la profesionalidad y el cuidado en cada detalle…", a: "M" },
+  { name: "Olga Barrios Muñoz", service: "Masajes", date: "Octubre 2026", tags: ["masaje", "experiencia"], text: "Trato súper amable, profesional, cercana, ambiente relajante, que manos, impresionante los masajes!! Repetimos seguro!! Gracias Estefania!!", a: "O" },
+  { name: "Rebeca Lorente Martínez", service: "Facial Triple Glow", date: "Septiembre 2026", tags: ["facial", "experiencia"], text: "Me he hecho un triple glow y ha sido una experiencia maravillosa. A parte del momento de relajante y de paz que tienes para una misma donde puedes disfrutar de ti, la limpieza y resultados son espectaculares. Stefania, gracias por hacer de esa experiencia algo único y ser tan profesional…", a: "R" },
+  { name: "Nieves Chavarrías", service: "Trato y asesoramiento", date: "Septiembre 2026", tags: ["experiencia"], text: "Una gran profesional, iba con un poco de miedo por qué no sabía cómo me iba a quedar,pero he de reconocer que hablando con ella sabes que estas en manos de una gran profesional, te explica todo,te aconseja en definitiva me ha encantado,su trato,su sinceridad,y sobre todo su trabajo,y he de confesar que he salido encantada.Recomendable cien por cien", a: "N" },
+  { name: "Pili Pérez", service: "Masaje", date: "Septiembre 2026", tags: ["masaje"], text: "El masaje fue una experiencia fantástica, ambiente tranquilo, manos profesionales y sensacion de bienestar. Salí renovada y con ganas de repetir.", a: "P" },
+  { name: "Jose", service: "Experiencia", date: "Septiembre 2026", tags: ["experiencia"], text: "Muy bien todo, y muy fresquito en el local", a: "J" },
+  { name: "María MePo", service: "Masaje relajante", date: "Septiembre 2026", tags: ["masaje"], text: "Con Stefania todo es agradable. Con el masaje relajante consiguió que mi cabeza dejase de trabajar y, por tanto, mi cuerpo pudo disfrutar de sus manos.", a: "M" },
+  { name: "Raquel Oliver", service: "Profesionalidad", date: "Septiembre 2026", tags: ["experiencia"], text: "Profesional, hace genial su trabajo, además de ser muy agradable.", a: "R" },
+  { name: "Laura Saiz", service: "Piel y relajación", date: "Agosto 2026", tags: ["facial", "experiencia"], text: "Una experiencia maravillosa, las manos de Estefanía son únicas y especiales. Me ha encantado que decir de la piel que me ha dejado y la relajación", a: "L" },
+  { name: "Raquel S", service: "Relajante y efectivo", date: "Agosto 2026", tags: ["experiencia"], text: "Genial. Muy Relajante y efectivo!", a: "R" },
+  { name: "Mapi Mora Garrido", service: "Trato excepcional", date: "Julio 2026", tags: ["experiencia"], text: "Una maravilla de persona, un trato excepcional y unas manos únicas para cualquier cosa o tratamiento que te haga, en sus manos se tenía que parar el tiempo Recomendable 100%", a: "M" },
+  { name: "Coral Valverde Templado", service: "Tratamiento facial", date: "Julio 2026", tags: ["facial"], text: "Me hice un tratamiento facial y salí encantada, aunque conociendo a Estefanía ya iba sobre seguro, como así ha sido. Deseando repetir.", a: "C" },
+  { name: "Cecilia Gil Navarro", service: "Limpieza facial", date: "Junio 2026", tags: ["facial", "experiencia"], text: "Como siempre, una experiencia maravillosa. Nunca deja de sorprenderme por su profesionalidad, dedicación y el cariño con el que realiza cada tratamiento. Esta vez me he realizado una limpieza facial con nuevos productos y he quedado encantada con el resultado…", a: "C" },
+  { name: "Conchi Pérez Real", service: "Todos los tratamientos", date: "Junio 2026", tags: ["experiencia"], text: "Ponerte en manos de Estefanía es garantía de éxito. Es una profesional en todos los tratamientos que hace, muy perfeccionista, su asesoramiento, trato, corrección y amabilidad, diferencian su trabajo. Es encantadora y una gran persona…", a: "C" },
+  { name: "P. María del Carmen", service: "Facial, labios y mirada", date: "Junio 2026", tags: ["facial", "micro", "unas"], text: "Resultados espectaculares!!! No puedo estar más feliz con el resultado. El tratamiento facial dejó mi piel luminosa, hidratada y con un aspecto increíble…", a: "M" },
+  { name: "Maria IM", service: "Limpieza facial", date: "Junio 2026", tags: ["facial"], text: "He salido encantada con la limpieza facial. Desde que entras por la puerta te sientes como en casa: el ambiente es acogedor, el trato cercano y muy profesional. Se nota el cariño y la dedicación que le pone a cada detalle. Mi piel quedó limpia, luminosa y con una sensación increíble…", a: "M" },
+  { name: "Eden Niknafs", service: "Uñas y micropigmentación", date: "Junio 2026", tags: ["unas", "micro"], text: "I have been visiting Estefania for my nails and have been delighted with her work. She is a true professional and talented technician. Today, I trusted her to apply permanent makeup, tattoo on my eyelids. Amazing! She is skilled, professional and gentle…", a: "E" },
+  { name: "Judith Barrios Gómez", service: "Centro de estética", date: "Junio 2026", tags: ["experiencia"], text: "Estoy encantada con este centro de estética. Desde la primera visita, me hizo sentir súper cómoda y muy bien atendida. El trato es increíble; se nota el cariño y la profesionalidad con la que trabaja…", a: "J" },
+  { name: "Natalia Abanades", service: "Limpieza facial", date: "Junio 2026", tags: ["facial"], text: "Cada vez que voy salgo más contenta, pero la limpieza facial de hoy ha sido espectacular. Mi piel ha quedado con una luz increíble, súper fresca y mucho más uniforme. Además de notar el resultado al instante, toda la experiencia ha sido muy relajante y agradable…", a: "N" },
+  { name: "Débora Gómez Romero", service: "Manos, pies y facial", date: "Junio 2026", tags: ["unas", "facial"], text: "Ayer no sólo hizo su arte en mis manos... que como siempre es ESPECTACULAR, sino que también sanó unos pies que llevaban mucho encima y salieron de sus manos hechos una maravilla. Estefania es más allá de una esteticista, es bálsamo y es arte…", a: "D" },
+  { name: "Maria Mercedes Felipe Auñón", service: "Sombreado de cejas", date: "Junio 2026", tags: ["micro"], text: "Ayer me hice un sombreado de cejas y me quedaron espectaculares ya q yo tenía tatuaje por debajo y la verdad q ha sido todo un acierto recomendado 100%. Y lo mejor esque no duele casi nada", a: "M" },
+  { name: "Maribel Rabadan", service: "Profesionalidad", date: "Junio 2026", tags: ["experiencia"], text: "Estefania es una buenísima profesional, con mucho interés en su profesión, siempre está contenta,se ve q es feliz con lo q haceUn besazo.", a: "M" },
+  { name: "Isabel Aranda Garcia", service: "Trato profesional", date: "Junio 2026", tags: ["experiencia"], text: "Profesinal a tope y muy amable la recomiendo al 100 por 100%", a: "I" },
+  { name: "Carmen Lopez Sanabria", service: "Atención y paciencia", date: "Junio 2026", tags: ["experiencia"], text: "Estefanía, un amor como siempre, ama lo que hace y la atención es un 10 Y sobre todo tiene mucha paciencia Mil gracias como siempre", a: "C" },
+  { name: "Déborah García Plaza", service: "Puntualidad y calidad", date: "2025", tags: ["unas", "experiencia"], text: "Súper contenta con Estefania, la recomiendo 100x100, la mejor de Cuenca, buen precio, calidad y duración. No te hace esperar como en otros sitios, es muy puntual y organizada con los tiempos.Y también bellísima persona.", a: "D" },
+  { name: "Alina Baciu", service: "Confianza", date: "2025", tags: ["experiencia"], text: "Súper satisfecha con el trabajo que hace y lo profesional que es. Además el sitio es muy acogedor, la confianza que transmite ella e intenta siempre hacer lo mejor posible.", a: "A" },
+  { name: "Nerea Fernández", service: "Uñas", date: "2025", tags: ["unas"], text: "es la mejor haciendo uñas y un amor", a: "N" },
+  { name: "Purificación Blanco", service: "Cercanía", date: "2025", tags: ["experiencia"], text: "Muy satisfecha con él resultado,mucha profesionalidad y cercanía, gracias Estefania", a: "P" },
+  { name: "Lau GasCar", service: "Forma de uña a medida", date: "2024", tags: ["unas"], text: "Mi experiencia con Estefanía es espectacular siempre, así como de espectacular es ella Te hace la forma de uña que quieras y mejor se adapte a ti. Pero lo que más destaco es su rapidez y perfección. El rato que estoy allí se me pasa volando hablando de todo lo que se nos ocurre", a: "L" },
+  { name: "Sabrina Calleja", service: "Manicura que dura", date: "2024", tags: ["unas"], text: "Llevo haciéndome las uñas 20 años. Estefania es la manicurista más profesional que he tenido. Mis uñas están preciosas. Duran 6 semanas perfectamente y ella es un ángel de persona. La recomiendo a todas mis amigas. Nunca defrauda. Es un 10.", a: "S" },
+  { name: "Paula Lapeña Gonzalez", service: "Cuidado de uñas", date: "2024", tags: ["unas", "experiencia"], text: "Súper satisfecha con mi experiencia, estoy con ella hace un montón de tiempo y es muy profesional. Sitio acogedor y muy cómoda con ella. Aconseja lo mejor para el cuidado de tus uñas, muy recomendable.", a: "P" },
+  { name: "Judit GG", service: "Diseños de uñas", date: "2024", tags: ["unas"], text: "Más de cuatro años llevo a su lado haciéndome las uñas, y es que no puedo estar más contenta… siempre crea los diseños perfectos y te deja las uñas perfectísimas. Recomendable 100%", a: "J" },
+  { name: "Rebeca Lorente Martínez", service: "Uñas que duran", date: "2024", tags: ["unas"], text: "Excelente profesional pero mejor persona. Son 7 años los que llevo haciéndome las uñas con ella y la calidad es inmejorable. Jamás se me ha partido o caído una uña. Siempre innovando en diseños nuevos. Calidad precio perfecta.", a: "R" },
+  { name: "Beatriz Murcia Collado", service: "Uñas sanas", date: "2024", tags: ["unas", "experiencia"], text: "Elegir a Estefanía para el cuidado de tus uñas es un acierto. Nunca he tenido mis uñas tan bonitas y sanas, y todo gracias a ella. Es una profesional, muy perfeccionista con su trabajo, el trato que ofrece es súper cercano y algo que destacar es la puntualidad que tiene con sus citas.", a: "B" },
+  { name: "Ikigai Bienestar", service: "Uñas sanas", date: "2024", tags: ["unas"], text: "Desde hace 3 años mis uñas cuidadas y bonitas gracias a Estefanía y con la seguridad de que están sanas. Siempre adapta el diseño a mis gustos y quedan perfectas. El trato y el servicio de 10.", a: "I" },
+  { name: "Lucía Abad Ayora", service: "Fidelidad", date: "2024", tags: ["experiencia"], text: "Me encanta como lo hace y cada día que voy me gusta más, muchas gracias por todo", a: "L" },
+  { name: "Cristina Castellanos", service: "Durabilidad", date: "2024", tags: ["unas"], text: "Gran profesional, duran muchísimo hechas y lo más importante respeta mucho los horarios. Tengo que decir, qué con Estefanía es con quien más me han durado las uñas hechas. Calidad-Precio la mejor!!!", a: "C" },
+  { name: "Sheyla Villarreal", service: "Terminación de uña", date: "2024", tags: ["unas"], text: "Es una auténtica profesional. Una calidad buenísima, un terminado de uña perfecto tiene muchísima calidad y el precio es perfecto. Sin duda, os la recomiendo al 100 × 100 hace auténticas maravillas de donde piensas que no hay solución.", a: "S" },
+  { name: "Sonia Del Hoyo", service: "Uñas bonitas", date: "2024", tags: ["unas"], text: "Estefanìa es estupenda y una gran profesional. Desde que me hizó las uñas por primera vez, tengo las uñas bonitas. Gracias a ella, mis uñas me encantan. Recomendable totalmente.", a: "S" },
+  { name: "Noemí De la Morena López", service: "Uñas", date: "2024", tags: ["unas"], text: "Llevo dos años haciéndome las uñas con Estefania y la verdad que estoy encantada, uñas muy bien hechas y trato buenísimo por su parte. Recomendable totalmente.", a: "N" },
+  { name: "Leticia Guadalajara Pérez", service: "Uñas", date: "2024", tags: ["unas", "experiencia"], text: "Encantada con los resultados obtenidos cada vez que voy. Estefania es una gran profesional y muy agradable, nos hace pasar un ratito ameno mientras cuidamos nuestras uñas", a: "L" },
+  { name: "Amalia Avram", service: "Diseños exactos", date: "2024", tags: ["unas"], text: "En mi vida he tenido las uñas tan perfectas e impecables, la recomiendo al 100% es majisima y no tarda nada en hacertelas duran un monton y te hace los diseños tal cual, estoy muy contenta con ella", a: "A" },
+  { name: "Explora Cuenca", service: "Creatividad", date: "2024", tags: ["unas"], text: "Trato y profesionalidad excelentes. Hace años que Estefanía cuida mis uñas y sigo encantada. Recomendable 100%. Creatividad y productos de primera calidad.", a: "E" },
+  { name: "Silvia Silvia", service: "Uñas elegantes", date: "2024", tags: ["unas"], text: "Si buscas unas uñas que te identifiquen,cuidadas hasta en el más mínimo detalle,no lo dudes: aquí es el sitio idóneo. Uñas elegantes, con una variedad amplia de colores y modelos. Simplemente perfecta", a: "S" },
+  { name: "Feli Cuenca", service: "Durabilidad", date: "2024", tags: ["unas"], text: "llegue a hacerme las uñas después de un mes y siete días con todas enteritas ni una partida. Ya era hora de volver a visitar a Estefanía, esta vez elegí color rojo brutales han quedado y Contentísima!!!", a: "F" },
+  { name: "Laura Aparicio Puerta", service: "Diseños a tu gusto", date: "2024", tags: ["unas"], text: "Gran profesional. Siempre consigue mejorar tus ideas y hacer que te encante su trabajo. Sabe perfectamente plasmar tus gustos y jamás se equivoca. Sin duda me quedo con ella siempre!", a: "L" },
+  { name: "Elena Viana", service: "Tendencias y calidad", date: "2024", tags: ["experiencia"], text: "Excepcional. Esa es la palabra para describir la profesionalidad, la calidad y el trato, está a la última en tendencias y en productos. Llevo siete años con ella y espero que sea para siempre. 100% Recomendable. La mejor.", a: "E" },
+  { name: "Elena Silvestre", service: "Fidelidad", date: "2024", tags: ["experiencia"], text: "Una auténtica profesional, solamente decir que llevo 8 años en sus manos y como persona......SIN PALABRAS", a: "E" },
+  { name: "Lorena Del Cubo", service: "Fidelidad", date: "2024", tags: ["experiencia"], text: "Trabajo magnífico y maravillosa persona. No puedo decir nada malo de ella. Llevo muchísimos años con Estefania y así seguiré. Por algo será no?", a: "L" },
+  { name: "Bea Langreo", service: "Experiencia", date: "2024", tags: ["experiencia"], text: "Es mi segunda vez con Estefanía y la verdad que volveré. Un placer", a: "B" },
+  { name: "Sandra Molinero", service: "Trabajos impecables", date: "2024", tags: ["experiencia"], text: "Excelente profesional. Trabajos impecables. Llevo más de 5 años con ella y no cambio. Además de profesional de 10 un 10 como persona.", a: "S" },
+  { name: "Patricia SJB", service: "Trato cercano", date: "2024", tags: ["experiencia"], text: "Persona 10 en todos los sentidos! Es una verdadera profesional, y sobre todo es una maravillosa persona! siempre sacando una sonrisa y atenta de todo, no cambies nunca ESTEFANIA", a: "P" },
+  { name: "Alicia Ruiz", service: "Arte en uñas", date: "2024", tags: ["unas"], text: "Una profesional de los pies a la cabeza..que hace arte en las uñas..mis uñas siempre resaltan…y además una persona maravillosa que el ratito de ponerte guapa lo ameniza….", a: "A" },
+  { name: "María Teresa", service: "Arte en uñas", date: "2024", tags: ["unas"], text: "Excelente profesional. Una ARTISTA de las uñas con todas las letras. Encantadísima siempre con su trabajo!!!", a: "M" },
+  { name: "Belén Torralba Plaza", service: "Manicura y diseños", date: "2024", tags: ["unas"], text: "Llevo varios años haciéndome la manicura con Estefania, es magnífica y encantadora. Se supera con cada diseño que me hace.", a: "B" },
+  { name: "Teresa Tejeda", service: "Fidelidad", date: "2024", tags: ["experiencia"], text: "Son muchos años desde que empecé con ella...seré puedo decir de las primeras clientas y no puedo estar más satisfecha con su trabajo!!! Sin duda para mi la mejor!!!", a: "T" },
+  { name: "Alexia Pardo", service: "Servicio y trato", date: "2024", tags: ["experiencia"], text: "Muy satisfecha con mi experiencia, estoy con ella desde hace mucho tiempo y es una gran profesional. Servicio y trato increíble.", a: "A" },
+  { name: "Teresa Fuentes", service: "Uñas perfectas", date: "2024", tags: ["unas"], text: "Excelente trato,profesionalidad en su trabajo.uñas perfectas.100% recomendables.y todo genial.muy contenta con todo.", a: "T" },
+  { name: "Ana Cepas Muñoz", service: "Las mejores uñas de Cuenca", date: "2024", tags: ["unas"], text: "A parte de hacer las mejores uñas de Cuenca, ella en si, es estupenda. Vuelvo siempre.", a: "A" },
+  { name: "Diana Panadero Alvarez", service: "Uñas bonitas", date: "2024", tags: ["unas", "experiencia"], text: "Dos años con Estefanía y nunca defrauda!! Además de hacer unas bonitas uñas te sientes en casa!!", a: "D" },
+  { name: "Sonia Langreo Escudero", service: "Fidelidad", date: "2024", tags: ["experiencia"], text: "Llevo muchos años con ella y es muy buena. Profesional y simpática", a: "S" },
+  { name: "Jenifer Rodriguez", service: "Uñas en Cuenca", date: "2024", tags: ["unas"], text: "El mejor sitio de uñas en Cuenca, llevo años haciendome las uñas con ella y no la cambio por nada!!", a: "J" },
+  { name: "Mónica López Ortiz", service: "Puntualidad", date: "2024", tags: ["unas"], text: "De 10 como siempre! Puntual, trabajo excelente, calidad en los productos y unas uñas preciosas.", a: "M" },
+  { name: "Paula Mora", service: "Adaptación a tus gustos", date: "2024", tags: ["experiencia"], text: "Una experiencia increíble, siempre con una gran adaptación a tus gustos. Da gusto encontrar a alguien tan profesional", a: "P" },
+  { name: "Virginia Valenciano Saiz", service: "Manicura", date: "2024", tags: ["unas"], text: "Manicurista maravillosa, llevo años con ella y hace un trabajo excelente y en 1 hora.", a: "V" },
+  { name: "Natalia Vindel", service: "Resultado", date: "2024", tags: ["experiencia"], text: "Gran profesional; atención, servicio y resultado inmejorable. ¡No hay otra mejor! Recomendable al 100%.", a: "N" },
+  { name: "Rocio De las Heras Sanchez", service: "Uñas acrílicas", date: "2024", tags: ["unas"], text: "uñas acrílicas muy bien echas, con muchísima variedad de colores y diseños muy bonitos y detallados", a: "R" },
+  { name: "Alexandra Vilcan", service: "Fidelidad", date: "2024", tags: ["unas"], text: "La más mejor…llevo años haciéndome las uñas con ella y estoy muy encantada", a: "A" },
+  { name: "Virginia Hernansaiz Arguisuelas", service: "Rapidez y trato", date: "2024", tags: ["experiencia"], text: "Una profesional de los pies a la cabeza!! Además de su rapidez y trato!! Encantada siempre con los resultados.", a: "V" },
+  { name: "Carmen Dominguez", service: "Cuidado de manos", date: "2024", tags: ["unas"], text: "Donde mejor y con más cariño te cuida de tus manos, muy recomendable. Muy profesional.", a: "C" },
+  { name: "Adriana Castellanos", service: "Manicura", date: "2024", tags: ["unas"], text: "La mejor manicurista que hay, increíble su trabajo y su trato, 100% recomendada.", a: "A" },
+  { name: "Cristina Plaza", service: "Trabajo espectacular", date: "2024", tags: ["experiencia"], text: "Trabajo espectacular. Muy profesional y amable. ENCANTADA!!!", a: "C" },
+  { name: "Veronica Jimenez", service: "Uñas de ensueño", date: "2024", tags: ["unas"], text: "La mejor para hacerse uñas,gracias a ella tengo unas uñas de ensueño", a: "V" },
+  { name: "Antonio Baciu", service: "Uñas", date: "2024", tags: ["unas"], text: "Muy buen servicio y las uñas chulisimas", a: "A" },
+  { name: "Verónica Ventura", service: "Trato cercano", date: "2024", tags: ["experiencia"], text: "Muy profesional cercana y amable, recomiendo totalmente, es un 10", a: "V" },
+  { name: "Patricia Martinez Portero", service: "Manicura perfecta", date: "2024", tags: ["unas"], text: "El mejor sitio de Cuenca para tener una manicura perfecta!", a: "P" },
+  { name: "Irene Navarro Palencia", service: "Cercanía", date: "2024", tags: ["experiencia"], text: "Es profesional y muy cercana con los clientes. Sin duda, la mejor.", a: "I" },
+  { name: "Brujillaratona Niña", service: "Gratitud", date: "2024", tags: ["experiencia"], text: "Donde la vida te la hace más fácil, gracias por tanto", a: "B" },
+  { name: "Julia Pontones", service: "Buen servicio", date: "2024", tags: ["experiencia"], text: "muy buen servicio y Estefanía muy maja", a: "J" },
+  { name: "Lucía Torrijos Laín", service: "Formación continua", date: "2024", tags: ["experiencia"], text: "Muy profesional y renovándose continuamente.", a: "L" },
+  { name: "Luz María Carrasco Castro", service: "Trato", date: "2024", tags: ["experiencia"], text: "Eres la mejor, en todos los sentidos", a: "L" }
   ];
 
   const filters = [
   { id: "all", label: "Todas" },
   { id: "unas", label: "Uñas" },
+  { id: "masaje", label: "Masajes" },
   { id: "micro", label: "Micropigmentación" },
   { id: "facial", label: "Facial" },
   { id: "experiencia", label: "Trato" }];
@@ -1539,12 +1563,12 @@ function TestimonialsSection() {
             <span className="l">Valoración en Google</span>
           </R>
           <R as="div" className="stat" delay={100}>
-            <span className="n"><Counter to={75} prefix="+" /></span>
-            <span className="l">Reseñas reales en Google</span>
+            <span className="n"><Counter to={BUSINESS.reviewsTotal} /></span>
+            <span className="l">Valoraciones en Google</span>
           </R>
           <R as="div" className="stat" delay={200}>
             <span className="n"><Counter to={reviews.length} /></span>
-            <span className="l">Reseñas en esta página</span>
+            <span className="l">Con comentario, en esta página</span>
           </R>
           <R as="div" className="stat" delay={300}>
             <span className="n"><Counter to={7} prefix="+" /><span style={{ fontSize: ".5em", color: "var(--muted)" }}> años</span></span>
@@ -1554,7 +1578,7 @@ function TestimonialsSection() {
 
         <R as="div" className="reviews-cta" delay={120}>
           <span className="gstars">
-            <span className="s">★★★★★</span> <b>5,0 en Google</b> · +75 reseñas
+            <span className="s">★★★★★</span> <b>5,0 en Google</b> · {BUSINESS.reviewsTotal} valoraciones
           </span>
           <a className="btn dark" href={BUSINESS.reviewsUrl} target="_blank" rel="noopener noreferrer">
             Leer todas las reseñas en Google <span className="arrow">→</span>
@@ -1661,7 +1685,7 @@ function FooterSection() {
   const [legalOpen, setLegalOpen] = useState(false);
   const ref = useEdge();
   const megaRef = useReveal({ threshold: 0.3 });
-  const mapsEmbed = "https://www.openstreetmap.org/export/embed.html?bbox=-2.148%2C40.060%2C-2.122%2C40.074&layer=mapnik&marker=40.0657%2C-2.1357";
+  const mapsEmbed = "https://www.openstreetmap.org/export/embed.html?bbox=-2.1489%2C40.0650%2C-2.1269%2C40.0750&layer=mapnik&marker=40.06999%2C-2.13789";
   const mapsLink  = BUSINESS.mapsShort;
 
   const waMsg = CITA_MSG;
@@ -1696,8 +1720,9 @@ function FooterSection() {
             <LineMask>Ven a vernos.</LineMask>
           </R>
           <R className="body" delay={150} style={{ maxWidth: "44ch" }}>
-            Estamos en el Centro Comercial 4 Caminos, a pocos pasos de la Plaza de la
-            Hispanidad. Escríbeme por WhatsApp y buscamos un hueco que te venga bien.
+            Estamos en el Centro Comercial Cuatro Caminos (local 7), en Cuenca capital,
+            a pocos pasos de la Plaza de la Hispanidad. Escríbeme por WhatsApp y buscamos
+            un hueco que te venga bien.
           </R>
           <a className="footer-cta" href={wa(CITA_MSG)} target="_blank" rel="noopener">
             <span className="sr-only">Pedir cita por WhatsApp</span>
@@ -1728,7 +1753,7 @@ function FooterSection() {
           <div className="footer-info">
             <R as="div" className="info-row">
               <div className="label">Ubicación · {BUSINESS.addressTag}</div>
-              <div className="val">{BUSINESS.addressShort}<br/>{BUSINESS.postalCity} · {BUSINESS.country}</div>
+              <div className="val">{BUSINESS.addressShort}<br/>{BUSINESS.street} · {BUSINESS.postalCity}</div>
               <div className="note">{BUSINESS.landmark}</div>
             </R>
 
@@ -1778,6 +1803,15 @@ function FooterSection() {
           <div className="tag">Belleza de autor · {BUSINESS.city} · {BUSINESS.addressTag}</div>
         </div>
 
+        <nav className="footer-services" aria-label="Servicios en Cuenca">
+          <a href="/unas-de-autor">Uñas en Cuenca</a>
+          <a href="/masajes-relajantes">Masajes relajantes en Cuenca</a>
+          <a href="/estetica-facial">Estética facial</a>
+          <a href="/rituales-corporales">Maderoterapia y drenaje</a>
+          <a href="/micropigmentacion">Micropigmentación</a>
+          <a href="/servicios">Todos los servicios</a>
+        </nav>
+
         <div className="bottom">
           <span>© {new Date().getFullYear()} {BUSINESS.name}</span>
           <span>El arte de sentirte bien · {BUSINESS.city}</span>
@@ -1819,6 +1853,10 @@ function FaqSection() {
   {
     q: "¿Qué medidas de higiene y seguridad seguís?",
     a: "Trabajamos con asepsia de grado clínico conforme al Decreto 5/2004 de la JCCM, pigmentos registrados en la AEMPS, agujas monodosis de un solo uso y certificación sanitaria oficial."
+  },
+  {
+    q: "¿Hacéis masajes relajantes en Cuenca?",
+    a: "Sí. En el estudio de Cuatro Caminos, en Cuenca capital, hacemos masaje relajante y masaje en pareja, con aceites esenciales, luz cálida y la presión que prefieras. Se reserva con cita previa por WhatsApp o por teléfono."
   },
   {
     q: "¿Cuánto duran las uñas?",

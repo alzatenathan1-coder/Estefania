@@ -196,3 +196,26 @@ body { overflow-x: clip; }
 @media (prefers-reduced-motion: reduce) {
   .hero h1, .hero .lead, .hero .eyebrow, .hero .crumbs, .hero-facts, .hero-photo { animation: none; }
 }
+
+/* ---------- Banda de calma (página de masajes) ---------- */
+.calm-band { position: relative; padding: 110px 0; overflow: hidden; color: #f6e9dc; background: radial-gradient(70% 90% at 25% 50%, #5e4234 0%, #33251e 45%, #191210 100%); }
+.calm-grid { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 80px; align-items: center; }
+.calm-arch { position: relative; justify-self: center; width: min(100%, 360px); aspect-ratio: 3/4; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; text-align: center; border: 1px solid rgba(246,233,220,.34); border-radius: 999px 999px 3px 3px; }
+.calm-arch::before { content: ""; position: absolute; inset: 12px; border: 1px solid rgba(246,233,220,.16); border-radius: inherit; }
+.calm-halo { position: absolute; left: 50%; top: 52%; width: 120%; aspect-ratio: 1; border-radius: 50%; transform: translate(-50%, -50%); background: radial-gradient(closest-side, rgba(255,214,160,.5), rgba(255,176,120,.14) 58%, transparent 100%); filter: blur(10px); pointer-events: none; animation: calmBreath 6.5s ease-in-out infinite; }
+.calm-word { position: relative; font-family: var(--serif); font-style: italic; font-weight: 300; font-size: clamp(56px, 7vw, 104px); line-height: 1; text-shadow: 0 0 46px rgba(255,200,140,.5); }
+.calm-sub { position: relative; font-size: 10px; font-weight: 500; letter-spacing: .3em; text-transform: uppercase; line-height: 2.1; color: rgba(246,233,220,.72); }
+.calm-copy .small-caps { color: rgba(246,233,220,.66); }
+.calm-quote { margin: 22px 0 0; }
+.calm-quote blockquote { font-family: var(--serif); font-style: italic; font-weight: 300; font-size: clamp(28px, 3.2vw, 46px); line-height: 1.18; color: #f6e9dc; }
+.calm-quote figcaption { margin-top: 24px; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: rgba(246,233,220,.62); }
+@keyframes calmBreath { 0%, 100% { opacity: .7; transform: translate(-50%, -50%) scale(1); } 50% { opacity: 1; transform: translate(-50%, -50%) scale(1.08); } }
+@media (max-width: 980px) {
+  .calm-band { padding: 80px 0; }
+  .calm-grid { grid-template-columns: 1fr; gap: 48px; }
+  .calm-arch { width: min(72%, 300px); }
+}
+@media (prefers-reduced-motion: reduce) { .calm-halo { animation: none; } }
+/* FAQ con 4 preguntas: rejilla 2 x 2 para que no quede una tarjeta suelta */
+.faq-grid.four { grid-template-columns: repeat(2, 1fr); }
+@media (max-width: 980px) { .faq-grid.four { grid-template-columns: 1fr; } }
